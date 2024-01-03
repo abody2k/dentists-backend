@@ -1,3 +1,6 @@
+let sql = require("mysql2/promise")
+
+
 /**
  * 
  * @param {String} table 
@@ -11,8 +14,9 @@ async function read(table,fields) {
         password:"0001"
     })
 
-    console.log((await conn.query(`select ${(fields != null ? fields.join(","): "*")} from ${table};`))[0]);
+    const data= (await conn.query(`select ${(fields != null ? fields.join(","): "*")} from ${table};`))[0];
     await conn.end();
+    return data;
 }
 
 /**
@@ -37,3 +41,10 @@ async function write(table,keys,values) {
 
 //     read("products")
 // })
+
+
+module.exports = {
+
+    'write':write,
+    'read':read
+}
