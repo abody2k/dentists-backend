@@ -16,5 +16,14 @@ res.send({d:data});
 
 });
 
+
+//send courses to all users
+
+router.post("/gc/",async (req,res)=>{
+
+
+    const data = (await util.read("courses"));
+    res.send({d:data});
+});
 module.exports = router;
 //
