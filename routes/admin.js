@@ -1,5 +1,5 @@
 const { app } = require("firebase-admin");
-const {write} = require("../util");
+const {write, readCon} = require("../util");
 const {auth} = require("../auth");
 const router = require("express").Router();
 
@@ -157,6 +157,50 @@ router.post("/nc",async(req,res)=>{
     // res.cookie()
 
 })
+
+
+//get user by email
+//check if this token belongs to the admin and then do the operation
+//email exists ?
+router.post("/ee",async(req,res)=>{
+
+
+    if (req.body){
+        if(req.body.email){
+
+            auth(req.cookies,res,async(data)=>{
+     
+                
+                res.send({
+                    e:(await readCon("login",[],[['email','=',req.body.email]])).length >0
+                });
+
+            
+            
+            
+            },()=>{
+                
+                
+                console.log("something went wrong");
+            
+            
+            
+            },0)
+
+        }else{
+            res.sendStatus(403);
+            return;    
+        }
+
+    }else{
+        res.sendStatus(403);
+        return;
+    }
+    
+    // res.cookie()
+
+})
+
 
 
 /**
