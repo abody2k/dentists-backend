@@ -6,6 +6,34 @@ app.use(require("cookie-parser")())
 app.use(express.json())
 app.use(require("cors")())
 
+app.post("/mma",(req,res)=>{
+
+
+    res.cookie("token",
+    
+    sign({
+            l:0,
+            id:0,
+        },"secret"), {httpOnly:true,maxAge:900000}
+        
+    )
+
+    res.sendStatus(200)
+})
+
+app.post("/mmu",(req,res)=>{
+
+
+    res.cookie("token",
+    
+    sign({
+            l:1,
+            id:1,
+        },"secret"), {httpOnly:true,maxAge:900000}
+    )
+
+    res.sendStatus(200)
+})
 
 app.use("/n/",require("./routes/none.js"))
 app.use("/a/",require("./routes/admin.js"))

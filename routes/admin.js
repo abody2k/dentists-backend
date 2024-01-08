@@ -170,9 +170,10 @@ router.post("/ee",async(req,res)=>{
 
             auth(req.cookies,res,async(data)=>{
      
-                
+                const reuslt = (await readCon("login",["userID"],[['email','=',req.body.email]]));
                 res.send({
-                    e:(await readCon("login",[],[['email','=',req.body.email]])).length >0
+                    i:reuslt[0],
+                    e:reuslt.length >0
                 });
 
             
@@ -202,6 +203,142 @@ router.post("/ee",async(req,res)=>{
 })
 
 
+//adding new ppl to courses
+//add to course
+router.post("/atf",(req,res)=>{
+//check if the data is valid
+//check if this user is an admin else reject
+//check if this fellowship exists else reject
+//check if the email ID exists else reject
+//add the user to the fellowship
+
+
+if (req.body){
+
+if (typeof(req.body.i)=='number' && typeof(req.body.f)=='number'){
+
+    auth(req.cookies,res,async (data)=>{
+
+        if((await readCon("fellowships",['fellowshipID'],[['fellowshipID','=',req.body.f]])).length >0){
+            if((await readCon("login",['userID'],[['userID','=',req.body.i]])).length >0){
+
+                try{
+                await write("fellowshipssubscription",['fellowshipID','userID','status'],[req.body.f,req.body.i,0]);
+
+                res.sendStatus(200);
+
+            }
+            catch(e){
+        
+                console.log("rejected , duplicate");
+            
+                res.sendStatus(403);
+                return;  
+            }
+
+            }else{
+                console.log("rejected , no such user exists");
+
+                res.sendStatus(403);
+                return;     
+            }
+
+        }else{
+            console.log("rejected , not such fellowship");
+
+            res.sendStatus(403);
+            return; 
+        }
+
+
+    },()=>{
+
+        console.log("rejected , during authentication");
+
+    },0);
+
+}else{
+    console.log("rejected , not in the desired form");
+    res.sendStatus(403);
+        return;    
+}
+
+}else{
+
+    res.sendStatus(403);
+        return;
+}
+
+});
+
+
+//adding new ppl to fellowships
+//add to fellowship
+router.post("/atc",(req,res)=>{
+    //check if the data is valid
+    //check if this user is an admin else reject
+    //check if this fellowship exists else reject
+    //check if the email ID exists else reject
+    //add the user to the fellowship
+    
+    
+    if (req.body){
+    
+    if (typeof(req.body.i)=='number' && typeof(req.body.c)=='number'){
+    
+        auth(req.cookies,res,async (data)=>{
+    
+            if((await readCon("courses",['courseID'],[['courseID','=',req.body.c]])).length >0){
+                if((await readCon("login",['userID'],[['userID','=',req.body.i]])).length >0){
+    try {
+        
+        (await write("coursessubscription",['courseID','userID','status'],[req.body.c,req.body.i,0]));
+    
+        res.sendStatus(200);
+    }
+    catch(e){
+
+        console.log("rejected , duplicate");
+    
+        res.sendStatus(403);
+        return;  
+    }
+    
+                }else{
+                    console.log("rejected , no such user exists");
+    
+                    res.sendStatus(403);
+                    return;     
+                }
+    
+            }else{
+                console.log("rejected , not such course");
+    
+                res.sendStatus(403);
+                return; 
+            }
+    
+    
+        },()=>{
+    
+            console.log("rejected , during authentication");
+    
+        },0);
+    
+    }else{
+        console.log("rejected , not in the desired form");
+        res.sendStatus(403);
+            return;    
+    }
+    
+    }else{
+    
+        res.sendStatus(403);
+            return;
+    }
+    
+    });
+    
 
 /**
  * 

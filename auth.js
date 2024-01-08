@@ -33,6 +33,7 @@ function authenticate(cookies,res,successFunc,errFunc,level=-1) {
                 // console.log(data);
             })
         }else{
+            console.log('rejected , no token cookie');
             res.sendStatus(403);
             return;
         }
