@@ -63,6 +63,19 @@ async function write(table,keys,values) {
 // })
 
 
+
+//upload file
+
+function uploadFile(params) {
+
+
+
+
+
+
+
+}
+
 module.exports = {
 
     'write':write,
