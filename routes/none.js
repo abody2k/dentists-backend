@@ -37,5 +37,20 @@ router.post("/gc/",async (req,res)=>{
     const data = (await util.read("courses"));
     res.send({d:data});
 });
+
+router.post("/gf/",async (req,res)=>{
+
+
+    const data = (await util.read("fellowships"));
+    res.send({d:data});
+});
+
+
+router.post("/gb/",async (req,res)=>{
+
+    
+    const data = (await util.read("blogs"));
+    res.send({d:data});
+});
 module.exports = router;
 //

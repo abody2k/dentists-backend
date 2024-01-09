@@ -5,7 +5,8 @@ const {
     write,
     readCon,
     upload,
-    updateCon
+    updateCon,
+    deleteCon
 } = require("../util");
 const {
     auth
@@ -517,6 +518,168 @@ router.post("/pc", (req, res) => {
 
 });
 
+router.post("/dp", async (req, res) => {
+
+
+    if (req.body.id) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await deleteCon("products",[['productID','=',req.body.id]])
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+
+
+router.post("/up", async (req, res) => {
+
+
+    req.body.productPrice =Number(req.body.productPrice );
+    req.body.id=Number(req.body.id);
+    if (req.body.productName && req.body.productPrice && typeof (req.body.productPrice) == 'number' && req.body.id) {
+
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            if ((await readCon("products", ['productID'], [
+                    ['productID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateProduct(req.body.id, req.body.productName, req.body.productPrice, req.files);
+                } catch (error) {
+                    console.log(req.body);
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+
+
+router.post("/np", async (req, res) => {
+
+
+    req.body.productPrice=Number(req.body.productPrice);
+    if (req.body && req.files) {
+        if (req.body.productName&& typeof(req.body.productPrice) == "number") {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await newProduct(req.body.productName, req.body.productPrice, req.files);
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
+
+
 router.post("/nc", async (req, res) => {
 
 
@@ -842,6 +1005,42 @@ async function newCourse(courseName, courseDuration, files, courseDetails = null
 
 
 }
+
+
+async function newProduct(productName, productPrice, files) {
+
+    const id = (await write("products", ["productName", "productPrice","productStatus"], [productName, productPrice,1]));
+    upload(files, "courses", id.toString());
+
+
+}
+
+
+async function updateProduct(productID, productName, productPrice, files) {
+
+    let fields = {};
+    if (productName != -9) {
+        fields["productName"] = productName;
+    }
+    if (productPrice != -9) {
+        fields["productPrice"] = productPrice;
+    }
+
+
+    if (Object.keys(fields).length > 0) {
+        await updateCon("products", Object.keys(fields), Object.values(fields), [
+            ["productID", '=', productID]
+        ]);
+    }
+
+    if (files) {
+        upload(files, "products", productID.toString());
+
+    }
+
+
+}
+
 
 /**
  * 

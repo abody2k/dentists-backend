@@ -38,6 +38,21 @@ async function readConditionally(table,fields,conditions,limit=null) {
     return data;
 }
 
+
+async function deleteConditionally(table,conditions) {
+    const conn =  await sql.createConnection({
+        host:"localhost",
+        user:"root",
+        database:"dentists",
+        password:"0001"
+    })
+    const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
+    (await conn.query(`delete from  ${table} where ${con} `));
+    await conn.end();
+
+}
+
+
 /**
  * 
  * @param {String} table 
@@ -188,5 +203,6 @@ module.exports = {
     'readCon':readConditionally,
     'upload':uploadFile,
     'readFile':readFile,
-    'updateCon':updateConditionally
+    'updateCon':updateConditionally,
+    "deleteCon":deleteConditionally
 }

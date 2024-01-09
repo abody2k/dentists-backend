@@ -58,7 +58,8 @@ console.log(typeof(req.params.id));
         readFile(req.params.id.toString(),"fellowships",res);
       
       break;
-
+      case "p":
+        readFile(req.params.id.toString(),"products",res);
     
     default:
 
