@@ -81,7 +81,7 @@ async function write(table,keys,values) {
         database:"dentists",
         password:"0001"
     })
-    const value = values.map(v=>(typeof(v)=="string" ? `"${v}"` : (v==undefined ? "null" : v)));
+    const value = values.map(v=>(typeof(v)=="string" ? `"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"` : (v==undefined ? "null" : v)));
     console.log(value);
     const [rows,fields]=(await conn.query(`insert into ${table} (${keys.join(",")}) values(${value.join(",")}) ;`));
     await conn.end();

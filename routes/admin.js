@@ -12,6 +12,64 @@ const {
 } = require("../auth");
 const router = require("express").Router();
 
+
+//new blog
+
+router.post("/nb", async (req, res) => {
+
+
+
+    console.log(req.body);
+    if (req.body && req.files) {
+
+        if (req.body.bd && Object.keys(req.files).length >0) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await newBlog(req.body.bd,req.files);
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
 //notifity users that there is a new video
 /**
  * 
@@ -753,20 +811,22 @@ async function updateFellowship(id, fellowshipName, fellowshipDuration, files, f
 
     let fields = {};
     if (fellowshipName != -9) {
-        fields["fellowshipName"]=fellowshipName;
+        fields["fellowshipName"] = fellowshipName;
     }
     if (fellowshipDetails != -9) {
-        fields["fellowshipDetails"]=fellowshipDetails;
+        fields["fellowshipDetails"] = fellowshipDetails;
     }
 
 
     if (fellowshipDuration != -9) {
-        fields["fellowshipDuration"]=fellowshipDuration;
+        fields["fellowshipDuration"] = fellowshipDuration;
     }
-    if (Object.keys(fields).length>0){
-        await updateCon("fellowships", Object.keys(fields),Object.values(fields),[["fellowshipID",'=',id]]);
+    if (Object.keys(fields).length > 0) {
+        await updateCon("fellowships", Object.keys(fields), Object.values(fields), [
+            ["fellowshipID", '=', id]
+        ]);
     }
-    
+
     if (files) {
         upload(files, "fellowships", id.toString());
 
@@ -786,24 +846,42 @@ async function updateCourse(id, courseName, courseDuration, files, courseDetails
 
     let fields = {};
     if (courseName != -9) {
-        fields["courseName"]=courseName;
+        fields["courseName"] = courseName;
     }
     if (courseDetails != -9) {
-        fields["courseDetails"]=courseDetails;
+        fields["courseDetails"] = courseDetails;
     }
 
 
     if (courseDuration != -9) {
-        fields["courseDuration"]=courseDuration;
+        fields["courseDuration"] = courseDuration;
     }
-    if (Object.keys(fields).length>0){
-        await updateCon("courses", Object.keys(fields),Object.values(fields),[["courseID",'=',id]]);
+    if (Object.keys(fields).length > 0) {
+        await updateCon("courses", Object.keys(fields), Object.values(fields), [
+            ["courseID", '=', id]
+        ]);
     }
-    
+
     if (files) {
         upload(files, "courses", id.toString());
 
     }
+
+
+}
+
+
+
+/**
+ * 
+ * @param {String}fellowshipName 
+ * @param {Number} fellowshipDuration 
+ * @param {String} fellowshipDetails 
+ */
+async function newBlog (blogDetails, files) {
+
+    const id = (await write("blogs", ["blogDetails"], [ blogDetails]));
+    upload(files, "blogs", id.toString());
 
 
 }
