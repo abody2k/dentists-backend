@@ -1,5 +1,5 @@
 const { app } = require("firebase-admin");
-const {write, readCon, upload} = require("../util");
+const {write, readCon, upload, updateCon} = require("../util");
 const {auth} = require("../auth");
 const router = require("express").Router();
 
@@ -112,6 +112,141 @@ async function notifityUsers(courseID) {
     
 }
 
+
+//change user to passed in the current course
+router.post("/pf",(req,res)=>{
+    //check if the data is valid
+    //check if this user is an admin else reject
+    //check if this fellowship exists else reject
+    //check if the email ID exists else reject
+    //add the user to the fellowship
+    
+    
+    if (req.body){
+    
+    if (typeof(req.body.i)=='number' && typeof(req.body.f)=='number' && typeof(req.body.s)){
+    
+        auth(req.cookies,res,async (data)=>{
+    
+            if((await readCon("fellowships",['fellowshipID'],[['fellowshipID','=',req.body.f]])).length >0){
+                if((await readCon("login",['userID'],[['userID','=',req.body.i]])).length >0){
+    
+                    try{
+                    await updateCon("fellowshipssubscription",['status'],[(req.body.s >=1 ? 1 : 0)],[['fellowshipID','=',req.body.f]]);
+    
+                    res.sendStatus(200);
+    
+                }
+                catch(e){
+            console.log(e);
+                    console.log("rejected , duplicate");
+                
+                    res.sendStatus(403);
+                    return;  
+                }
+    
+                }else{
+                    console.log("rejected , no such user exists");
+    
+                    res.sendStatus(403);
+                    return;     
+                }
+    
+            }else{
+                console.log("rejected , not such fellowship");
+    
+                res.sendStatus(403);
+                return; 
+            }
+    
+    
+        },()=>{
+    
+            console.log("rejected , during authentication");
+    
+        },0);
+    
+    }else{
+        console.log("rejected , not in the desired form");
+        res.sendStatus(403);
+            return;    
+    }
+    
+    }else{
+    
+        res.sendStatus(403);
+            return;
+    }
+    
+    });
+
+
+
+
+//adding new ppl to fellowships
+//add to fellowship
+router.post("/pc",(req,res)=>{
+    //check if the data is valid
+    //check if this user is an admin else reject
+    //check if this course exists else reject
+    
+    
+    if (req.body){
+    
+    if (typeof(req.body.i)=='number' && typeof(req.body.c)=='number' && typeof(req.body.s)){
+    
+        auth(req.cookies,res,async (data)=>{
+    
+            if((await readCon("courses",['courseID'],[['courseID','=',req.body.c]])).length >0){
+                if((await readCon("login",['userID'],[['userID','=',req.body.i]])).length >0){
+    try {
+        await updateCon("coursessubscription",['status'],[(req.body.s >=1 ? 1 : 0)],[['courseID','=',req.body.c]]);
+
+    
+        res.sendStatus(200);
+    }
+    catch(e){
+
+        console.log("rejected , duplicate");
+    
+        res.sendStatus(403);
+        return;  
+    }
+    
+                }else{
+                    console.log("rejected , no such user exists");
+    
+                    res.sendStatus(403);
+                    return;     
+                }
+    
+            }else{
+                console.log("rejected , not such course");
+    
+                res.sendStatus(403);
+                return; 
+            }
+    
+    
+        },()=>{
+    
+            console.log("rejected , during authentication");
+    
+        },0);
+    
+    }else{
+        console.log("rejected , not in the desired form");
+        res.sendStatus(403);
+            return;    
+    }
+    
+    }else{
+    
+        res.sendStatus(403);
+            return;
+    }
+    
+    });
 
 router.post("/nc",async(req,res)=>{
 
@@ -275,8 +410,8 @@ router.post("/ee",async(req,res)=>{
 })
 
 
-//adding new ppl to courses
-//add to course
+//adding new ppl to fellowships
+//add to fellowship
 router.post("/atf",(req,res)=>{
 //check if the data is valid
 //check if this user is an admin else reject
@@ -344,12 +479,12 @@ if (typeof(req.body.i)=='number' && typeof(req.body.f)=='number'){
 });
 
 
-//adding new ppl to fellowships
-//add to fellowship
+//adding new ppl to courses
+//add to courses
 router.post("/atc",(req,res)=>{
     //check if the data is valid
     //check if this user is an admin else reject
-    //check if this fellowship exists else reject
+    //check if this course exists else reject
     //check if the email ID exists else reject
     //add the user to the fellowship
     

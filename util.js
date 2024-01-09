@@ -41,6 +41,36 @@ async function readConditionally(table,fields,conditions) {
 /**
  * 
  * @param {String} table 
+ * @param {Array<String>} fields 
+ *  * @param {Array} fields 
+ * @param {Array<String>} conditions
+ */
+async function updateConditionally(table,fields,values,conditions) {
+    const conn =  await sql.createConnection({
+        host:"localhost",
+        user:"root",
+        database:"dentists",
+        password:"0001"
+    })
+    const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
+    let setter=``;
+    fields.forEach((element,i) => {
+        if (i == (fields.length-1)){
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i]}"`:values[i])}` ;
+        }else{
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i]}"`:values[i])} , `;
+        }
+        
+    });
+     (await conn.query(`update ${table} set ${setter} where ${con};`))[0];
+    await conn.end();
+    
+}
+
+
+/**
+ * 
+ * @param {String} table 
  * @param {Array<String>} keys 
  * @param {Array<Array<String>>} values 
  */
@@ -157,5 +187,6 @@ module.exports = {
     'read':read,
     'readCon':readConditionally,
     'upload':uploadFile,
-    'readFile':readFile
+    'readFile':readFile,
+    'updateCon':updateConditionally
 }
