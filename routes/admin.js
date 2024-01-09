@@ -1,5 +1,5 @@
 const { app } = require("firebase-admin");
-const {write, readCon} = require("../util");
+const {write, readCon, upload} = require("../util");
 const {auth} = require("../auth");
 const router = require("express").Router();
 
@@ -115,13 +115,15 @@ async function notifityUsers(courseID) {
 
 router.post("/nc",async(req,res)=>{
 
-    console.log(req.cookies);
     
+    req.body.courseDuration= Number(req.body.courseDuration);
+
+    // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
     // res.sendStatus(200);
-
+    console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
-    if (req.body){
+    if (req.body && req.files){
         if(req.body.courseName && typeof(req.body.courseDuration)=="number"){
 
             auth(req.cookies,res,async(data)=>{
@@ -129,7 +131,14 @@ router.post("/nc",async(req,res)=>{
                 
                 console.log("Everything went well");
                 
-                newCourse(req.body.courseName,req.body.courseDuration,(req.body.courseDetails ? req.body.courseDetails : null));
+try {
+    await newCourse(req.body.courseName,req.body.courseDuration,req.files,(req.body.courseDetails ? req.body.courseDetails : null));
+} catch (error) {
+    res.send({
+        e:1
+    });
+    return;
+}
                 console.log(data);
                 res.sendStatus(200);
             
@@ -145,11 +154,13 @@ router.post("/nc",async(req,res)=>{
             },0)
 
         }else{
+            console.log("wroooong");
             res.sendStatus(403);
             return;    
         }
 
     }else{
+        console.log("it stopped here");
         res.sendStatus(403);
         return;
     }
@@ -157,6 +168,67 @@ router.post("/nc",async(req,res)=>{
     // res.cookie()
 
 })
+
+
+router.post("/nf",async(req,res)=>{
+
+    
+    req.body.fellowshipDuration= Number(req.body.fellowshipDuration);
+
+    // req.body = Object.keys(req.body);
+    // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
+    // res.sendStatus(200);
+    console.log(req.body);
+    // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
+    if (req.body && req.files){
+        if(req.body.fellowshipName && typeof(req.body.fellowshipDuration)=="number"){
+
+            auth(req.cookies,res,async(data)=>{
+                
+                
+                console.log("Everything went well");
+                
+try {
+    await newfellowship(req.body.fellowshipName,req.body.fellowshipDuration,req.files,(req.body.fellowshipDetails ? req.body.fellowshipDetails : null));
+} catch (error) {
+    res.send({
+        e:1
+    });
+    return;
+}
+                console.log(data);
+                res.sendStatus(200);
+            
+            
+            
+            },()=>{
+                
+                
+                console.log("something went wrong");
+            
+            
+            
+            },0)
+
+        }else{
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;    
+        }
+
+    }else{
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+    
+    // res.cookie()
+
+})
+
+
+
+
 
 
 //get user by email
@@ -340,15 +412,36 @@ router.post("/atc",(req,res)=>{
     });
     
 
+
+
+// router.post("/uf")
+
+
 /**
  * 
  * @param {String} courseName 
  * @param {Number} courseDuration 
  * @param {import("aws-sdk/clients/batch").String} courseDetails 
  */
-async function newCourse(courseName,courseDuration,courseDetails=null){
+async function newCourse(courseName,courseDuration,files,courseDetails=null){
 
-    await write("courses",["courseName","courseDuration","courseDetails"],[courseName,courseDuration,courseDetails]);
+    const id =(await write("courses",["courseName","courseDuration","courseDetails"],[courseName,courseDuration,courseDetails]));
+    upload(files,"courses",id.toString());
+
+
+}
+
+/**
+ * 
+ * @param {String}fellowshipName 
+ * @param {Number} fellowshipDuration 
+ * @param {String} fellowshipDetails 
+ */
+async function newfellowship(fellowshipName,fellowshipDuration,files,fellowshipDetails=null){
+
+    const id =(await write("fellowships",["fellowshipName","fellowshipDuration","fellowshipDetails"],[fellowshipName,fellowshipDuration,fellowshipDetails]));
+    upload(files,"fellowships",id.toString());
+
 
 }
 
