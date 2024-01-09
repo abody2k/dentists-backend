@@ -69,6 +69,62 @@ router.post("/nb", async (req, res) => {
 })
 
 
+//update blog
+router.post("/ub", async (req, res) => {
+
+
+
+    if (req.body.id && req.body.bd ) {
+
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            if ((await readCon("blogs", ['blogID'], [
+                    ['blogID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateBlog(req.body.id,req.body.files, req.body.bd);
+                } catch (error) {
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
 
 //notifity users that there is a new video
 /**
@@ -870,13 +926,32 @@ async function updateCourse(id, courseName, courseDuration, files, courseDetails
 
 }
 
+/**
+ * 
+ * @param {String}id 
+ * @param {String} blogDetails 
+ */
+async function updateBlog(id,  files, blogDetails = null) {
+
+    if (blogDetails != -9) {
+        await updateCon("blogs",["blogDetails"],[blogDetails], [
+            ["blogID", '=', id]
+        ]);
+    }
+
+
+    if (files) {
+        upload(files, "blogs", id.toString());
+
+    }
+
+
+}
 
 
 /**
  * 
- * @param {String}fellowshipName 
- * @param {Number} fellowshipDuration 
- * @param {String} fellowshipDetails 
+ * @param {String}blogDetails  
  */
 async function newBlog (blogDetails, files) {
 

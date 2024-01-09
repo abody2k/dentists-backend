@@ -15,7 +15,19 @@ res.send({d:data});
 
 
 });
+//request blogs
+router.post("/rb/",async (req,res)=>{
+    if(typeof(req.body.lb)=='number'){
+            res.send({
+                d:(await util.readCon("blogs",['blogDetails'],[['blogID','>=','']],10))
+            })
 
+    }else{
+
+        res.sendStatus(403);
+    }
+
+});
 
 //send courses to all users
 

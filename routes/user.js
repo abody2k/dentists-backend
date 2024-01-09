@@ -49,3 +49,22 @@ router.post("/gv",async(req,res)=>{
     }
 
 });
+
+
+//get notifications
+router.post("/gn",(req,res)=>{
+
+auth(req.cookies,res,async function(data){
+console.log(data);
+    res.send({
+        d:(await readCon("notifications",["notification"],[["userID",'=',data.id]]))
+    });
+    
+},function(){},1)
+
+
+
+});
+
+
+module.exports = router

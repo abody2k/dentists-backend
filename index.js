@@ -39,6 +39,8 @@ app.post("/mmu",(req,res)=>{
 })
 
 app.use("/n/",require("./routes/none.js"))
+app.use("/u/",require("./routes/user.js"))
+
 app.use("/a/",require("./routes/admin.js"))
 
 app.get("/img/:t/:id/",(req,res)=>{
