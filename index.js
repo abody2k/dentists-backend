@@ -2,12 +2,50 @@ const express = require('express');
 const {auth} = require('./auth.js');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readFile } = require('./util.js');
+const { readFile, readCon } = require('./util.js');
 const app = express();
 app.use(require("cookie-parser")())
 app.use(fileUpload())
 app.use(express.json())
-app.use(require("cors")())
+app.use(require("cors")({
+
+  credentials:true,origin:"http://localhost:5173"
+}))
+
+
+
+
+
+
+
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./dentists-iq-firebase-adminsdk-mtl5z-1a880f2ce3.json");
+
+const fbApp =admin.initializeApp({
+  
+  credential: admin.credential.cert(serviceAccount),
+  
+});
+
+
+
+// TODO: Add SDKs for Firebase products that you want to use
+
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+// Your web app's Firebase configuration
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+
+
+// Initialize Firebase
+
+
+
 
 app.post("/mma",(req,res)=>{
 
@@ -21,9 +59,19 @@ app.post("/mma",(req,res)=>{
         
     )
 
-    res.sendStatus(200)
+    res.send({
+
+      e:0
+    })
 })
 
+app.post("/aus",async(req,res)=>{
+
+res.send({
+  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about
+})
+  
+})
 app.post("/mmu",(req,res)=>{
 
 
@@ -35,7 +83,10 @@ app.post("/mmu",(req,res)=>{
         },"secret"), {httpOnly:true,maxAge:900000}
     )
 
-    res.sendStatus(200)
+    res.send({
+
+      e:0
+    })
 })
 
 app.use("/n/",require("./routes/none.js"))
@@ -68,7 +119,7 @@ console.log(typeof(req.params.id));
   }
 
 })
-
+//  BEoyvDKJRZk0w9MFzs_VZ6SWfUmjD7E-vNDzsqh_VQFyxPukZjYE2UPcC9mHcs4KaGWDp5zu1Gl_iSrJjL4Hk9U 
 // Define a route to handle file uploads
 
 // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q

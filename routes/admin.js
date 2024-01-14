@@ -1,5 +1,6 @@
 const {
-    app
+    app,
+    apps
 } = require("firebase-admin");
 const {
     write,
@@ -11,8 +12,50 @@ const {
 const {
     auth
 } = require("../auth");
+const aws = require('aws-sdk');
+
 const router = require("express").Router();
 
+
+
+
+
+//update about us
+router.post("/uaus", async (req, res) => {
+
+
+
+    if (req.body.aus ) {
+
+
+        apps[0].firestore().collection("dentists").doc("about").update({about:req.body.aus})
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            res.sendStatus(200);
+
+        }, () => {
+
+
+            console.log("something went wrong");
+            res.sendStatus(403);
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
 
 //new blog
 
@@ -92,6 +135,7 @@ router.post("/ub", async (req, res) => {
                 try {
                     await updateBlog(req.body.id,req.body.files, req.body.bd);
                 } catch (error) {
+                    console.log(error);
                     res.sendStatus(403);
                     return;
                 }
@@ -132,14 +176,16 @@ router.post("/ub", async (req, res) => {
  * 
  * @param {*} courseID 
  */
-async function notifityUsers(courseID) {
+async function notifityUsers(courseID,acourse=true) {
 
     //get all the users that are in this course
-    const usersIds = await util.readCon('subs', ['userID'], [
-        ["courseID", '=', courseID]
-    ]);
+    const usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
+        [acourse ? "courseID" :"fellowshipID", '=', courseID]
+    ])).map((e)=>e.userID);
+
+    console.log(usersIds);
     //get their notification token
-    const tokens = await util.readCon('login', 'notificationToken', [
+    const tokens = await readCon('login', ['notToken'], [
         ['userID', 'in', `(${usersIds.join(',')})`]
     ]);
     //send notifications to all of them
@@ -160,10 +206,10 @@ async function notifityUsers(courseID) {
 
                         currentTokens.map(token => (Object({
                             notification: {
-                                title: "course Update!",
-                                body: "a new video has been uploaded to the course please check it out"
+                                title: "Update!",
+                                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
                             },
-                            "token": token
+                            token: token.notToken
                         })))
                     );
                     break;
@@ -172,15 +218,15 @@ async function notifityUsers(courseID) {
                 }
                 if (j + 1 == (index + 1) * 500) { // send the current 500 tokens
 
-                    app().messaging().sendEach(
+                    await app().messaging().sendEach(
 
 
                         currentTokens.map(token => (Object({
                             notification: {
-                                title: "course Update!",
-                                body: "a new video has been uploaded to the course please check it out"
+                                title: "Update!",
+                                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
                             },
-                            "token": token
+                            token: token.notToken
                         })))
                     );
 
@@ -230,18 +276,19 @@ async function notifityUsers(courseID) {
 
         //         }
     } else {
+       console.log((await apps[0].messaging().sendEach(
 
-        app().messaging().sendEach(
 
+        tokens.map(token => (Object({
+            notification: {
+                title: "Update!",
+                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
+            },
+            token: token.notToken
+        })))
+    )));
 
-            tokens.map(token => (Object({
-                notification: {
-                    title: "course Update!",
-                    body: "a new video has been uploaded to the course please check it out"
-                },
-                "token": token
-            })))
-        )
+        
     }
 
 
@@ -314,7 +361,7 @@ router.post("/uf", async (req, res) => {
 router.post("/uc", async (req, res) => {
 
 
-    // req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
+    req.body.courseDuration = Number(req.body.courseDuration);
 
     // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
@@ -987,6 +1034,84 @@ router.post("/atc", (req, res) => {
 });
 
 
+//adding a group of ppl to courses
+//add group to courses
+router.post("/agtc", (req, res) => {
+    //check if the data is valid
+    //check if this user is an admin else reject
+    //check if this course exists else reject
+    //check if the email ID exists else reject
+    //add the user to the fellowship
+
+
+    if (req.body) {
+
+        if (typeof (req.body.i) == 'object' && typeof (req.body.c) == 'number') {
+            if (req.body.i.length<1){
+
+              
+                res.sendStatus(403);
+                return;
+            }
+            auth(req.cookies, res, async (data) => {
+
+
+
+                if ((await readCon("courses", ['courseID'], [
+                        ['courseID', '=', req.body.c]
+                    ])).length > 0) {
+
+                        const report=[];
+
+                        for (const id in req.body.i) {
+
+                            try {
+
+                                (await write("coursessubscription", ['courseID', 'userID', 'status'], [req.body.c, req.body.i[id], 0]));
+                                report.push([id,0])
+                            } catch (e) {
+                                console.log(e);
+                                report.push([id,1])
+                                console.log("rejected , duplicate or user does not exist");
+                                res.sendStatus(403)
+                                return;
+                            }
+                        }
+
+
+                        res.send({
+                            d:report
+                        })
+
+                } else {
+                    console.log("rejected , not such course");
+
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+
 
 
 // router.post("/uf")
@@ -1124,6 +1249,319 @@ async function updateCourse(id, courseName, courseDuration, files, courseDetails
 
 
 }
+
+
+
+
+
+//new course video
+router.post("/ncv", async (req, res) => {
+
+
+
+   
+    if (req.body.vt && req.body.url&&typeof(req.body.cid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await write("videos",["videoUrl","videoTitle","courseID"],[req.body.url,req.body.vt,req.body.cid]);
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+                notifityUsers(req.body.cid);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//new fellowship video
+router.post("/nfv", async (req, res) => {
+
+
+
+   
+    if (req.body.vt && req.body.url&&typeof(req.body.fid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await write("fellowshipvideos",["videoURL","title","fellowshipID"],[req.body.url,req.body.vt,req.body.fid]);
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+                notifityUsers(req.body.fid,false);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
+//delete blog
+router.post("/db", async (req, res) => {
+
+
+
+   
+    if (req.body.bid &&typeof(req.body.bid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("blogs",[['blogID','=',req.body.bid]]);
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                        secretAccessKey: '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',
+                        region: 'us-east-1',
+                      });
+
+                      s3.deleteObject({
+
+                        Bucket:"dentists-iq",
+                        Key:"blogs/"+req.body.bid
+                      },(e,d)=>{
+
+
+                        console.log(e);
+                        console.log(d);
+res.sendStatus(200);
+                        console.log("sent");
+                      });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//delete course
+router.post("/dc", async (req, res) => {
+
+
+
+   
+    if (req.body.cid &&typeof(req.body.cid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("videos",[['courseID','=',req.body.cid]]);
+                    await deleteCon("coursessubscription",[['courseID','=',req.body.cid]]);
+                    await deleteCon("courses",[['courseID','=',req.body.cid]]);
+
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                        secretAccessKey: '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',
+                        region: 'us-east-1',
+                      });
+
+                      s3.deleteObject({
+
+                        Bucket:"dentists-iq",
+                        Key:"courses/"+req.body.cid
+                      },(e,d)=>{
+
+
+                        console.log(e);
+                        console.log(d);
+res.sendStatus(200);
+                        console.log("sent");
+                      });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//delete course
+router.post("/df", async (req, res) => {
+
+
+
+   
+    if (req.body.fid &&typeof(req.body.fid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("fellowshipvideos",[['fellowshipID','=',req.body.fid]]);
+                    await deleteCon("fellowshipssubscription",[['fellowshipID','=',req.body.fid]]);
+                    await deleteCon("fellowships",[['fellowshipID','=',req.body.fid]]);
+
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                        secretAccessKey: '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',
+                        region: 'us-east-1',
+                      });
+
+                      s3.deleteObject({
+
+                        Bucket:"dentists-iq",
+                        Key:"fellowships/"+req.body.fid
+                      },(e,d)=>{
+
+
+                        console.log(e);
+                        console.log(d);
+res.sendStatus(200);
+                        console.log("sent");
+                      });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 
 /**
  * 

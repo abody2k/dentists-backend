@@ -33,7 +33,7 @@ async function readConditionally(table,fields,conditions,limit=null) {
         password:"0001"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
-    const data= (await conn.query(`select ${(fields != null ? fields.join(","): "*")} from ${table} where ${con}  ${limit ? " LIMIT "+ limit : ""};`))[0];
+    const data= (await conn.query(`select ${(fields != null ? fields.join(",") : "*")} from ${table} where ${con}  ${limit ? " LIMIT "+ limit : ""};`))[0];
     await conn.end();
     return data;
 }

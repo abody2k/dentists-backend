@@ -13,13 +13,13 @@ const router = require("express").Router();
 //if yes then select all the video links and send them to the user, if not reject the request
 
 
-//get videos
-router.post("/gv",async(req,res)=>{
+//get course videos
+router.post("/gcv",async(req,res)=>{
 
     if (req.body){
         if(typeof(req.body.courseID)=="number"){
 
-            if((await readCon("courses",["userID"],[['courseID','=',req.body.courseID]])).length<=0){
+            if((await readCon("courses",["courseID"],[['courseID','=',req.body.courseID]])).length<=0){
 
                 res.sendStatus(403);
                 return;
@@ -27,8 +27,8 @@ router.post("/gv",async(req,res)=>{
             auth(req.cookies,res,async(data)=>{
 
 
-                if((await readCon("subscription",["userID"],[["userID",'=',data.i],['courseID','=',req.body.courseID]])).length>0){
-                    const videos=(await readCon("videos",[],['courseID','=',req.body.courseID]));
+                if((await readCon("coursessubscription",["courseID"],[["userID",'=',data.id],['courseID','=',req.body.courseID]])).length>0){
+                    const videos=(await readCon("videos",["videoUrl",'videoTitle'],[['courseID','=',req.body.courseID]]));
                     res.send({
                         d:videos
                     });
@@ -50,7 +50,50 @@ router.post("/gv",async(req,res)=>{
 
 });
 
+//get fellowship videos
+router.post("/gfv",async(req,res)=>{
 
+
+    console.log(req.body);
+    console.log(req.cookies);
+    if (req.body){
+        if(typeof(req.body.fellowshipID)=="number"){
+
+            if((await readCon("fellowships",["fellowshipID"],[['fellowshipID','=',req.body.fellowshipID]])).length<=0){
+                console.log("OUT");
+                res.sendStatus(403);
+                return;
+            }
+            auth(req.cookies,res,async(data)=>{
+
+
+                if((await readCon("fellowshipssubscription",["userID"],[["userID",'=',data.id],['fellowshipID','=',req.body.fellowshipID]])).length>0){
+                    const videos=(await readCon("fellowshipvideos",["videoURL",'title'],[['fellowshipID','=',req.body.fellowshipID]]));
+                    res.send({
+                        d:videos
+                    });
+                    
+                }else{
+                    console.log("OUT 2");
+
+                    res.sendStatus(403);
+                    return;          
+                }
+            },()=>{},1);
+        }else{
+            console.log("OUT 3");
+
+            res.sendStatus(403);
+            return;   
+        }
+    }else{
+        console.log("OUT 4");
+
+        res.sendStatus(403);
+        return;   
+    }
+
+});
 //get notifications
 router.post("/gn",(req,res)=>{
 
