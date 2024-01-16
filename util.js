@@ -103,6 +103,27 @@ async function write(table,keys,values) {
     return rows.insertId;
 }
 
+
+/**
+ * 
+ * @param {String} table 
+ * @param {Array<String>} keys 
+ * @param {Array<Array<String>>} values 
+ */
+async function writeMany(table,keys,values) {
+    const conn =  await sql.createConnection({
+        host:"localhost",
+        user:"root",
+        database:"dentists",
+        password:"0001"
+    })
+    // const value = values.map(v=>(typeof(v)=="string" ? `"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"` : (v==undefined ? "null" : v)));
+    console.log(values);
+    const [rows,fields]=(await conn.query(`insert into ${table} (${keys.join(",")}) values ${values.map(e=>`(${e[0]},${'"'+e[1]+e[2]+'"'})`).join(",")} ;`));
+    await conn.end();
+    return rows.insertId;
+}
+
 // write("products",['productID',"productName","productPrice"],[0,"Sugar",2000.222]).then(()=>{
 
 //     read("products")
@@ -199,6 +220,7 @@ function readFile(fileName,folder,res) {
 module.exports = {
 
     'write':write,
+    "writeMany":writeMany,
     'read':read,
     'readCon':readConditionally,
     'upload':uploadFile,

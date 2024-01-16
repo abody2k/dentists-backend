@@ -7,7 +7,8 @@ const {
     readCon,
     upload,
     updateCon,
-    deleteCon
+    deleteCon,
+    writeMany
 } = require("../util");
 const {
     auth
@@ -176,7 +177,7 @@ router.post("/ub", async (req, res) => {
  * 
  * @param {*} courseID 
  */
-async function notifityUsers(courseID,acourse=true) {
+async function notifityUsers(courseID,acourse=true,update=false) {
 
     //get all the users that are in this course
     const usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
@@ -184,8 +185,12 @@ async function notifityUsers(courseID,acourse=true) {
     ])).map((e)=>e.userID);
 
     console.log(usersIds);
+    if (usersIds.length<1){
+
+        return;
+    }
     //get their notification token
-    const tokens = await readCon('login', ['notToken'], [
+    const tokens = await readCon('login', ['notToken','userID'], [
         ['userID', 'in', `(${usersIds.join(',')})`]
     ]);
     //send notifications to all of them
@@ -207,11 +212,12 @@ async function notifityUsers(courseID,acourse=true) {
                         currentTokens.map(token => (Object({
                             notification: {
                                 title: "Update!",
-                                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
+                                body: (!update) ? `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out` :`a video has been updated in a ${acourse ? "course":"fellowship"} please check it out`
                             },
                             token: token.notToken
                         })))
                     );
+
                     break;
                 } else {
                     currentTokens.push(tokens[j])
@@ -224,7 +230,7 @@ async function notifityUsers(courseID,acourse=true) {
                         currentTokens.map(token => (Object({
                             notification: {
                                 title: "Update!",
-                                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
+                                body: (!update) ? `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out` :`a video has been updated in a ${acourse ? "course":"fellowship"} please check it out`
                             },
                             token: token.notToken
                         })))
@@ -282,7 +288,7 @@ async function notifityUsers(courseID,acourse=true) {
         tokens.map(token => (Object({
             notification: {
                 title: "Update!",
-                body: `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out`
+                body: (!update) ? `a new video has been uploaded to the ${acourse ? "course":"fellowship"} please check it out` :`a video has been updated in a ${acourse ? "course":"fellowship"} please check it out`
             },
             token: token.notToken
         })))
@@ -292,7 +298,12 @@ async function notifityUsers(courseID,acourse=true) {
     }
 
 
+    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
+
+
 }
+
+
 
 
 //update fellowship
@@ -564,6 +575,104 @@ router.post("/pc", (req, res) => {
     }
 
 });
+
+//remove someone from a course
+//remove person from course
+router.post("/rpfc", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.i) == 'number' && typeof (req.body.c) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            deleteCon("coursessubscription",[['userID','=',req.body.i],['courseID','=',req.body.c]])
+
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+                 
+
+                
+
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+
+//remove someone from a fellowship
+//remove person from fellowship
+router.post("/rpff", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            deleteCon("fellowshipssubscription",[['userID','=',req.body.i],['fellowshipID','=',req.body.f]])
+
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+
 
 router.post("/dp", async (req, res) => {
 
@@ -1112,6 +1221,83 @@ router.post("/agtc", (req, res) => {
 });
 
 
+//adding a group of ppl to fellowships
+//add group to fellowships
+router.post("/agtf", (req, res) => {
+    //check if the data is valid
+    //check if this user is an admin else reject
+    //check if this course exists else reject
+    //check if the email ID exists else reject
+    //add the user to the fellowship
+
+
+    if (req.body) {
+
+        if (typeof (req.body.i) == 'object' && typeof (req.body.f) == 'number') {
+            if (req.body.i.length<1){
+
+              
+                res.sendStatus(403);
+                return;
+            }
+            auth(req.cookies, res, async (data) => {
+
+
+
+                if ((await readCon("fellowships", ['fellowshipID'], [
+                        ['fellowshipID', '=', req.body.f]
+                    ])).length > 0) {
+
+                        const report=[];
+
+                        for (const id in req.body.i) {
+
+                            try {
+
+                                (await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status'], [req.body.f, req.body.i[id], 0]));
+                                report.push([id,0])
+                            } catch (e) {
+                                console.log(e);
+                                report.push([id,1])
+                                console.log("rejected , duplicate or user does not exist");
+                                res.sendStatus(403)
+                                return;
+                            }
+                        }
+
+
+                        res.send({
+                            d:report
+                        })
+
+                } else {
+                    console.log("rejected , not such course");
+
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
 
 
 // router.post("/uf")
@@ -1302,6 +1488,32 @@ router.post("/ncv", async (req, res) => {
 
 })
 
+
+//new course video
+router.post("/not", async (req, res) => {
+
+
+
+   
+    if (typeof(req.body.cid)=='number') {
+
+    
+                notifityUsers(req.body.cid);
+                res.sendStatus(200);
+
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //new fellowship video
 router.post("/nfv", async (req, res) => {
 
@@ -1317,6 +1529,7 @@ router.post("/nfv", async (req, res) => {
 
                 try {
                     await write("fellowshipvideos",["videoURL","title","fellowshipID"],[req.body.url,req.body.vt,req.body.fid]);
+          
 
                 } catch (error) {
                     console.log(error);
@@ -1350,6 +1563,195 @@ router.post("/nfv", async (req, res) => {
 })
 
 
+//update fellowship video
+router.post("/ufv", async (req, res) => {
+
+
+
+   
+    if (req.body.c && req.body.fid) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+
+                try {
+
+
+                    if (req.body.n){ //notifiy them
+
+                        await notifityUsers(req.body.fid,req.body.c,true);
+
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
+//update fellowship video
+router.post("/ufv", async (req, res) => {
+
+
+
+   
+    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number' && req.body.fid) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    let fields = {};
+                    if (req.body.vt != -9) {
+                        fields["title"] = req.body.vt;
+                    }
+                    if ( req.body.url != -9) {
+                        fields["videoURL"] =  req.body.url;
+                    }
+
+                    if (Object.keys(fields).length > 0) {
+                        await updateCon("fellowshipvideos", Object.keys(fields), Object.values(fields), [
+                            ["videoID", '=', req.body.vid]
+                        ]);
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+                    if (req.body.n){ //notifiy them
+
+                        await notifityUsers(req.body.fid,false,true);
+
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//update fellowship video
+router.post("/ucv", async (req, res) => {
+
+
+
+   
+    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number'&&req.body.cid) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    let fields = {};
+                    if (req.body.vt != -9) {
+                        fields["videoTitle"] = req.body.vt;
+                    }
+                    if ( req.body.url != -9) {
+                        fields["videoUrl"] =  req.body.url;
+                    }
+
+                    if (Object.keys(fields).length > 0) {
+                        await updateCon("videos", Object.keys(fields), Object.values(fields), [
+                            ["videoID", '=', req.body.vid]
+                        ]);
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+                        
+                    if (req.body.n){ //notifiy them
+
+                        await notifityUsers(req.body.cid,false,true);
+
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 
 //delete blog
 router.post("/db", async (req, res) => {
