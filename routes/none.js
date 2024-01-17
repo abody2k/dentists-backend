@@ -65,6 +65,38 @@ router.post("/gcf/",async (req,res)=>{
     res.send({d:data[0]});
 });
 
+//sign in
+router.post("/si/",async (req,res)=>{
+
+    if(req.body.id&&typeof(req.body.id)=='number'&&req.body.p){
+        const data = (await util.readCon("login",['password'],[['userID','=',req.body.id]]));
+        require("argon2").verify(data[0].password.toString(),req.body.p.toString()).then((e)=>{
+
+            if(e){
+
+                res.cookie("token",
+    
+                require("jsonwebtoken").sign({
+                        l:1,
+                        id:req.body.id,
+                    },"secret"), {httpOnly:true,maxAge:9000000}
+                )
+            
+                res.send({
+            
+                  e:0
+                })
+            }else{
+
+                res.sendStatus(403);
+            }
+
+        })
+
+        
+
+    }
+});
 
 router.post("/gf/",async (req,res)=>{
 

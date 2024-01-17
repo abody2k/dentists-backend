@@ -71,9 +71,9 @@ async function updateConditionally(table,fields,values,conditions) {
     let setter=``;
     fields.forEach((element,i) => {
         if (i == (fields.length-1)){
-            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i]}"`:values[i])}` ;
+            setter += ` ${element} = ${(typeof(values[i])== 'string'&& !values[i].includes("(") ? `"${values[i]}"`:values[i])}` ;
         }else{
-            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i]}"`:values[i])} , `;
+            setter += ` ${element} = ${(typeof(values[i])== 'string'&& !values[i].includes("(") ? `"${values[i]}"`:values[i])} , `;
         }
         
     });
