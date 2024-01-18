@@ -77,8 +77,10 @@ async function updateConditionally(table,fields,values,conditions) {
         }
         
     });
-     (await conn.query(`update ${table} set ${setter} where ${con};`))[0];
+     const[a,b]=(await conn.query(`update ${table} set ${setter} where ${con};`));
     await conn.end();
+
+    return [a,b];
     
 }
 

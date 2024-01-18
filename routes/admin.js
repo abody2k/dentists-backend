@@ -1714,7 +1714,7 @@ router.post("/ufv", async (req, res) => {
 
 
    
-    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number' && req.body.fid) {
+    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number' && req.body.fid&&req.body.o>=0) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1728,6 +1728,11 @@ router.post("/ufv", async (req, res) => {
                     }
                     if ( req.body.url != -9) {
                         fields["videoURL"] =  req.body.url;
+                    }
+                    if ( req.body.o != -9) {
+                        fields["`order`"] =  req.body.o;
+                        await updateCon("fellowshipvideos",['`order`'],["(`order`+1)"],[["fellowshipID",'=',req.body.fid],['`order`',">=",req.body.o]]);
+
                     }
 
                     if (Object.keys(fields).length > 0) {
@@ -1777,7 +1782,7 @@ router.post("/ufv", async (req, res) => {
 })
 
 
-//update fellowship video
+//update mac
 router.post("/umac", async (req, res) => {
 
 
@@ -1832,13 +1837,13 @@ router.post("/umac", async (req, res) => {
 
 
 
-//update fellowship video
+//update course video
 router.post("/ucv", async (req, res) => {
 
 
 
    
-    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number'&&req.body.cid) {
+    if (req.body.vt && req.body.url&&typeof(req.body.vid)=='number'&&req.body.cid&&req.body.o>=0) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1853,11 +1858,16 @@ router.post("/ucv", async (req, res) => {
                     if ( req.body.url != -9) {
                         fields["videoUrl"] =  req.body.url;
                     }
+                    if ( req.body.o != -9) {
+                        fields["`order`"] =  req.body.o;
+                        await updateCon("videos",['`order`'],["(`order`+1)"],[["courseID",'=',req.body.cid],['`order`',">=",req.body.o]]);
+
+                    }
 
                     if (Object.keys(fields).length > 0) {
-                        await updateCon("videos", Object.keys(fields), Object.values(fields), [
+                        console.log(await updateCon("videos", Object.keys(fields), Object.values(fields), [
                             ["videoID", '=', req.body.vid]
-                        ]);
+                        ]));
                     }else{
 
                         res.sendStatus(200);
