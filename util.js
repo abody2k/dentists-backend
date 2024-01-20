@@ -88,6 +88,38 @@ async function updateConditionally(table,fields,values,conditions) {
 /**
  * 
  * @param {String} table 
+ * @param {Array<String>} fields 
+ *  * @param {Array} fields 
+ * @param {Array<String>} conditions
+ */
+async function updateConditionallyJSON(table,fields,values,conditions) {
+    const conn =  await sql.createConnection({
+        host:"localhost",
+        user:"root",
+        database:"dentists",
+        password:"0001"
+    })
+    const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
+    let setter=``;
+    fields.forEach((element,i) => {
+        if (i == (fields.length-1)){
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`:values[i])}` ;
+        }else{
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`:values[i])} , `;
+        }
+        
+    });
+     const[a,b]=(await conn.query(`update ${table} set ${setter} where ${con};`));
+    await conn.end();
+
+    return [a,b];
+    
+}
+
+
+/**
+ * 
+ * @param {String} table 
  * @param {Array<String>} keys 
  * @param {Array<Array<String>>} values 
  */
@@ -228,5 +260,6 @@ module.exports = {
     'upload':uploadFile,
     'readFile':readFile,
     'updateCon':updateConditionally,
-    "deleteCon":deleteConditionally
+    "deleteCon":deleteConditionally,
+    "updateJSON":updateConditionallyJSON
 }

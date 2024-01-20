@@ -68,24 +68,31 @@ router.post("/gcf/",async (req,res)=>{
 //sign in
 router.post("/si/",async (req,res)=>{
 
-    if(req.body.id&&typeof(req.body.id)=='number'&&req.body.p){
-        const data = (await util.readCon("login",['password'],[['userID','=',req.body.id]]));
+    if((req.body.email)&&req.body.p){
+        const data = (await util.readCon("login",['password',"email","mac","notToken"],[['email','=',req.body.email]]));
         require("argon2").verify(data[0].password.toString(),req.body.p.toString()).then((e)=>{
 
             if(e){
+const options ={
+    l:1,
+    id:req.body.id,
+};
+
+if(data[0].mac){
+options["mac"]=data[0].mac;
+
+}
 
                 res.cookie("token",
-    
-                require("jsonwebtoken").sign({
-                        l:1,
-                        id:req.body.id,
-                    },"secret"), {httpOnly:true,maxAge:9000000}
+                
+                require("jsonwebtoken").sign(options,"secret"), {httpOnly:true,maxAge:9000000}
                 )
             
                 res.send({
             
-                  e:0
-                })
+                  e:0,
+                  m: options["mac"] ? 0 : 1
+                });
             }else{
 
                 res.sendStatus(403);

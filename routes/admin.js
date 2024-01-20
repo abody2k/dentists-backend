@@ -8,12 +8,14 @@ const {
     upload,
     updateCon,
     deleteCon,
-    writeMany
+    writeMany,
+    updateJSON
 } = require("../util");
 const {
     auth
 } = require("../auth");
 const aws = require('aws-sdk');
+const { hash } = require("argon2");
 
 const router = require("express").Router();
 
@@ -1585,11 +1587,17 @@ router.post("/not", async (req, res) => {
 
 
    
-    if (typeof(req.body.cid)=='number') {
+    if (typeof(req.body.cid)=='number'||typeof(req.body.fid)=='number' && req.body.vid) {
 
     
-                // notifityUsers(2,false,true,11);
-                notifityUsersFinalExams(2,false);
+                // notifityUsersFinalExams(req.body.cid || req.body.fid,req.body.cid ? true : false,);
+
+                try {
+                    await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false,true,req.body.vid);
+
+                } catch (error) {
+                    
+                }
                 res.sendStatus(200);
 
 
@@ -1605,22 +1613,17 @@ router.post("/not", async (req, res) => {
 
 })
 
-//new fellowship video
-router.post("/nfv", async (req, res) => {
+//new account
+router.post("/nacc", async (req, res) => {
 
 
-console.log(req.body);
-   
-    if (req.body.vt && req.body.url&&typeof(req.body.fid)=='number'&&typeof(req.body.o)=='number') {
+
+    if (req.body.username &&req.body.email&& req.body.password&&typeof(req.body.level)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
-
-                console.log("Everything went well");
-
                 try {
-                    await updateCon("fellowshipvideos",['`order`'],["(`order`+1)"],[["fellowshipID",'=',req.body.fid],['`order`',">=",req.body.o]]);
-                    await write("fellowshipvideos",["videoURL","title","fellowshipID",'`order`'],[req.body.url,req.body.vt,req.body.fid,req.body.o]);
+                    await write("login",["username","password","level",'status','email'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.email]);
           
 
                 } catch (error) {
@@ -1630,7 +1633,6 @@ console.log(req.body);
                 }
                 console.log(data);
                 res.sendStatus(200);
-                notifityUsers(req.body.fid,false);
 
 
             }, () => {
@@ -1653,6 +1655,502 @@ console.log(req.body);
     // res.cookie()
 
 })
+
+
+//new chapter
+router.post("/nch", async (req, res) => {
+
+
+
+    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    await write("chapter",["title","answers","questions",'link','type',"ID",'chapterID'],[req.body.ti,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.url,req.body.t,req.body.ID,req.body.chID]);
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//update chapter
+router.post("/uch", async (req, res) => {
+
+
+    console.log(req.body);
+
+    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID&&req.body.nchID) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let fields = {};
+                    if (req.body.url != -9) {
+                        fields["link"] = req.body.url;
+                    }
+                    if ( req.body.ans != -9) {
+                        fields["answers"] =  JSON.stringify(req.body.ans);
+                    }
+                    if ( req.body.q != -9) {
+                        fields["questions"] =  JSON.stringify(req.body.q);
+
+                    }
+                    if ( req.body.nchID != -9) {
+                        fields["chaopterID"] = req.body.nchID;
+
+                    }
+                    if ( req.body.ti != -9) {
+                        fields["title"] =  req.body.ti;
+
+                    }
+                    if (Object.keys(fields).length > 0) {
+                        await updateJSON("chapter", Object.keys(fields), Object.values(fields), [
+                            ["chapterID", '=', req.body.chID],['ID','=',req.body.ID],['type','=',req.body.t]
+                        ]);
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//new final Exam
+router.post("/nfxm", async (req, res) => {
+
+
+
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    await write("finalexams",["type","answers","questions",'duration'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.duration]);
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//add person to group
+router.post("/aptg", async (req, res) => {
+
+
+
+    if (req.body.uID&&req.body.gID>=0&&req.body.l) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    await write("groups",["groupID","userID","level"],[req.body.gID,req.body.uID,req.body.l]);
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//add person to group
+router.post("/gch", async (req, res) => {
+
+
+
+    if (req.body.t>=0&&req.body.ID) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    res.send({
+
+                        d:(await readCon("chapter",null,[["ID",'=',req.body.ID],['type','=',req.body.t]]))
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//update group info
+router.post("/ugi", async (req, res) => {
+
+
+
+    if (req.body.uID&&req.body.gID>=0&&req.body.l) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let fields = {};
+                    if (req.body.l != -9) {
+                        fields["level"] = req.body.l;
+                    }
+
+
+                    if (Object.keys(fields).length > 0) {
+                        await updateCon("groups", Object.keys(fields), Object.values(fields), [
+                            ["userID", '=', req.body.uID],['groupID','=',req.body.gID]
+                        ]);
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//update chapter
+router.post("/ufxm", async (req, res) => {
+
+
+
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration!=0&&req.body.ID&&req.body.sd) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let fields = {};
+                    if (req.body.duration != -9) {
+                        fields["duration"] = req.body.duration;
+                    }
+                    if ( req.body.ans != -9) {
+                        fields["answers"] =  JSON.stringify(req.body.ans);
+                    }
+                    if ( req.body.q != -9) {
+                        fields["questions"] =  JSON.stringify(req.body.q);
+
+                    }
+                    if ( req.body.sd != -9) {
+                        fields["startingDate"] =  req.body.sd;
+
+                    }
+                    if (Object.keys(fields).length > 0) {
+                        await updateCon("finalexams", Object.keys(fields), Object.values(fields), [
+                            ["examID", '=', req.body.ID]
+                        ]);
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+// //update Exam
+// router.post("/uxm", async (req, res) => {
+
+
+
+//     if (req.body.ch &&req.body.ans&& req.body.q&&req.body.duration&&req.body.chid) {
+
+//             auth(req.cookies, res, async (data) => {
+
+//                 try {
+
+//                     let fields = {};
+//                     if (req.body.ch != -9) {
+//                         fields["chapter"] = req.body.ch;
+//                     }
+//                     if ( req.body.ans != -9) {
+//                         fields["answers"] =  req.body.ans;
+//                     }
+//                     if ( req.body.q != -9) {
+//                         fields["questions"] =  req.body.q;
+
+//                     }
+//                     if ( req.body.duration != -9) {
+//                         fields["duration"] =  req.body.duration;
+
+//                     }
+
+//                     if (Object.keys(fields).length > 0) {
+//                         await updateCon("exams", Object.keys(fields), Object.values(fields), [
+//                             ["chapter", '=', req.body.chid]
+//                         ]);
+//                     }else{
+
+//                         res.sendStatus(200);
+//                         return;
+//                     }
+
+          
+
+//                 } catch (error) {
+//                     console.log(error);
+//                     res.sendStatus(403);
+//                     return;
+//                 }
+//                 console.log(data);
+//                 res.sendStatus(200);
+
+
+//             }, () => {
+
+
+//                 console.log("something went wrong");
+
+
+
+//             }, 0)
+
+   
+
+//     } else {
+//         console.log("it stopped here");
+//         res.sendStatus(403);
+//         return;
+//     }
+
+//     // res.cookie()
+
+// })
+
+//new fellowship video
+router.post("/nfv", async (req, res) => {
+
+
+    console.log(req.body);
+       
+        if (req.body.vt && req.body.url&&typeof(req.body.fid)=='number'&&typeof(req.body.o)=='number') {
+    
+                auth(req.cookies, res, async (data) => {
+    
+    
+                    console.log("Everything went well");
+    
+                    try {
+                        await updateCon("fellowshipvideos",['`order`'],["(`order`+1)"],[["fellowshipID",'=',req.body.fid],['`order`',">=",req.body.o]]);
+                        await write("fellowshipvideos",["videoURL","title","fellowshipID",'`order`'],[req.body.url,req.body.vt,req.body.fid,req.body.o]);
+              
+    
+                    } catch (error) {
+                        console.log(error);
+                        res.sendStatus(403);
+                        return;
+                    }
+                    console.log(data);
+                    res.sendStatus(200);
+                    notifityUsers(req.body.fid,false);
+    
+    
+                }, () => {
+    
+    
+                    console.log("something went wrong");
+    
+    
+    
+                }, 0)
+    
+       
+    
+        } else {
+            console.log("it stopped here");
+            res.sendStatus(403);
+            return;
+        }
+    
+        // res.cookie()
+    
+    })
+    
 
 
 //update fellowship video
