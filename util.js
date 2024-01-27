@@ -19,6 +19,23 @@ async function read(table,fields) {
     return data;
 }
 
+
+
+
+async function readOrder(table,fields,conditions,orderer,limit=null) {
+    const conn =  await sql.createConnection({
+        host:"localhost",
+        user:"root",
+        database:"dentists",
+        password:"0001"
+    })
+    const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
+    const data= (await conn.query(`select ${(fields != null ? fields.join(",") : "*")} from ${table} where ${con} order by ${orderer} desc  ${limit ? " LIMIT "+ limit : ""};`))[0];
+    await conn.end();
+    return data;
+}
+
+
 /**
  * 
  * @param {String} table 
@@ -130,7 +147,7 @@ async function write(table,keys,values) {
         database:"dentists",
         password:"0001"
     })
-    const value = values.map(v=>(typeof(v)=="string" ? `"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"` : (v==undefined ? "null" : v)));
+    const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
     console.log(value);
     const [rows,fields]=(await conn.query(`insert into ${table} (${keys.join(",")}) values(${value.join(",")}) ;`));
     await conn.end();
@@ -261,5 +278,6 @@ module.exports = {
     'readFile':readFile,
     'updateCon':updateConditionally,
     "deleteCon":deleteConditionally,
-    "updateJSON":updateConditionallyJSON
+    "updateJSON":updateConditionallyJSON,
+    "readOrdered":readOrder
 }

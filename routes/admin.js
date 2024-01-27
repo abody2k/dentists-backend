@@ -9,7 +9,8 @@ const {
     updateCon,
     deleteCon,
     writeMany,
-    updateJSON
+    updateJSON,
+    read
 } = require("../util");
 const {
     auth
@@ -20,8 +21,100 @@ const { hash } = require("argon2");
 const router = require("express").Router();
 
 
+//ban user
+router.post("/bu", async (req, res) => {
 
 
+
+    console.log(req.body);
+
+        if (req.body.ID && req.body.uID&&req.body.t>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await write("banned",['userID','ID','type'],[req.body.uID,req.body.ID,req.body.t])
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403)
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;
+        }
+
+    
+
+    // res.cookie()
+
+})
+
+
+//remove user from baned users
+router.post("/rbu", async (req, res) => {
+
+
+
+    console.log(req.body);
+
+        if (req.body.ID && req.body.uID&&req.body.t>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                   await deleteCon("banned",[['userID','=',req.body.uID],['type','=',req.body.t],['ID','=',req.body.ID]]);
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403)
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;
+        }
+
+    
+
+    // res.cookie()
+
+})
 
 //update about us
 router.post("/uaus", async (req, res) => {
@@ -182,9 +275,11 @@ router.post("/ub", async (req, res) => {
 async function notifityUsers(courseID,acourse=true,update=false,videoID=null) {
 
     //get all the users that are in this course
-    const usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
+    let usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
         [acourse ? "courseID" :"fellowshipID", '=', courseID]
     ])).map((e)=>e.userID);
+
+
 
     console.log(usersIds);
     if (usersIds.length<1){
@@ -209,11 +304,22 @@ video.name=video.videoTitle;
 
 
     }
+    console.log("user IDs left : "+usersIds.length);
+    let bannedIds=(await readCon("banned",null,[['ID','=',courseID],['type','=',acourse? 0 : 1]])).map((e)=>e.userID);
+    
+    console.log(bannedIds);
+    usersIds=usersIds.filter((e)=>!bannedIds.includes(e));
 
+    console.log("user IDs left : "+usersIds.length);
+    console.log(usersIds);
+
+    if(usersIds.length<1)
+    return;
     //get their notification token
     const tokens = await readCon('login', ['notToken','userID'], [
         ['userID', 'in', `(${usersIds.join(',')})`]
     ]);
+
     //send notifications to all of them
     //check if the number is more then 500 if it's more than this then group them
 
@@ -274,7 +380,7 @@ video.name=video.videoTitle;
             },
             token: token.notToken
         })))
-    )));
+    )).responses[0].error);
 
         
     }
@@ -287,12 +393,149 @@ video.name=video.videoTitle;
 
 
 
+
+
+async function notifityUsersChapters(courseID,acourse=true,update=false,chapterID=null) {
+
+    //get all the users that are in this course
+    let usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
+        [acourse ? "courseID" :"fellowshipID", '=', courseID]
+    ])).map((e)=>e.userID);
+
+
+
+    console.log(usersIds);
+    if (usersIds.length<1){
+
+        return;
+    }
+    const name=(await readCon(acourse ?"courses" :"fellowships",[acourse? "courseName":"fellowshipName"],[[acourse ? "courseID":"fellowshipID",'=',courseID]]))[0];
+    if (acourse){
+        name.name=name.courseName;
+    }else{
+        name.name=name.fellowshipName;
+    }
+
+
+    let video="";
+
+
+    if (update){
+        video=(await readCon("chapter",["title"],[["chapterID",'=',chapterID]]))[0];
+
+
+
+    }
+
+
+    console.log("user IDs left : "+usersIds.length);
+
+    let bannedIds=(await readCon("banned",null,[['ID','=',courseID],['type','=',acourse? 0 : 1]])).map((e)=>e.userID);
+    
+    console.log(bannedIds);
+    usersIds=usersIds.filter((e)=>!bannedIds.includes(e));
+
+    console.log("user IDs left : "+usersIds.length);
+    console.log(usersIds);
+
+    if(usersIds.length<1)
+    return;
+
+
+    //get their notification token
+    const tokens = await readCon('login', ['notToken','userID'], [
+        ['userID', 'in', `(${usersIds.join(',')})`]
+    ]);
+
+    //send notifications to all of them
+    //check if the number is more then 500 if it's more than this then group them
+
+    if ((tokens).length > 500) {
+
+
+        for (let index = 0; index < (Math.ceil(tokens.length) / 500.0); index++) {
+            let currentTokens = [];
+
+            for (let j = index * 500; j < (index + 1) * 500; j++) {
+                if (tokens.length <= j) {
+                    console.log("we are out at " + j);
+                    //send notification from here
+                    app().messaging().sendEach(
+
+
+                        currentTokens.map(token => (Object({
+
+                            
+                            notification: {
+                                
+                                title: "Update!",
+                                
+                                body: (!update) ? `a new chapter has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a chapter "${video.title}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+                            },
+                            token: token.notToken,
+                            data:{
+                                chID:chapterID
+                            }
+                            
+                        })))
+                    );
+
+                    break;
+                } else {
+                    currentTokens.push(tokens[j])
+                }
+                if (j + 1 == (index + 1) * 500) { // send the current 500 tokens
+
+                    await app().messaging().sendEach(
+
+
+                        currentTokens.map(token => (Object({
+                            notification: {
+                                title: "Update!",
+                                body: (!update) ? `a new video has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a video has "${video.title}" been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+                            },
+                            token: token.notToken
+                        })))
+                    );
+
+                    currentTokens = [];
+                }
+            }
+
+        }
+
+    } else {
+       console.log((await apps[0].messaging().sendEach(
+
+
+        tokens.map(token => (Object({
+            notification: {
+                title: "Update!",
+                body: (!update) ? `a new chapter has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a chapter "${video.title}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+            },
+            token: token.notToken
+        })))
+    )).responses[0].error);
+
+        
+    }
+
+
+    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
+
+
+}
+
+
 //notifity users that there is a new video
 /**
  * 
  * @param {*} courseID 
  */
 async function notifityUsersFinalExams(courseID,acourse=true) {
+
+
+
 
     //get all the users that are in this course
     const usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
@@ -312,6 +555,14 @@ async function notifityUsersFinalExams(courseID,acourse=true) {
     }else{
         name.name=name.fellowshipName;
     }
+
+    let bannedIds=(await readCon("banned",null,[['ID','=',courseID],['type','=',acourse? 0 : 1]])).map((e)=>e.userID);
+    
+    console.log(bannedIds);
+    usersIds=usersIds.filter((e)=>!bannedIds.includes(e));
+
+    if (usersIds.length<1)
+    return;
     const tokens = await readCon('login', ['notToken','userID'], [
         ['userID', 'in', `(${usersIds.join(',')})`]
     ]);
@@ -395,7 +646,7 @@ async function notifityUsersFinalExams(courseID,acourse=true) {
 //update fellowship
 router.post("/uf", async (req, res) => {
 
-
+    req.body = JSON.parse(req.body.body);
     req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
 
     // req.body = Object.keys(req.body);
@@ -457,6 +708,8 @@ router.post("/uf", async (req, res) => {
 //update course
 router.post("/uc", async (req, res) => {
 
+    console.log( req.body);
+    req.body = JSON.parse(req.body.body);
 
     req.body.courseDuration = Number(req.body.courseDuration);
 
@@ -758,6 +1011,50 @@ router.post("/rpff", (req, res) => {
 
 });
 
+//remove someone from a fellowship
+//remove person from all fellowships and courses
+router.post("/rpall", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            await deleteCon("fellowshipssubscription",[['userID','=',req.body.i]])
+                            await deleteCon("coursessubscription",[['userID','=',req.body.i]])
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
 
 
 router.post("/dp", async (req, res) => {
@@ -1098,7 +1395,7 @@ router.post("/atf", (req, res) => {
 
     if (req.body) {
 
-        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number') {
+        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number'&& typeof (req.body.d) == 'number') {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1110,7 +1407,7 @@ router.post("/atf", (req, res) => {
                         ])).length > 0) {
 
                         try {
-                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status'], [req.body.f, req.body.i, 0]);
+                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate'], [req.body.f, req.body.i, 0,`now() + interval ${req.body.d} year`]);
 
                             res.sendStatus(200);
 
@@ -1174,7 +1471,7 @@ router.post("/atc", (req, res) => {
 
     if (req.body) {
 
-        if (typeof (req.body.i) == 'number' && typeof (req.body.c) == 'number') {
+        if (typeof (req.body.i) == 'number' && typeof (req.body.c) == 'number'&&req.body.d) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1186,7 +1483,7 @@ router.post("/atc", (req, res) => {
                         ])).length > 0) {
                         try {
 
-                            (await write("coursessubscription", ['courseID', 'userID', 'status'], [req.body.c, req.body.i, 0]));
+                            (await write("coursessubscription", ['courseID', 'userID', 'status','expDate'], [req.body.c, req.body.i, 0,`now() + interval ${req.body.d} year`]));
 
                             res.sendStatus(200);
                         } catch (e) {
@@ -1580,9 +1877,59 @@ router.post("/ncv", async (req, res) => {
 
 })
 
-
 //new course video
-router.post("/not", async (req, res) => {
+router.post("/gcv", async (req, res) => {
+
+
+
+   
+    if (typeof(req.body.cid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    res.send({
+
+                        d:(await readCon("videos",null,[['courseID','=',req.body.cid]]))
+                    });
+                    return;
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+
+                    return;
+                }
+    
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
+//new course/fellowship video notification
+router.post("/nvot", async (req, res) => {
 
 
 
@@ -1612,6 +1959,40 @@ router.post("/not", async (req, res) => {
     // res.cookie()
 
 })
+
+//new course/fellowship notification
+router.post("/not", async (req, res) => {
+
+
+
+   
+    if (typeof(req.body.cid)=='number'||typeof(req.body.fid)=='number') {
+
+    
+                // notifityUsersFinalExams(req.body.cid || req.body.fid,req.body.cid ? true : false,);
+
+                try {
+                    // await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false);
+                    await notifityUsersChapters(req.body.cid || req.body.fid,req.body.cid ? true : false,false,12)
+
+                } catch (error) {
+                    
+                }
+                res.sendStatus(200);
+
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 
 //new account
 router.post("/nacc", async (req, res) => {
@@ -1725,6 +2106,7 @@ router.post("/uch", async (req, res) => {
                     }
                     if ( req.body.nchID != -9) {
                         fields["chaopterID"] = req.body.nchID;
+                        updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
 
                     }
                     if ( req.body.ti != -9) {
@@ -1778,12 +2160,12 @@ router.post("/nfxm", async (req, res) => {
 
 
 
-    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration>=0) {
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration&&req.body.title) {
 
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("finalexams",["type","answers","questions",'duration'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.duration]);
+                    await write("finalexams",["type","answers","questions",'ending','title'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),`now() + interval ${req.body.duration}`,req.body.title]);
           
 
                 } catch (error) {
@@ -1815,6 +2197,7 @@ router.post("/nfxm", async (req, res) => {
     // res.cookie()
 
 })
+
 
 
 //add person to group
@@ -1860,7 +2243,7 @@ router.post("/aptg", async (req, res) => {
 
 })
 
-//add person to group
+//get group
 router.post("/gch", async (req, res) => {
 
 
@@ -1906,6 +2289,46 @@ router.post("/gch", async (req, res) => {
 
 })
 
+
+//get all final exams
+router.post("/gafxm", async (req, res) => {
+
+
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    res.send({
+
+                        d:(await read("finalexam",['answers','questions','examID','title']))
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    
+
+    // res.cookie()
+
+})
 
 //update group info
 router.post("/ugi", async (req, res) => {
@@ -1966,12 +2389,12 @@ router.post("/ugi", async (req, res) => {
 
 })
 
-//update chapter
+//update final exam
 router.post("/ufxm", async (req, res) => {
 
 
 
-    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration!=0&&req.body.ID&&req.body.sd) {
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration!=0&&req.body.ID&&req.body.sd&&req.body.title) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1979,7 +2402,7 @@ router.post("/ufxm", async (req, res) => {
 
                     let fields = {};
                     if (req.body.duration != -9) {
-                        fields["duration"] = req.body.duration;
+                        fields["ending"] = req.body.duration;
                     }
                     if ( req.body.ans != -9) {
                         fields["answers"] =  JSON.stringify(req.body.ans);
@@ -1990,6 +2413,10 @@ router.post("/ufxm", async (req, res) => {
                     }
                     if ( req.body.sd != -9) {
                         fields["startingDate"] =  req.body.sd;
+
+                    }
+                    if ( req.body.title != -9) {
+                        fields["title"] =  req.body.title;
 
                     }
                     if (Object.keys(fields).length > 0) {
@@ -2209,6 +2636,8 @@ router.post("/nfv", async (req, res) => {
 //update fellowship video
 router.post("/ufv", async (req, res) => {
 
+    console.log( req.body);
+    req.body = JSON.parse(req.body.body);
 
 
    
