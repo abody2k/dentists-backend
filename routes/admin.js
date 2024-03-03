@@ -20,6 +20,83 @@ const { hash } = require("argon2");
 
 const router = require("express").Router();
 
+// get final exams
+router.post("/gfxms", async (req, res) => {
+
+
+
+
+
+    auth(req.cookies, res, async (data) => {
+
+
+
+        try {
+            const data= await read("finalexams",null);
+            res.send({d:data})
+
+        } catch (error) {
+            console.log(error);
+            res.sendStatus(403)
+            return;
+        }
+
+
+
+    }, () => {
+
+
+        console.log("something went wrong");
+
+
+
+    }, 0)
+
+
+
+
+// res.cookie()
+
+})
+
+// get groups
+router.post("/ggs", async (req, res) => {
+
+
+
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+
+                try {
+                    const data= await read("`groups`",["DISTINCT groupID"]);
+                    res.send({d:data})
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403)
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+     
+    
+
+    // res.cookie()
+
+})
 
 //ban user
 router.post("/bu", async (req, res) => {
@@ -378,7 +455,11 @@ video.name=video.videoTitle;
                 title: "Update!",
                 body: (!update) ? `a new video has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a video "${video.name}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
             },
-            token: token.notToken
+            token: token.notToken,
+     webpush:{
+        "fcm_options": {
+            "link": `http://localhost:5173/${acourse? "courses":"fellowships"}/${courseID}`
+          }     }
         })))
     )).responses[0].error);
 
@@ -392,6 +473,50 @@ video.name=video.videoTitle;
 }
 
 
+//notifity users that there is a new video
+/**
+ * 
+ * @param {Number} courseID 
+ * @param {Number} userID 
+ * @param {Number} acourse 
+ * @param {String} msg 
+ * @returns 
+ */
+async function notifyAUsers(courseID,userID,msg,payment,acourse=true) {
+
+
+
+    const name=(await readCon(acourse ?"courses" :"fellowships",[acourse? "courseName":"fellowshipName"],[[acourse ? "courseID":"fellowshipID",'=',courseID]]))[0];
+    if (acourse){
+        name.name=name.courseName;
+    }else{
+        name.name=name.fellowshipName;
+    }
+
+
+    //get their notification token
+    const tokens = await readCon('login', ['notToken','userID'], [
+        ['userID', '=', userID]
+    ]);
+
+    //send notifications to all of them
+    //check if the number is more then 500 if it's more than this then group them
+
+    await apps[0].messaging().send({
+
+        notification: {
+            title: "Update!",
+            body: `you have paid ${payment}IQD your tuition for ${name.name} ${acourse ? "course":"fellowship"}`
+        },
+        token: tokens[0].notToken
+    });
+    
+
+    await write("notifications",["userID","notification"],[userID,`$ ${payment}`]);
+    // await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
+
+
+}
 
 
 
@@ -647,14 +772,14 @@ async function notifityUsersFinalExams(courseID,acourse=true) {
 router.post("/uf", async (req, res) => {
 
     req.body = JSON.parse(req.body.body);
-    req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
+    // req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
 
     // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
     // res.sendStatus(200);
     console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
-    if (req.body.fellowshipName && req.body.fellowshipDetails && typeof (req.body.fellowshipDuration) == 'number' && req.body.id) {
+    if (req.body.fellowshipName && req.body.fellowshipDetails &&  (req.body.fellowshipDuration) && req.body.id) {
 
 
 
@@ -711,14 +836,14 @@ router.post("/uc", async (req, res) => {
     console.log( req.body);
     req.body = JSON.parse(req.body.body);
 
-    req.body.courseDuration = Number(req.body.courseDuration);
+    // req.body.courseDuration = Number(req.body.courseDuration);
 
     // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
     // res.sendStatus(200);
     console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
-    if (req.body.courseName && req.body.courseDetails && typeof (req.body.courseDuration) == 'number' && req.body.id) {
+    if (req.body.courseName && req.body.courseDetails &&  (req.body.courseDuration)  && req.body.id) {
 
 
 
@@ -845,8 +970,8 @@ router.post("/pf", (req, res) => {
 
 
 
-//adding new ppl to fellowships
-//add to fellowship
+
+//making user pass course
 router.post("/pc", (req, res) => {
     //check if the data is valid
     //check if this user is an admin else reject
@@ -1221,16 +1346,17 @@ router.post("/np", async (req, res) => {
 
 router.post("/nc", async (req, res) => {
 
+    console.log(req.files);
+    req.body = JSON.parse(req.body.body);
 
-    req.body.courseDuration = Number(req.body.courseDuration);
+    // req.body.courseDuration = Number(req.body.courseDuration);
 
     // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
     // res.sendStatus(200);
-    console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
     if (req.body && req.files) {
-        if (req.body.courseName && typeof (req.body.courseDuration) == "number") {
+        if (req.body.courseName) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1278,8 +1404,9 @@ router.post("/nc", async (req, res) => {
 
 router.post("/nf", async (req, res) => {
 
+    req.body = JSON.parse(req.body.body);
 
-    req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
+
 
     // req.body = Object.keys(req.body);
     // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
@@ -1287,7 +1414,7 @@ router.post("/nf", async (req, res) => {
     console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
     if (req.body && req.files) {
-        if (req.body.fellowshipName && typeof (req.body.fellowshipDuration) == "number") {
+        if (req.body.fellowshipName ) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1383,6 +1510,48 @@ router.post("/ee", async (req, res) => {
 })
 
 
+//get users by name
+router.post("/srch", async (req, res) => {
+
+
+    if (req.body) {
+        if (req.body.n) {
+
+            auth(req.cookies, res, async (data) => {
+
+                const reuslt = (await readCon("login", ["userID","username","email"], [
+                    ['username', 'like', `%${req.body.n}%`]
+                ]));
+                res.send({
+                    d: reuslt,
+                });
+
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //adding new ppl to fellowships
 //add to fellowship
 router.post("/atf", (req, res) => {
@@ -1395,7 +1564,7 @@ router.post("/atf", (req, res) => {
 
     if (req.body) {
 
-        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number'&& typeof (req.body.d) == 'number') {
+        if (typeof (req.body.i) == 'number' && typeof (req.body.f) == 'number'&&req.body.d &&req.body.groupID&&req.body.totalFee>=0&&req.body.remFee>=0) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1407,7 +1576,16 @@ router.post("/atf", (req, res) => {
                         ])).length > 0) {
 
                         try {
-                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate'], [req.body.f, req.body.i, 0,`now() + interval ${req.body.d} year`]);
+                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.f, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]);
+
+                            if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
+                                await write("fellowshipstuition",[("fellowshipID"),'tuition','userID'],[req.body.f,Math.floor(req.body.totalFee-req.body.remFee),req.body.i]);
+                          }else{
+                            await write("fellowshipstuition",[("fellowshipID"),'tuition','userID'],[req.body.f,req.body.totalFee,req.body.i]);
+                          }
+
+
+                          
 
                             res.sendStatus(200);
 
@@ -1467,11 +1645,12 @@ router.post("/atc", (req, res) => {
     //check if this course exists else reject
     //check if the email ID exists else reject
     //add the user to the fellowship
-
+    console.log('DEBUGGING');
+    console.log(req.body);
 
     if (req.body) {
 
-        if (typeof (req.body.i) == 'number' && typeof (req.body.c) == 'number'&&req.body.d) {
+        if (typeof (req.body.i) == 'number' && typeof (req.body.c) == 'number'&&req.body.d &&req.body.groupID&&req.body.totalFee>=0&&req.body.remFee>=0) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1483,11 +1662,27 @@ router.post("/atc", (req, res) => {
                         ])).length > 0) {
                         try {
 
-                            (await write("coursessubscription", ['courseID', 'userID', 'status','expDate'], [req.body.c, req.body.i, 0,`now() + interval ${req.body.d} year`]));
+                            (await write("coursessubscription", ['courseID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.c, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]));
+                            
+                            if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
+                                  await write("coursestuition",[("courseID"),'tuition','userID'],[req.body.c,Math.floor(req.body.totalFee-req.body.remFee),req.body.i]);
+
+                            }else{
+                                await write("coursestuition",[("courseID"),'tuition','userID'],[req.body.c,req.body.totalFee,req.body.i]);
+                            }
+
+
+
+
+                            // if((await readCon("groups",['groupID'],[['groupID','=',req.body.groupID]])).length>0){
+
+                            // }else{
+                            //     await write("groups",['groupID','level','userID'],[req.body.groupID,1,req.body.i]);
+                            // }
 
                             res.sendStatus(200);
                         } catch (e) {
-
+                            console.log(e);
                             console.log("rejected , duplicate");
 
                             res.sendStatus(403);
@@ -1972,9 +2167,9 @@ router.post("/not", async (req, res) => {
                 // notifityUsersFinalExams(req.body.cid || req.body.fid,req.body.cid ? true : false,);
 
                 try {
-                    // await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false);
-                    await notifityUsersChapters(req.body.cid || req.body.fid,req.body.cid ? true : false,false,12)
-
+                    await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false);
+                    // await notifityUsersChapters(req.body.cid || req.body.fid,req.body.cid ? true : false,false,12)
+                    // notifyAUsers(7,1,"",20000,false)
                 } catch (error) {
                     
                 }
@@ -2105,7 +2300,7 @@ router.post("/uch", async (req, res) => {
 
                     }
                     if ( req.body.nchID != -9) {
-                        fields["chaopterID"] = req.body.nchID;
+                        fields["chapterID"] = req.body.nchID;
                         updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
 
                     }
@@ -2155,17 +2350,55 @@ router.post("/uch", async (req, res) => {
 
 })
 
-//new final Exam
-router.post("/nfxm", async (req, res) => {
+
+//update subscription
+router.post("/usb", async (req, res) => {
 
 
+    console.log(req.body);
 
-    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration&&req.body.title) {
+    if (req.body.s>=0 &&req.body.exp&& req.body.joined&&req.body.rf && req.body.sid&&req.body.t >=0) {
 
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("finalexams",["type","answers","questions",'ending','title'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),`now() + interval ${req.body.duration}`,req.body.title]);
+
+                    let fields = {};
+                    if (req.body.s != -9) {
+                        fields["status"] = req.body.s;
+                    }
+                    if ( req.body.exp != -9) {
+                        fields["expDate"] =  req.body.exp;
+                    }
+                    if ( req.body.joined != -9) {
+                        fields["joinedDate"] =  req.body.joinedDate;
+
+                    }
+                    if ( req.body.remainingFee != -9) {
+                        fields["remainingFee"] = req.body.remainingFee;
+
+                    }
+                    if ( req.body.totalFee != -9) {
+                        fields["totalFee"] = req.body.totalFee;
+
+                    }
+                    if ( req.body.groupID != -9) {
+                        fields["groupID"] = req.body.groupID;
+
+                    }
+                    if (Object.keys(fields).length > 0) {
+                        await updateCon((req.body.t ==0 ? "coursessubscription":"fellowshipssubscription"),Object.keys(fields),Object.values(fields),
+                        [['subscriptionID','=',req.body.sid]]);
+
+
+                        res.sendStatus(200);
+
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
           
 
                 } catch (error) {
@@ -2173,8 +2406,6 @@ router.post("/nfxm", async (req, res) => {
                     res.sendStatus(403);
                     return;
                 }
-                console.log(data);
-                res.sendStatus(200);
 
 
             }, () => {
@@ -2198,6 +2429,50 @@ router.post("/nfxm", async (req, res) => {
 
 })
 
+//new final Exam
+router.post("/nfxm", async (req, res) => {
+
+
+
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.ending&&req.body.title&&req.body.startingDate&&req.body.ID&&req.body.v!=null&&req.body.type!=null&&req.body.groupID) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    await write("finalexams",["type","answers","questions",'ending','startingDate','title','perodic','visible',"ID",'groupID'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.type,req.body.v,req.body.ID,req.body.groupID]);
+          
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log([req.body.t>=0 ,req.body.ans, req.body.q,req.body.ending,req.body.title,req.body.startingDate,req.body.ID,req.body.v!=null,req.body.type!=null,req.body.groupID]);
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 
 
 //add person to group
@@ -2210,7 +2485,7 @@ router.post("/aptg", async (req, res) => {
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("groups",["groupID","userID","level"],[req.body.gID,req.body.uID,req.body.l]);
+                    await write("`groups`",["groupID","userID","level"],[req.body.gID,req.body.uID,req.body.l]);
           
 
                 } catch (error) {
@@ -2290,6 +2565,176 @@ router.post("/gch", async (req, res) => {
 })
 
 
+
+//get courses subscriptions
+router.post("/gcs", async (req, res) => {
+
+    console.log("SOMETHING WENT REALLY WRONG");
+
+
+    if (req.body.cid) {
+        console.log("SOMETHING WENT REALLY WRONG");
+
+            auth(req.cookies, res, async (ff) => {
+                console.log("SOMETHING WENT REALLY WRONG");
+
+                try {
+                    let sql = require("mysql2/promise");
+
+                    const conn =  await sql.createConnection({
+                        host:"localhost",
+                        user:"root",
+                        database:"dentists",
+                        password:"0001"
+                    })         
+                    console.log("SOMETHING WENT REALLY WRONG");
+           
+                    const data= (await conn.query(`select login.username,login.email,login.userID,coursessubscription.userID,coursessubscription.subscriptionID,coursessubscription.joinedDate,coursessubscription.expDate,coursessubscription.groupID,coursessubscription.totalFee,coursessubscription.remainingFee,coursessubscription.status from login, coursessubscription where courseID=${req.body.cid} and login.userID = coursessubscription.userID;`))[0];
+                    await conn.end();
+                    console.log(data);
+
+                    res.send({
+d:data
+
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, (e) => {
+console.log(e);
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+//get fellowships subscriptions
+router.post("/gfs", async (req, res) => {
+
+
+
+    if (req.body.fid) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let sql = require("mysql2/promise");
+
+                    const conn =  await sql.createConnection({
+                        host:"localhost",
+                        user:"root",
+                        database:"dentists",
+                        password:"0001"
+                    })                    
+                    const data= (await conn.query(`select login.username,login.email,login.userID,fellowshipssubscription.userID,fellowshipssubscription.subscriptionID,fellowshipssubscription.joinedDate,fellowshipssubscription.expDate,fellowshipssubscription.totalFee,fellowshipssubscription.remainingFee,fellowshipssubscription.groupID,fellowshipssubscription.status from login, fellowshipssubscription where fellowshipID=${req.body.fid} and login.userID = fellowshipssubscription.userID;`))[0];
+                    await conn.end();
+
+
+                    res.send({
+d:data
+
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+
+//get payments history
+router.post("/gph", async (req, res) => {
+
+
+
+    if (req.body.t>=0&&req.body.ID&&req.body.userID) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+                    res.send({
+
+                        d:(await readCon((req.body.t ? "fellowshipstuition":"coursestuition"),null,[[req.body.t?"fellowshipID": "courseID",'=',req.body.ID],['userID','=',req.body.userID]]))
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //get all final exams
 router.post("/gafxm", async (req, res) => {
 
@@ -2348,7 +2793,7 @@ router.post("/ugi", async (req, res) => {
 
 
                     if (Object.keys(fields).length > 0) {
-                        await updateCon("groups", Object.keys(fields), Object.values(fields), [
+                        await updateCon("`groups`", Object.keys(fields), Object.values(fields), [
                             ["userID", '=', req.body.uID],['groupID','=',req.body.gID]
                         ]);
                     }else{
@@ -2392,9 +2837,9 @@ router.post("/ugi", async (req, res) => {
 //update final exam
 router.post("/ufxm", async (req, res) => {
 
+console.log(req.body);
 
-
-    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.duration!=0&&req.body.ID&&req.body.sd&&req.body.title) {
+    if (req.body.t>=-9 &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&req.body.groupID&&req.body.perodic>=-9) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -2419,8 +2864,20 @@ router.post("/ufxm", async (req, res) => {
                         fields["title"] =  req.body.title;
 
                     }
+                    if ( req.body.perodic != -9) {
+                        fields["perodic"] =  req.body.perodic;
+
+                    }
+                    if ( req.body.groupID != -9) {
+                        fields["groupID"] =  req.body.groupID;
+
+                    }
+                    if ( req.body.visible != -9) {
+                        fields["visible"] =  req.body.visible;
+
+                    }
                     if (Object.keys(fields).length > 0) {
-                        await updateCon("finalexams", Object.keys(fields), Object.values(fields), [
+                        await updateJSON("finalexams", Object.keys(fields), Object.values(fields), [
                             ["examID", '=', req.body.ID]
                         ]);
                     }else{
@@ -2906,6 +3363,58 @@ res.sendStatus(200);
 })
 
 
+//delete an exam
+router.post("/dexm", async (req, res) => {
+
+
+
+   
+    if (req.body.exmID) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("finalexams",[['examID','=',req.body.exmID]]);
+                    res.sendStatus(200);
+                    return;
+   
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //delete course
 router.post("/dc", async (req, res) => {
 
@@ -3154,6 +3663,59 @@ router.post("/dfv", async (req, res) => {
 
 })
 
+
+
+//delete selected exams
+router.post("/dsexms", async (req, res) => {
+
+
+
+   
+    if (req.body.xms) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("finalexams",[["examID",'in',`(${req.body.xms.join(",")})`]]);
+                    res.sendStatus(200);
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //delete some course videos
 router.post("/dcv", async (req, res) => {
 
@@ -3257,6 +3819,60 @@ router.post("/dacv", async (req, res) => {
 })
 
 
+//handlePayment
+router.post("/hP", async (req, res) => {
+
+
+try {
+    
+   console.log(req.body);
+    if (req.body.subscriptionID>=0&&req.body.payment&&req.body.acourse!=null&&req.body.ID&&req.body.userID>=0&&req.body.newDate) {
+
+        auth(req.cookies, res, async (data) => {
+
+
+            console.log("Everything went well");
+
+            try {
+
+                console.log(req.body);
+                await handlePaymentUnbanningAndExpDate(...Object.values(req.body))
+                res.sendStatus(200);
+            
+
+            } catch (error) {
+                console.log(error);
+                res.sendStatus(403);
+                return;
+            }
+
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+} else {
+    console.log("it stopped here");
+    res.sendStatus(403);
+    return;
+}
+} catch (error) {
+ console.log(error);
+    res.sendStatus(403);
+}
+
+    // res.cookie()
+
+})
+
 /**
  * 
  * @param {String}id 
@@ -3289,6 +3905,55 @@ async function newBlog (blogDetails, files) {
     const id = (await write("blogs", ["blogDetails"], [ blogDetails]));
     upload(files, "blogs", id.toString());
 
+
+}
+
+
+/**
+ * 
+ * @param {Number} subscriptionID 
+ * @param {Number} payment 
+ * @param {boolean} acourse 
+ * @param {Number} ID 
+ * @param {Number} userID 
+ * @param {String} newDate 
+ * @param {Boolean} unband 
+ */
+async function handlePaymentUnbanningAndExpDate(subscriptionID,  payment, acourse,ID,userID,newDate,gID,renew,totalFee) {
+    
+    await payTuition(subscriptionID,payment,acourse,ID,userID,(new Date(newDate)).toISOString().replace("Z",''),gID,renew,totalFee);
+    if(payment>0)
+    await removingSomeoneFromBannedTable(userID,acourse,ID);
+    // if(newDate)
+    // await changeExpDate(newDate,subscriptionID,acourse);
+
+}
+
+async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,gID,renew,totalFee) {
+
+
+    if(renew){
+        console.log("Doing thiss");
+        await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee','expDate','groupID','totalFee'],[payment,newDate,gID,totalFee],[['subscriptionID','=',subscriptionID]]);
+
+    }else{
+        await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee','expDate','groupID'],[`(remainingFee-${payment})`,newDate,gID],[['subscriptionID','=',subscriptionID]]);
+
+    }
+    await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee'],[0],[['remainingFee','<',0],['subscriptionID','=',subscriptionID]]);
+        console.log("done done ND FINISHED");
+
+        await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID'],[ID,payment,userID]);
+}
+
+async function removingSomeoneFromBannedTable(userID,acourse,ID) {
+
+await deleteCon("banned",[['userID','=',userID],['type','=',acourse? 0 : 1],['ID','=',ID]]);
+
+}
+
+async function changeExpDate(newDate,subscriptionID,acourse) {
+    updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['expDate'],[newDate],[['subscriptionID','=',subscriptionID]]);
 
 }
 module.exports = router;

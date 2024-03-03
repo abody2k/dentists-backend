@@ -2,7 +2,9 @@ const express = require('express');
 const {auth} = require('./auth.js');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readFile, readCon } = require('./util.js');
+const { readFile, readCon, deleteCon } = require('./util.js');
+require("dotenv").config()
+process.env.TZ="Asia/Baghdad"
 const app = express();
 app.use(require("cookie-parser")())
 app.use(fileUpload())
@@ -51,14 +53,15 @@ const fbApp =admin.initializeApp({
 
 
 app.post("/mma",(req,res)=>{
-
+  var da=(new Date());
+  da.setFullYear(da.getFullYear()+1)
 
     res.cookie("token",
     
     sign({
             l:0,
             id:0,
-        },"secret"), {httpOnly:true,maxAge:900000}
+        },"secret"), {httpOnly:true,expires:da}
         
     )
 
@@ -78,12 +81,14 @@ res.send({
 app.post("/mmu",(req,res)=>{
 
 
+  var da=(new Date());
+  da.setFullYear(da.getFullYear()+1)
     res.cookie("token",
     
     sign({
             l:1,
             id:1,
-        },"secret"), {httpOnly:true,maxAge:900000}
+        },"secret"), {httpOnly:true,expires:da}
     )
 
     res.send({
@@ -96,7 +101,11 @@ app.use("/n/",require("./routes/none.js"))
 app.use("/u/",require("./routes/user.js"))
 
 app.use("/a/",require("./routes/admin.js"))
+app.post("/delete/nots",(req,res)=>{
 
+deleteCon("notifications",[['datediff(now(),exp)','>','3']]);
+
+})
 app.get("/img/:t/:id/",(req,res)=>{
   
 console.log(typeof(req.params.id));

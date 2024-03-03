@@ -12,6 +12,7 @@ async function read(table,fields) {
         user:"root",
         database:"dentists",
         password:"0001"
+        
     })
 
     const data= (await conn.query(`select ${(fields != null ? fields.join(","): "*")} from ${table};`))[0];
@@ -145,7 +146,8 @@ async function write(table,keys,values) {
         host:"localhost",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"0001",
+        timezone:"+03:00"
     })
     const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
     console.log(value);

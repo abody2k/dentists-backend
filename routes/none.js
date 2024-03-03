@@ -30,12 +30,20 @@ router.post("/rb/",async (req,res)=>{
 });
 
 //send courses to all users
-
 router.post("/gc/",async (req,res)=>{
 
 
     const data = (await util.read("courses"));
     res.send({d:data});
+});
+
+
+router.post("/ga/",async (req,res)=>{
+
+    const fellowships = (await util.read("fellowships"));
+
+    const courses = (await util.read("courses"));
+    res.send({c:courses,f:fellowships});
 });
 
 //send certain course to all users
@@ -69,32 +77,30 @@ router.post("/gcf/",async (req,res)=>{
 router.post("/si/",async (req,res)=>{
 
     if((req.body.email)&&req.body.p){
-        const data = (await util.readCon("login",['password',"email","mac","notToken"],[['email','=',req.body.email]]));
+        const data = (await util.readCon("login",['password',"email","notToken"],[['email','=',req.body.email]]));
         require("argon2").verify(data[0].password.toString(),req.body.p.toString()).then((e)=>{
 
             if(e){
+
 const options ={
     l:1,
     id:req.body.id,
 };
 
-if(data[0].mac){
-options["mac"]=data[0].mac;
 
-}
-
+                var da=(new Date());
+                da.setFullYear(da.getFullYear()+1)
                 res.cookie("token",
-                
-                require("jsonwebtoken").sign(options,"secret"), {httpOnly:true,maxAge:9000000}
+                require("jsonwebtoken").sign(options,"secret"), {httpOnly:true,expires:(da)}
                 )
             
                 res.send({
             
                   e:0,
-                  m: options["mac"] ? 0 : 1
+                //   m: options["mac"] ? 0 : 1
                 });
             }else{
-
+                console.log("wrong password");
                 res.sendStatus(403);
             }
 
@@ -102,6 +108,9 @@ options["mac"]=data[0].mac;
 
         
 
+    }else{
+
+        res.sendStatus(403)
     }
 });
 
