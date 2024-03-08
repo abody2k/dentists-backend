@@ -33,7 +33,7 @@ router.post("/rb/",async (req,res)=>{
 router.post("/gc/",async (req,res)=>{
 
 
-    const data = (await util.read("courses"));
+    const data = (await util.readCon("courses",null,[['archived','=',0]]));
     res.send({d:data});
 });
 
@@ -117,7 +117,7 @@ const options ={
 router.post("/gf/",async (req,res)=>{
 
 
-    const data = (await util.read("fellowships"));
+    const data = (await util.readCon("fellowships",null,[['archived','=',0]]));
     res.send({d:data});
 });
 
@@ -162,6 +162,18 @@ router.post("/gb/",async (req,res)=>{
     
     const data = (await util.read("blogs"));
     res.send({d:data});
+});
+//get person profile
+
+router.post("/gpp/",async (req,res)=>{
+
+    if(req.body.code){
+        const data = (await util.readCon("profiles",['courses','fellowships'],['profileID','=',req.body.code]));
+        res.send({d:data});
+    }else{
+        res.sendStatus(403)
+    }
+
 });
 module.exports = router;
 //

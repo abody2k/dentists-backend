@@ -83,7 +83,9 @@ async function updateConditionally(table,fields,values,conditions) {
         host:"localhost",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"0001",
+        timezone:"+03:00"
+
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
     let setter=``;
@@ -115,7 +117,9 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
         host:"localhost",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"0001",
+        timezone:"+03:00"
+
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
     let setter=``;
@@ -211,28 +215,64 @@ function uploadFile(files,folder,fileName) {
       });
 
 
+    if (folder=="products"){
+        console.log(files);
+        for (let i = 0; i < files.files.length; i++) {
 
+            const file = files.files[i];
+            // console.log("reading filees");
+            // console.log(file);
+            
+        
+            const params = {
+              Bucket: 'dentists-iq',
+              Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
+              Body: file.data,
+              ACL: 'public-read', // Set the ACL permissions as needed
+            };
+          console.log( folder+"/"+fileName.toString()+"/"+i.toString() );
+            // Upload the file to S3
+            
+            s3.upload(params, (err, data) => {
+              if (err) {
+                console.log(err);
+                throw err;
+              }else{
+
+                console.log("done done");
+                console.log(data);
+              }
+          
+            });    
+            
+        }
+        
+    }else{
+        console.log("going here");
+        const file = files[Object.keys(files)[0]];
+        // console.log("reading filees");
+        // console.log(file);
+        
+    
+        const params = {
+          Bucket: 'dentists-iq',
+          Key: folder+"/"+fileName ,
+          Body: file.data,
+          ACL: 'public-read', // Set the ACL permissions as needed
+        };
       
-    const file = files[Object.keys(files)[0]];
-    // console.log("reading filees");
-    // console.log(file);
-
-
-    const params = {
-      Bucket: 'dentists-iq',
-      Key: folder+"/"+fileName ,
-      Body: file.data,
-      ACL: 'public-read', // Set the ACL permissions as needed
-    };
-  
-    // Upload the file to S3
-    s3.upload(params, (err, data) => {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-  
-    });
+        // Upload the file to S3
+        
+        s3.upload(params, (err, data) => {
+          if (err) {
+            console.log(err);
+            throw err;
+          }
+      
+        });       
+    }
+    
+ 
       
 
 }

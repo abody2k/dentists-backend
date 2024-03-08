@@ -306,7 +306,7 @@ router.post("/spa",(req,res)=>{
 
 
 //submit final exam answers
-router.post("/spa",(req,res)=>{
+router.post("/sfa",(req,res)=>{
 
     auth(req.cookies,res,async function(data){
     console.log(data);
@@ -346,7 +346,30 @@ router.post("/spa",(req,res)=>{
 
                     if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=0.6){
 
-                        await updateCon("groups",['level'],['(level + 1)'],[['userID','=',data.id]]);
+                        await updateCon("coursessubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
+                        let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
+                        if(userProfile['courses']){
+                            userProfile['courses'] = JSON.parse(userProfile['courses']);
+                            userProfile['courses'].push({
+                                name:result[0].courseName,
+                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                                date:(new Date())
+
+                            })
+
+
+                        }else{
+                            userProfile['courses'] = [
+                                {
+                                    name:result[0].courseName,
+                                    mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                                    date:(new Date())
+                                }
+                            ];
+                        }
+
+                        await updateCon("profiles",['courses'],[JSON.stringify(userProfile['courses'])],[['userID','=',data.id]]);
+
                     }
 
                  } catch (error) {
@@ -384,6 +407,30 @@ router.post("/spa",(req,res)=>{
                         )
                     
                     ]);
+
+                    await updateCon("fellowshipssubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
+                    let userProfile = await readCon("profiles",null,[['userID','=',data.id]])[0];
+                    if(userProfile['fellowships']){
+                            userProfile['fellowships'] = JSON.parse(userProfile['fellowships']);
+                            userProfile['fellowships'].push({
+                                name:result[0].fellowshipName,
+                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                                date:(new Date())
+
+                            })
+
+                    }else{
+                        userProfile['fellowships'] = [
+                            {
+                                name:result[0].fellowshipName,
+                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                                date:(new Date())
+                            }
+                        ];
+                    }
+
+                    await updateCon("profiles",['fellowships'],[JSON.stringify(userProfile['fellowships'])],[['userID','=',data.id]]);
+
                     } catch (error) {
 
                         res.sendStatus(403);
@@ -568,6 +615,26 @@ console.log(data);
 
 
 });
+//update notificationToken
+router.post("/gn",(req,res)=>{
+if(req.body.token){
 
+    auth(req.cookies,res,async function(data){
+
+            await updateCon("login",['notToken'],[req.body.token],[['userID','=',data.id]]);
+            res.sendStatus(200);
+            
+        },function(){},1)
+    
+        
+}else{
+
+    res.sendStatus(403);
+    return;
+}
+
+    
+    
+    });
 
 module.exports = router

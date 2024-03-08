@@ -1234,7 +1234,7 @@ router.post("/up", async (req, res) => {
 
     req.body.productPrice =Number(req.body.productPrice );
     req.body.id=Number(req.body.id);
-    if (req.body.productName && req.body.productPrice && typeof (req.body.productPrice) == 'number' && req.body.id) {
+    if (req.body.productName && req.body.productPrice && typeof (req.body.productPrice) == 'number' && req.body.id&&req.body.genre) {
 
 
 
@@ -1249,7 +1249,7 @@ router.post("/up", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await updateProduct(req.body.id, req.body.productName, req.body.productPrice, req.files);
+                    await updateProduct(req.body.id, req.body.productName, req.body.productPrice,req.body.genre, req.files);
                 } catch (error) {
                     console.log(req.body);
                     console.log(error);
@@ -1291,9 +1291,17 @@ router.post("/up", async (req, res) => {
 
 router.post("/np", async (req, res) => {
 
+    
+    // console.log(JSON.parse(req.body.body));
+    // req.body.productPrice=Number(req.body.productPrice);
+    // req.body = JSON.parse(req.body.body);
+    // console.log(JSON.parse(req.body.files));
 
-    req.body.productPrice=Number(req.body.productPrice);
-    if (req.body && req.files) {
+console.log(req.files);
+    req.body=JSON.parse(req.body.body);
+    console.log(typeof(req.files));
+    console.log(req.body);
+    if (req.body && req.files&&req.body.genre) {
         if (req.body.productName&& typeof(req.body.productPrice) == "number") {
 
             auth(req.cookies, res, async (data) => {
@@ -1302,7 +1310,7 @@ router.post("/np", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await newProduct(req.body.productName, req.body.productPrice, req.files);
+                    await newProduct(req.body.productName, req.body.productPrice,req.body.genre, req.files);
                 } catch (error) {
                     console.log(error);
                     res.send({
@@ -1900,16 +1908,16 @@ async function newCourse(courseName, courseDuration, files, courseDetails = null
 }
 
 
-async function newProduct(productName, productPrice, files) {
+async function newProduct(productName, productPrice,genre, files) {
 
-    const id = (await write("products", ["productName", "productPrice","productStatus"], [productName, productPrice,1]));
-    upload(files, "courses", id.toString());
+    const id = (await write("products", ["productName", "productPrice","productStatus",'genre'], [productName, productPrice,1,genre]));
+    upload(files, "products", id.toString());
 
 
 }
 
 
-async function updateProduct(productID, productName, productPrice, files) {
+async function updateProduct(productID, productName, productPrice,genre, files) {
 
     let fields = {};
     if (productName != -9) {
@@ -1918,7 +1926,9 @@ async function updateProduct(productID, productName, productPrice, files) {
     if (productPrice != -9) {
         fields["productPrice"] = productPrice;
     }
-
+    if (genre != -9) {
+        fields["genre"] = genre;
+    }
 
     if (Object.keys(fields).length > 0) {
         await updateCon("products", Object.keys(fields), Object.values(fields), [
@@ -2199,8 +2209,31 @@ router.post("/nacc", async (req, res) => {
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("login",["username","password","level",'status','email'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.email]);
-          
+                    const id=(await write("login",["username","password","level",'status','email'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.email]));
+                    await write("profile",['userID','courses','fellowships','email','username'],[id,null,null,req.body.email,req.body.username]);
+                    const nodemailer = require("nodemailer");
+
+                    const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
+                    
+                    await transporter.sendMail({
+                      from:"dentists-iq@mail.ru",
+                      to: req.body.email, // list of receivers
+                      subject: "contacting us", // Subject line
+                      text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
+                    }).then((e)=>{
+                      console.log(e);
+                    });
+                    //send email to inform the user of the new password
 
                 } catch (error) {
                     console.log(error);
@@ -2232,6 +2265,101 @@ router.post("/nacc", async (req, res) => {
 
 })
 
+//update account
+router.post("/uacc", async (req, res) => {
+
+
+
+    if (req.body.username&&req.body.userID &&req.body.email&& req.body.password&&typeof(req.body.level)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let fields = {};
+                    if ( req.body.email != -9) {
+                        fields["email"] =  req.body.email;
+                        
+                    const nodemailer = require("nodemailer");
+
+                    const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
+                    
+                    await transporter.sendMail({
+                      from:"dentists-iq@mail.ru",
+                      to: req.body.email, // list of receivers
+                      subject: "contacting us", // Subject line
+                      text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
+                    });
+
+                    }
+                    if (req.body.username != -9) {
+                        fields["username"] = req.body.username;
+                    }
+                    if ( req.body.password != -9) {
+                        fields["password"] =  await hash(req.body.password);
+                    }
+                    if ( req.body.level != -9) {
+                        fields["level"] =  req.body.level;
+
+                    }
+                    if ( req.body.status != -9) {
+                        fields["status"] =  req.body.status;
+
+                    }
+
+                    if (Object.keys(fields).length > 0) {
+                        await updateJSON("login", Object.keys(fields), Object.values(fields), [
+                            ["userID", '=', req.body.userID]
+                        ]);
+                        delete fields['password'];
+                        delete fields['level'];
+                        delete fields['status'];
+
+                        await updateJSON("profiles", Object.keys(fields), Object.values(fields), [
+                            ["userID", '=', req.body.userID]
+                        ]);
+                    }
+                    //send email to inform the user of the new password
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 
 //new chapter
 router.post("/nch", async (req, res) => {
@@ -2627,6 +2755,21 @@ console.log(e);
 
     // res.cookie()
 
+});
+
+//send courses to all users
+router.post("/gc/",async (req,res)=>{
+
+
+    const data = (await read("courses"));
+    res.send({d:data});
+});
+//send fellowships to all users
+router.post("/gf/",async (req,res)=>{
+
+
+    const data = (await read("fellowships"));
+    res.send({d:data});
 });
 
 //get fellowships subscriptions
@@ -3944,6 +4087,30 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
         console.log("done done ND FINISHED");
 
         await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID'],[ID,payment,userID]);
+        //send an email
+        const user=readCon("login",['email'],[['userID','=',userID]])[0];
+        const nodemailer = require("nodemailer");
+
+        const transporter = nodemailer.createTransport({
+          host: "smtp.mail.ru",
+          port: 465,
+          secure: true,
+          auth: {
+            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+            user: "dentists-iq@mail.ru",
+            pass: "S4x0cMyN7N8f0H21vKBf",
+          },
+        });
+        
+        
+        await transporter.sendMail({
+          from:"dentists-iq@mail.ru",
+          to: user.email, // list of receivers
+          subject: "contacting us", // Subject line
+          text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
+        }).then((e)=>{
+          console.log(e);
+        });
 }
 
 async function removingSomeoneFromBannedTable(userID,acourse,ID) {
