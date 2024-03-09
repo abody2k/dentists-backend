@@ -894,7 +894,125 @@ router.post("/uc", async (req, res) => {
 
 });
 
+//archive course
+router.post("/ac", async (req, res) => {
+    req.body = JSON.parse(req.body.body);
 
+    console.log( req.body);
+
+    // req.body.courseDuration = Number(req.body.courseDuration);
+
+    // req.body = Object.keys(req.body);
+    // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
+    // res.sendStatus(200);
+    // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
+    if (typeof(req.body.arch)=='number'&& req.body.id) {
+
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            if ((await readCon("courses", ['courseID'], [
+                    ['courseID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateCon("courses",['archived'],[req.body.arch],[['courseID','=',req.body.id]])
+                } catch (error) {
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+//archive fellowship
+router.post("/af", async (req, res) => {
+
+
+    // req.body.courseDuration = Number(req.body.courseDuration);
+req.body = JSON.parse(req.body.body);
+    // req.body = Object.keys(req.body);
+    // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
+    // res.sendStatus(200);
+    // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
+    console.log(req.body);
+    if (req.body.arch!=null&& req.body.id) {
+
+        auth(req.cookies, res, async (data) => {
+            if ((await readCon("fellowships", ['fellowshipID'], [
+                    ['fellowshipID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateCon("fellowships",['archived'],[req.body.arch],[['fellowshipID','=',req.body.id]])
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, (e) => {
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
 //change user to passed in the current course
 router.post("/pf", (req, res) => {
     //check if the data is valid
@@ -2757,6 +2875,33 @@ console.log(e);
 
 });
 
+
+//send certain course to all users
+router.post("/gcc/",async (req,res)=>{
+
+    if(!req.body.id){
+
+
+        res.sendStatus(404);
+        return;
+    }
+    const data = (await readCon("courses",null,[['courseID','=',req.body.id]]));
+    res.send({d:data[0]});
+});
+
+//send certain fellowship to all users
+router.post("/gcf/",async (req,res)=>{
+
+    if(!req.body.id){
+
+
+        res.sendStatus(404);
+        return;
+    }
+    const data = (await readCon("fellowships",null,[['fellowshipID','=',req.body.id]]));
+    res.send({d:data[0]});
+});
+
 //send courses to all users
 router.post("/gc/",async (req,res)=>{
 
@@ -3561,10 +3706,11 @@ router.post("/dexm", async (req, res) => {
 //delete course
 router.post("/dc", async (req, res) => {
 
+    req.body= JSON.parse(req.body.body)
 
 
    
-    if (req.body.cid &&typeof(req.body.cid)=='number') {
+    if (req.body.id &&typeof(req.body.id)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
@@ -3574,9 +3720,9 @@ router.post("/dc", async (req, res) => {
                 try {
 
 
-                    await deleteCon("videos",[['courseID','=',req.body.cid]]);
-                    await deleteCon("coursessubscription",[['courseID','=',req.body.cid]]);
-                    await deleteCon("courses",[['courseID','=',req.body.cid]]);
+                    await deleteCon("videos",[['courseID','=',req.body.id]]);
+                    await deleteCon("coursessubscription",[['courseID','=',req.body.id]]);
+                    await deleteCon("courses",[['courseID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
                         accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
@@ -3587,7 +3733,7 @@ router.post("/dc", async (req, res) => {
                       s3.deleteObject({
 
                         Bucket:"dentists-iq",
-                        Key:"courses/"+req.body.cid
+                        Key:"courses/"+req.body.id
                       },(e,d)=>{
 
 
@@ -3630,13 +3776,13 @@ res.sendStatus(200);
 })
 
 
-//delete course
+//delete fellowship
 router.post("/df", async (req, res) => {
 
-
+req.body= JSON.parse(req.body.body)
 
    
-    if (req.body.fid &&typeof(req.body.fid)=='number') {
+    if (req.body.id &&typeof(req.body.id)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
@@ -3646,9 +3792,9 @@ router.post("/df", async (req, res) => {
                 try {
 
 
-                    await deleteCon("fellowshipvideos",[['fellowshipID','=',req.body.fid]]);
-                    await deleteCon("fellowshipssubscription",[['fellowshipID','=',req.body.fid]]);
-                    await deleteCon("fellowships",[['fellowshipID','=',req.body.fid]]);
+                    await deleteCon("fellowshipvideos",[['fellowshipID','=',req.body.id]]);
+                    await deleteCon("fellowshipssubscription",[['fellowshipID','=',req.body.id]]);
+                    await deleteCon("fellowships",[['fellowshipID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
                         accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
@@ -3659,7 +3805,7 @@ router.post("/df", async (req, res) => {
                       s3.deleteObject({
 
                         Bucket:"dentists-iq",
-                        Key:"fellowships/"+req.body.fid
+                        Key:"fellowships/"+req.body.id
                       },(e,d)=>{
 
 

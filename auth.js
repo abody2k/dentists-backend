@@ -21,6 +21,9 @@ function authenticate(cookies,res,successFunc,errFunc,level=-1) {
                     errFunc();
                     res.sendStatus(403);
                 }else{
+
+console.log(level);
+console.log(data);
                     if (level !=-1 && data['l']!=level){
                         errFunc();
                     res.sendStatus(403);

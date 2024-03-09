@@ -77,14 +77,20 @@ router.post("/gcf/",async (req,res)=>{
 router.post("/si/",async (req,res)=>{
 
     if((req.body.email)&&req.body.p){
-        const data = (await util.readCon("login",['password',"email","notToken"],[['email','=',req.body.email]]));
-        require("argon2").verify(data[0].password.toString(),req.body.p.toString()).then((e)=>{
+        let data = (await util.readCon("login",['password',"email","notToken",'userID'],[['email','=',req.body.email]]));
+        if(data.length<=0){
+
+            res.sendStatus(403);
+            return;
+        }
+
+        require("argon2").verify(data[0].password.toString(),req.body.p.toString()).then(async (e)=>{
 
             if(e){
 
 const options ={
     l:1,
-    id:req.body.id,
+    id:data[0].userID,
 };
 
 
@@ -92,10 +98,11 @@ const options ={
                 da.setFullYear(da.getFullYear()+1)
                 res.cookie("token",
                 require("jsonwebtoken").sign(options,"secret"), {httpOnly:true,expires:(da)}
-                )
+                );
+                console.log(data);
             
                 res.send({
-            
+                    n:(await util.readCon("notifications",['notification'],[['userID','=',data[0].userID]])).map((e)=>e.notification),
                   e:0,
                 //   m: options["mac"] ? 0 : 1
                 });
