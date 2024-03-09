@@ -3,17 +3,15 @@ const {auth} = require('./auth.js');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
 const { readFile, readCon, deleteCon } = require('./util.js');
+const handler = require("./build/handler.js")
 require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
 app.use(require("cookie-parser")())
 app.use(fileUpload())
 app.use(express.json())
-app.use(require("cors")({
-
-  credentials:true,origin:"http://localhost:5173"
-}))
-
+app.use(require("cors"))
+app.use(handler)
 
 
 
