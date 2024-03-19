@@ -185,6 +185,10 @@ app.use((req,res)=>{
 // },"secret"));
 // auth(sign("hola","secret"))
 
-
-
-app.listen(3000,()=>{console.log("the server is alive");})
+console.log(process.cwd());
+const serv = require("greenlock-express").init({
+  cluster:false,
+  packageRoot:process.cwd(),
+  maintainerEmail:"alhmdanyb902@gmail.com"
+}).serve(app)
+// app.listen(3000,()=>{console.log("the server is alive");})
