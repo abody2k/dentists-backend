@@ -1,17 +1,21 @@
+import Module from "node:module";
+
+const require = Module.createRequire(import.meta.url);
+
 const express = require('express');
-const {auth} = require('./auth.js');
+const {auth} = require('./auth.cjs');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readFile, readCon, deleteCon } = require('./util.js');
-const handler = require("./build/handler.js")
+const { readFile, readCon, deleteCon } = require('./util.cjs');
+import {handler} from "./build/handler.js"
 require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
-app.use(require("cookie-parser")())
-app.use(fileUpload())
-app.use(express.json())
-app.use(require("cors"))
-app.use(handler)
+
+
+app.use(require("cors")({
+  origin:true,credentials: true
+}))
 
 
 
@@ -50,7 +54,29 @@ const fbApp =admin.initializeApp({
 
 
 
-app.post("/mma",(req,res)=>{
+
+
+let handle = (func)=>(req,res,next)=>{
+
+try {
+  console.log("trying things out");
+  func(req,res,next)
+} catch (error) {
+  console.log('a massive error happened here');
+  res.sendStatus(403);
+}
+}
+
+
+
+
+
+app.use(require("cookie-parser")())
+app.use(fileUpload())
+app.use(express.json())
+
+
+app.post("/api/mma",(req,res)=>{
   var da=(new Date());
   da.setFullYear(da.getFullYear()+1)
 
@@ -69,14 +95,15 @@ app.post("/mma",(req,res)=>{
     })
 })
 
-app.post("/aus",async(req,res)=>{
+app.post("/api/aus",async(req,res)=>{
 
+  console.log("INVOKED");
 res.send({
   d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about
 })
   
 })
-app.post("/mmu",(req,res)=>{
+app.post("api/mmu",(req,res)=>{
 
 
   var da=(new Date());
@@ -95,10 +122,13 @@ app.post("/mmu",(req,res)=>{
     })
 })
 
-app.use("/n/",require("./routes/none.js"))
-app.use("/u/",require("./routes/user.js"))
+app.use("/api/n/",handle(require("./routes/none.cjs")))
+app.use("/api/u/",handle(require("./routes/user.cjs")))
 
-app.use("/a/",require("./routes/admin.js"))
+app.use("/api/a/",handle(require("./routes/admin.cjs")))
+
+
+
 app.post("/delete/nots",(req,res)=>{
 
 deleteCon("notifications",[['datediff(now(),exp)','>','3']]);
@@ -129,6 +159,23 @@ console.log(typeof(req.params.id));
   }
 
 })
+
+
+
+app.use(express.static('./build/'));
+
+
+app.use(handler);
+
+
+
+app.use((req,res)=>{
+
+  console.log(req.url);
+})
+
+
+
 //  BEoyvDKJRZk0w9MFzs_VZ6SWfUmjD7E-vNDzsqh_VQFyxPukZjYE2UPcC9mHcs4KaGWDp5zu1Gl_iSrJjL4Hk9U 
 // Define a route to handle file uploads
 
@@ -137,5 +184,7 @@ console.log(typeof(req.params.id));
 //     l:0
 // },"secret"));
 // auth(sign("hola","secret"))
+
+
 
 app.listen(3000,()=>{console.log("the server is alive");})

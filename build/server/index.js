@@ -1,6 +1,6 @@
-import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-CIpp2D7Y.js';
+import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-C5Pny6Bf.js';
 import { d as decode_pathname, h as has_data_suffix, s as strip_data_suffix, a as decode_params, n as normalize_path, b as disable_search, c as add_data_suffix, m as make_trackable, r as resolve } from './chunks/exports-DuWZopOC.js';
-import { w as writable, r as readable } from './chunks/index-ztw73xxR.js';
+import { w as writable, r as readable } from './chunks/index-DoR1wzWw.js';
 
 let base = "";
 let assets = base;
@@ -141,7 +141,7 @@ const options = {
 
 body{
     font-family: 'Tajawal';
-	background-color: #E6E7EE;
+	background-color: rgb(230, 231, 238);
 
 }
 
@@ -158,6 +158,7 @@ body{
 }
 
 .hidden {
+  display: none;
   top: -100px;
 }
 
@@ -211,7 +212,8 @@ body{
 
 	</style>
 	<body data-sveltekit-preload-data="hover" style="padding: 0px;margin: 0px;">
-		<div id="popout">
+		<div id="popout" class="hidden">
+    
 		  </div>
 		<div style="display: contents;width: max-content;">` + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!doctype html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<title>' + message + `</title>
@@ -285,7 +287,7 @@ body{
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "1ndbkrc"
+  version_hash: "y9zkgi"
 };
 async function get_hooks() {
   return {};
