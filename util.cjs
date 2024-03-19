@@ -8,10 +8,12 @@ const aws = require('aws-sdk');
  */
 async function read(table,fields) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00"
         
     })
 
@@ -25,10 +27,12 @@ async function read(table,fields) {
 
 async function readOrder(table,fields,conditions,orderer,limit=null) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
     const data= (await conn.query(`select ${(fields != null ? fields.join(",") : "*")} from ${table} where ${con} order by ${orderer} desc  ${limit ? " LIMIT "+ limit : ""};`))[0];
@@ -45,10 +49,12 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
  */
 async function readConditionally(table,fields,conditions,limit=null) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
     const data= (await conn.query(`select ${(fields != null ? fields.join(",") : "*")} from ${table} where ${con}  ${limit ? " LIMIT "+ limit : ""};`))[0];
@@ -59,10 +65,12 @@ async function readConditionally(table,fields,conditions,limit=null) {
 
 async function deleteConditionally(table,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
     (await conn.query(`delete from  ${table} where ${con} `));
@@ -80,11 +88,12 @@ async function deleteConditionally(table,conditions) {
  */
 async function updateConditionally(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
-        timezone:"+03:00"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00",
 
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
@@ -114,11 +123,12 @@ async function updateConditionally(table,fields,values,conditions) {
  */
 async function updateConditionallyJSON(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
-        timezone:"+03:00"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00",
 
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
@@ -147,10 +157,11 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
  */
 async function write(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
+        port:3306,
         timezone:"+03:00"
     })
     const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
@@ -169,10 +180,12 @@ async function write(table,keys,values) {
  */
 async function writeMany(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001"
+        password:"grabyOli0001",
+        port:3306,
+        timezone:"+03:00"
     })
     // const value = values.map(v=>(typeof(v)=="string" ? `"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"` : (v==undefined ? "null" : v)));
     console.log(values);

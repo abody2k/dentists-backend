@@ -2830,10 +2830,12 @@ router.post("/gcs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"localhost",
+                        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
                         user:"root",
                         database:"dentists",
-                        password:"0001"
+                        password:"grabyOli0001",
+                        port:3306,
+                        timezone:"+03:00",
                     })         
                     console.log("SOMETHING WENT REALLY WRONG");
            
@@ -2933,10 +2935,12 @@ router.post("/gfs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"localhost",
+                        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
                         user:"root",
                         database:"dentists",
-                        password:"0001"
+                        password:"grabyOli0001",
+                        port:3306,
+                        timezone:"+03:00",
                     })                    
                     const data= (await conn.query(`select login.username,login.email,login.userID,fellowshipssubscription.userID,fellowshipssubscription.subscriptionID,fellowshipssubscription.joinedDate,fellowshipssubscription.expDate,fellowshipssubscription.totalFee,fellowshipssubscription.remainingFee,fellowshipssubscription.groupID,fellowshipssubscription.status from login, fellowshipssubscription where fellowshipID=${req.body.fid} and login.userID = fellowshipssubscription.userID;`))[0];
                     await conn.end();
