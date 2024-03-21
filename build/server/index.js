@@ -1,6 +1,6 @@
-import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-C5Pny6Bf.js';
+import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-CggYz5VK.js';
 import { d as decode_pathname, h as has_data_suffix, s as strip_data_suffix, a as decode_params, n as normalize_path, b as disable_search, c as add_data_suffix, m as make_trackable, r as resolve } from './chunks/exports-DuWZopOC.js';
-import { w as writable, r as readable } from './chunks/index-DoR1wzWw.js';
+import { w as writable, r as readable } from './chunks/index-DPZ-spl1.js';
 
 let base = "";
 let assets = base;
@@ -144,6 +144,50 @@ body{
 	background-color: rgb(230, 231, 238);
 
 }
+::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #2E3B6F;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #39879b;
+    }
+.title{
+
+  color: navy;
+  font-weight: bolder;
+}
+.footer-container{
+  background: linear-gradient(0.25turn, #2E3B6F, #39879b);     /* padding: 20px; */
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ 
+     width: 100%; /* Occupy the full width of the container */
+     position: absolute;
+     overflow-x: hidden;
+     height: 430px;
+     top: 2990px;
+     z-index: -1;
+}
+
+a{
+  color: white;
+}
+
+.map-box {
+     width: 50%;
+     height: 200px;
+     background-color: #fff;
+   }
 
 #popout {
   position: fixed;
@@ -287,7 +331,7 @@ body{
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "1jrlofo"
+  version_hash: "4vus9h"
 };
 async function get_hooks() {
   return {};
