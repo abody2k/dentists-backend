@@ -70,9 +70,9 @@ const Blogs = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   if ($$props.blogs === void 0 && $$bindings.blogs && blogs !== void 0)
     $$bindings.blogs(blogs);
   $$result.css.add(css$2);
-  return `   <div class="svelte-30d5l1"><div class="icon svelte-30d5l1"><button class="svelte-30d5l1" data-svelte-h="svelte-x4kpjk"><img src="/back-icon.png" class="svelte-30d5l1"></button></div>  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;" class="svelte-30d5l1"><div class="navy-title svelte-30d5l1">${escape(firstTitle)}</div> </div>  <div class="neumorphic-card svelte-30d5l1" style="padding: 20px;"><div style="text-align: center;" class="svelte-30d5l1">  <div class="row svelte-30d5l1" style="display: flex;justify-content:space-around;align-items: center;"><button class="svelte-30d5l1" data-svelte-h="svelte-5u2k07"><img src="/left.png" class="svelte-30d5l1"></button> ${each(blogs, (blog, index) => {
+  return `   <div class="svelte-30d5l1"><div class="icon svelte-30d5l1"><button class="svelte-30d5l1" data-svelte-h="svelte-x4kpjk"><img src="/back-icon.png" class="svelte-30d5l1"></button></div>  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;" class="svelte-30d5l1"><div class="navy-title svelte-30d5l1">${escape(firstTitle)}</div> </div>  <div class="neumorphic-card svelte-30d5l1" style="padding: 20px;"><div style="text-align: center;" class="svelte-30d5l1">  <div class="row svelte-30d5l1" style="display: flex;justify-content:space-around;align-items: center;"><button class="svelte-30d5l1" data-svelte-h="svelte-1fb2q52"><img src="/left.png" class="svelte-30d5l1"></button> ${each(blogs, (blog, index) => {
     return `${index == currentIndex ? `<img${add_attribute("src", blog.src, 0)} alt="Neumorphic Picture" id="blog-image" class="rectangular-image svelte-30d5l1">` : ``}`;
-  })}  <button class="svelte-30d5l1" data-svelte-h="svelte-1qp7tuo"><img src="/right.png" class="svelte-30d5l1"></button></div>  ${blogs.length > 0 ? `<div class="black-title svelte-30d5l1">${escape(blogs[currentIndex].text)}</div> ` : ``}  <div class="dots-container svelte-30d5l1">${each([0, 1, 2], (_, index) => {
+  })}  <button class="svelte-30d5l1" data-svelte-h="svelte-18ufuno"><img src="/right.png" class="svelte-30d5l1"></button></div>  ${blogs.length > 0 ? `<div class="black-title svelte-30d5l1">${escape(blogs[currentIndex].text)}</div> ` : ``}  <div class="dots-container svelte-30d5l1">${each([0, 1, 2], (_, index) => {
     return `<div class="${"dot " + escape(index === currentIndex ? "light-dot" : "dark-dot", true) + " svelte-30d5l1"}"></div>`;
   })}</div></div></div></div>`;
 });
@@ -160,4 +160,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-dl_8TCAu.js.map
+//# sourceMappingURL=_page.svelte-B2Gt0yBE.js.map

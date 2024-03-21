@@ -10,11 +10,11 @@ return {
 	assets: new Set(["ab.png","add.png","addImage.png","addP.png","Arimo-Bold.ttf","Arimo-BoldItalic.ttf","Arimo-Italic.ttf","Arimo-Regular.ttf","back-icon.png","Barlow-Black.ttf","Barlow-BlackItalic.ttf","Barlow-Bold.ttf","Barlow-BoldItalic.ttf","Barlow-ExtraBold.ttf","Barlow-ExtraBoldItalic.ttf","Barlow-ExtraLight.ttf","Barlow-ExtraLightItalic.ttf","Barlow-Italic.ttf","Barlow-Light.ttf","Barlow-LightItalic.ttf","Barlow-Medium.ttf","Barlow-MediumItalic.ttf","Barlow-Regular.ttf","Barlow-SemiBold.ttf","Barlow-SemiBoldItalic.ttf","Barlow-Thin.ttf","Barlow-ThinItalic.ttf","bell.png","bell2.png","bg.jpg","cancel.png","cash.png","close.png","contact.png","date.png","del.png","details.png","diver.png","done.png","ds.png","ds2.png","edit.png","email.png","exams.png","favicon.png","firebase-messaging-sw.js","left.png","Logo.png","password.png","ppl.png","ppl2.png","pt.png","ques.png","qus.png","redclose.png","right.png","save.png","sch.png","sources.png","srch.png","time.png","transfer.png","upload.png","url.png","videos.png"]),
 	mimeTypes: {".png":"image/png",".ttf":"font/ttf",".jpg":"image/jpeg",".js":"text/javascript"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.CgsWkIjY.js","app":"_app/immutable/entry/app.b6ntK3iw.js","imports":["_app/immutable/entry/start.CgsWkIjY.js","_app/immutable/chunks/entry.F0Rf4B2-.js","_app/immutable/chunks/scheduler.CvS8aZFR.js","_app/immutable/chunks/index.BnwJMdZt.js","_app/immutable/entry/app.b6ntK3iw.js","_app/immutable/chunks/preload-helper.BQ24v_F8.js","_app/immutable/chunks/scheduler.CvS8aZFR.js","_app/immutable/chunks/index.BLvvEpyq.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
+		client: {"start":"_app/immutable/entry/start.DwpMZZZU.js","app":"_app/immutable/entry/app.DyQrQbsK.js","imports":["_app/immutable/entry/start.DwpMZZZU.js","_app/immutable/chunks/entry.D7NOhxnJ.js","_app/immutable/chunks/scheduler.CvS8aZFR.js","_app/immutable/chunks/index.BnwJMdZt.js","_app/immutable/entry/app.DyQrQbsK.js","_app/immutable/chunks/preload-helper.BQ24v_F8.js","_app/immutable/chunks/scheduler.CvS8aZFR.js","_app/immutable/chunks/index.BLvvEpyq.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
 		nodes: [
 			__memo(() => import('./chunks/0-DLKb8IdA.js')),
-			__memo(() => import('./chunks/1-BF3yb6XR.js')),
-			__memo(() => import('./chunks/2-TVP3ReaU.js')),
+			__memo(() => import('./chunks/1-Bh9EX9Oh.js')),
+			__memo(() => import('./chunks/2-YvA0kKFW.js')),
 			__memo(() => import('./chunks/3-COPEY8i9.js')),
 			__memo(() => import('./chunks/4-BYdcThbQ.js')),
 			__memo(() => import('./chunks/5-DZgEJ6vf.js')),
