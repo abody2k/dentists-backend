@@ -10,7 +10,8 @@ router.post("/gp/",async(req,res)=>{
 //or from this server
 
 const data = (await util.read("products"));
-res.send({d:data});
+const beta = (await util.read("genres"));
+res.send({d:data,g:beta});
 
 
 

@@ -286,6 +286,159 @@ router.post("/nb", async (req, res) => {
 })
 
 
+//new genre
+
+router.post("/ng", async (req, res) => {
+
+
+console.log(req.body);
+    if (req.body.t&&req.body.o) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+                    await updateCon("genres",['`order`'],['(`order`+1)'],[['`order`','>=',req.body.o]]);
+                    await write("genres",['name','`order`'],[req.body.t,req.body.o]);
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//update genre
+
+router.post("/ug", async (req, res) => {
+
+
+
+    if (req.body.t&&req.body.gID>=0&&req.body.o) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateCon("genres",['`order`'],['(`order`+1)'],[['`order`','>=',req.body.o]]);
+                    await updateCon('genres',['name','`order`'],[req.body.t,req.body.o],[['genreID','=',req.body.gID]]);
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+//delete genre
+
+router.post("/dg", async (req, res) => {
+
+
+
+    if (req.body.gID>=0) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await deleteCon('products',[['genre','=',req.body.gID]]);
+                    await deleteCon('genres',[['genreID','=',req.body.gID]]);
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 //update blog
 router.post("/ub", async (req, res) => {
 
@@ -1350,8 +1503,9 @@ router.post("/dp", async (req, res) => {
 
 
 router.post("/up", async (req, res) => {
+    // console.log(req.body);
 
-
+    req.body= JSON.parse(req.body.body)
     req.body.productPrice =Number(req.body.productPrice );
     req.body.id=Number(req.body.id);
     if (req.body.productName && req.body.productPrice && typeof (req.body.productPrice) == 'number' && req.body.id&&req.body.genre) {
@@ -1369,7 +1523,7 @@ router.post("/up", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await updateProduct(req.body.id, req.body.productName, req.body.productPrice,req.body.genre, req.files);
+                    await updateProduct(req.body.id, req.body.productName, req.body.productPrice,req.body.genre,req.body.discount,req.body.status ,req.files);
                 } catch (error) {
                     console.log(req.body);
                     console.log(error);
@@ -1422,7 +1576,7 @@ console.log(req.files);
     console.log(typeof(req.files));
     console.log(req.body);
     if (req.body && req.files&&req.body.genre) {
-        if (req.body.productName&& typeof(req.body.productPrice) == "number") {
+        if (req.body.productName&&req.body.genre&&req.body.status != null&& typeof(req.body.productPrice) == "number") {
 
             auth(req.cookies, res, async (data) => {
 
@@ -1430,7 +1584,7 @@ console.log(req.files);
                 console.log("Everything went well");
 
                 try {
-                    await newProduct(req.body.productName, req.body.productPrice,req.body.genre, req.files);
+                    await newProduct(req.body.productName, req.body.productPrice,req.body.genre,req.body.discount,req.body.status, req.files);
                 } catch (error) {
                     console.log(error);
                     res.send({
@@ -2028,16 +2182,16 @@ async function newCourse(courseName, courseDuration, files, courseDetails = null
 }
 
 
-async function newProduct(productName, productPrice,genre, files) {
+async function newProduct(productName, productPrice,genre,discount,status, files) {
 
-    const id = (await write("products", ["productName", "productPrice","productStatus",'genre'], [productName, productPrice,1,genre]));
+    const id = (await write("products", ["productName", "productPrice","productStatus",'discount','genre'], [productName, productPrice,status,discount,genre]));
     upload(files, "products", id.toString());
 
 
 }
 
 
-async function updateProduct(productID, productName, productPrice,genre, files) {
+async function updateProduct(productID, productName, productPrice,genre,discount,status, files) {
 
     let fields = {};
     if (productName != -9) {
@@ -2049,7 +2203,12 @@ async function updateProduct(productID, productName, productPrice,genre, files) 
     if (genre != -9) {
         fields["genre"] = genre;
     }
-
+    if (discount != -9) {
+        fields["discount"] = discount;
+    }
+    if (status != -9) {
+        fields["status"] = status;
+    }
     if (Object.keys(fields).length > 0) {
         await updateCon("products", Object.keys(fields), Object.values(fields), [
             ["productID", '=', productID]
