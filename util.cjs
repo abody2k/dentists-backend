@@ -228,8 +228,9 @@ function uploadFile(files,folder,fileName) {
       });
 
 
-    if (folder=="products"){
-        console.log(files);
+    if (folder=="products" && files.files.length){
+
+
         for (let i = 0; i < files.files.length; i++) {
 
             const file = files.files[i];
