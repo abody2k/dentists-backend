@@ -1467,6 +1467,45 @@ router.post("/dp", async (req, res) => {
 
                 try {
                     await deleteCon("products",[['productID','=',req.body.id]])
+
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                        secretAccessKey: '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',
+                        region: 'us-east-1',
+                      });
+             
+              
+                      const listParams = {
+                        Bucket:"dentists-iq",
+                        Prefix:"products/"+req.body.id
+                    };
+                      
+
+                      s3.listObjectsV2(listParams, function(err, data) {
+                        if (err) {
+                            console.error('Error listing objects:', err);
+                        } else {
+                            // Delete each object in the folder
+                            const deleteParams = {
+                                Bucket: "dentists-iq",
+                                Delete: { Objects: [] }
+                            };
+                    
+                            data.Contents.forEach((obj) => {
+                                deleteParams.Delete.Objects.push({ Key: obj.Key });
+                            });
+                    
+                            s3.deleteObjects(deleteParams, function(err, deleteData) {
+                                if (err) {
+                                    console.error('Error deleting objects:', err);
+                                }
+                            });
+                        }
+                    });
+
+                    //   res.sendStatus(200);
+
+
                 } catch (error) {
                     console.log(error);
                     res.send({

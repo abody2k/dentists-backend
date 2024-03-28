@@ -270,7 +270,7 @@ function uploadFile(files,folder,fileName) {
     
         const params = {
           Bucket: 'dentists-iq',
-          Key: folder+"/"+fileName ,
+          Key: folder+"/"+fileName.toString()+"/0" ,
           Body: file.data,
           ACL: 'public-read', // Set the ACL permissions as needed
         };
@@ -324,6 +324,38 @@ function readFile(fileName,folder,res) {
     })
   
 }
+
+// function deleteFiles(fileName,folder,res) {
+    
+//     const s3 = new aws.S3({
+//         accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+//         secretAccessKey: '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',
+//         region: 'us-east-1',
+//       });
+
+
+//     const params = {
+//       Bucket: 'dentists-iq',
+//       Key: folder+"/"+fileName,
+//     };
+
+
+//     s3.getObject(params,(err,data)=>{
+
+
+//         if(err){
+//             console.log(err);
+//             res.sendStatus(403);
+//         }else{
+//             console.log(data);
+//             res.setHeader('Content-Type', data.ContentType || 'application/octet-stream');
+
+//             // Send the file as a response
+//             res.send(data.Body);
+//         }
+//     })
+  
+// }
 module.exports = {
 
     'write':write,
