@@ -39,6 +39,17 @@ router.post("/gc/",async (req,res)=>{
 });
 
 
+
+//get all offers
+router.post("/gaf/",async (req,res)=>{
+
+
+    const data = (await util.read("offers"));
+    res.send({d:data});
+});
+
+
+
 router.post("/ga/",async (req,res)=>{
 
     const fellowships = (await util.read("fellowships"));

@@ -1409,6 +1409,260 @@ router.post("/rpff", (req, res) => {
 
 });
 
+
+//remove offer
+router.post("/rmof", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.id) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            deleteCon("offers",[['offerID','=',req.body.id]])
+
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+
+//update offer
+router.post("/uof", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.id) == 'number' && req.body.offer) {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            await updateCon("offers",["offer"],[req.body.offer],[['offerID','=',req.body.id]])
+
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+
+//new offer
+router.post("/nof", (req, res) => {
+ 
+        if ( req.body.offer) {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            await apps[0].firestore().collection("dentists").doc("offers").update({offer:req.body.offer});
+
+                            // await deleteCon("offers",[['offerID','>=','0']]);
+                            // await write("offers",['offer'],[JSON.stringify(req.body.offer)]);
+                            // updateCon("offers",["offer"],[req.body.offer],[['offerID','=',req.body.id]])
+
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    
+});
+
+
+//upload offer image
+router.post("/uofi", (req, res) => {
+ 
+    
+    req.body = JSON.parse(req.body.body);
+    console.log(req.body);
+    if (req.body) {
+
+        if (typeof (req.body.id) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+                            const s3 = new aws.S3({
+                                accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                                secretAccessKey: '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',
+                                region: 'us-east-1',
+                              });
+                     
+                      
+                              const params = {
+                                Bucket: 'dentists-iq',
+                                Key: "offers/"+req.body.id.toString() ,
+                                Body:req.files.files.data,
+                                ACL: 'public-read', // Set the ACL permissions as needed
+                              };
+                            s3.putObject(params,(e,d)=>{
+
+                                if(e){
+
+                                    res.sendStatus(403);
+                                    return;
+                                }else{
+                                    console.log("done done");
+                                    console.log(d);
+                                }
+                            })
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
+
+//delete offer image
+router.post("/dofi", (req, res) => {
+ 
+
+    if (req.body) {
+
+        if (typeof (req.body.id) == 'number') {
+
+            auth(req.cookies, res, async (data) => {
+
+        
+
+                        try {
+
+                            const s3 = new aws.S3({
+                                accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
+                                secretAccessKey: '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',
+                                region: 'us-east-1',
+                              });
+               
+
+                            s3.deleteObject({
+                                Bucket:"dentists-iq",
+
+                                Key:"/offers/"+req.body.id
+                            })
+                            res.sendStatus(200);
+                        } catch (e) {
+
+                            console.log("rejected , duplicate");
+
+                            res.sendStatus(403);
+                            return;
+                        }
+
+            }, () => {
+
+                console.log("rejected , during authentication");
+
+            }, 0);
+
+        } else {
+            console.log("rejected , not in the desired form");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+
+        res.sendStatus(403);
+        return;
+    }
+
+});
 //remove someone from a fellowship
 //remove person from all fellowships and courses
 router.post("/rpall", (req, res) => {
