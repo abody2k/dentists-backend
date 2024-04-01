@@ -1998,6 +1998,7 @@ router.post("/nf", async (req, res) => {
 
                 try {
                     await newfellowship(req.body.fellowshipName, req.body.fellowshipDuration, req.files, (req.body.fellowshipDetails ? req.body.fellowshipDetails : null));
+                    res.sendStatus(200);
                 } catch (error) {
                     res.send({
                         e: 1
@@ -2005,7 +2006,7 @@ router.post("/nf", async (req, res) => {
                     return;
                 }
                 console.log(data);
-                res.sendStatus(200);
+                
 
 
 
@@ -4242,9 +4243,9 @@ req.body= JSON.parse(req.body.body)
 
    
     if (req.body.id &&typeof(req.body.id)=='number') {
-
+console.log("to be contiuned");
             auth(req.cookies, res, async (data) => {
-
+                console.log("to be contiuned");
 
                 console.log("Everything went well");
 

@@ -276,11 +276,14 @@ function uploadFile(files,folder,fileName) {
         };
       
         // Upload the file to S3
+        console.log(params);
         
         s3.upload(params, (err, data) => {
           if (err) {
             console.log(err);
             throw err;
+          }else{
+            console.log("done uploading");
           }
       
         });       
