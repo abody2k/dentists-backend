@@ -156,6 +156,8 @@ const options = {
 body{
     font-family: 'Tajawal';
 	background-color: rgb(230, 231, 238);
+  overflow-x: hidden;
+overflow-y: auto;
 
 }
 ::-webkit-scrollbar {
@@ -273,7 +275,8 @@ a{
 		<div id="popout" class="hidden">
     
 		  </div>
-		<div style="display: contents;width: max-content;">` + body + "</div>\n	</body>\n</html>\n",
+		<div style="display: contents;width: max-content;overflow-x: hidden;
+    overflow-y: auto;">` + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!doctype html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<title>' + message + `</title>
 
 		<style>
@@ -345,7 +348,7 @@ a{
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "ltqwic"
+  version_hash: "1bagtvb"
 };
 async function get_hooks() {
   return {};
