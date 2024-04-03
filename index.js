@@ -6,7 +6,7 @@ const express = require('express');
 const {auth} = require('./auth.cjs');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readFile, readCon, deleteCon } = require('./util.cjs');
+const { readFile, readCon, deleteCon, default: util, updateCon } = require('./util.cjs');
 import {handler} from "./build/handler.js"
 require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
@@ -36,6 +36,26 @@ const fbApp =admin.initializeApp({
   
 });
 
+
+
+
+// 0 0 * * * curl -X POST http://localhost:8080/dan -H 'Cache-Control: no-cache' -H 'Content-Type: application/json'
+// ~             
+
+
+
+/*
+0 0 * * * /path/to/your/command_or_script
+
+In this crontab line:
+
+The first field (0) represents the minute (0-59).
+The second field (0) represents the hour (0-23).
+The asterisks (*) in the remaining fields indicate that the task will run every day of the month, every month, and every day of the week
+
+
+
+*/
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -94,16 +114,8 @@ app.post("/api/mma",(req,res)=>{
       e:0
     })
 })
+app.post("/api/mmu",(req,res)=>{
 
-app.post("/api/aus",async(req,res)=>{
-
-  console.log("INVOKED");
-res.send({
-  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about
-})
-  
-})
-app.post("api/mmu",(req,res)=>{
 
 
   var da=(new Date());
@@ -121,6 +133,59 @@ app.post("api/mmu",(req,res)=>{
       e:0
     })
 })
+app.post("/api/dan",async (req,res)=>{
+
+
+
+  res.sendStatus(200);
+
+  await deleteCon("notifications",[['(datediff(now(),exp))','>','10']]);
+})
+
+//ban all users that are expiered
+app.post("/api/bau",async (req,res)=>{
+
+
+
+  res.sendStatus(200);
+   
+  const subsc=await readCon("coursessubscription",['userID','courseID'],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  const subsf=await readCon("fellowshipssubscription",['userID','fellowshipID'],[[' datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  if(subsc.length>0)
+  await updateCon("coursessubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  if(subsf.length>0)
+  await updateCon("fellowshipssubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+
+  let sql = require("mysql2/promise");
+
+  const conn =  await sql.createConnection({
+    host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+    user:"root",
+    database:"dentists",
+    password:"grabyOli0001",
+    port:3306,
+    timezone:"+03:00",
+
+});
+
+if(subsc.length>0)
+await conn.query(`insert into banned (ID,userID,type) values ${subsc.map((e)=>`(${e.courseID},${e.userID},0)`).join(",")};`);
+if(subsf.length>0)
+await conn.query(`insert into banned (ID,userID,type) values ${subsf.map((e)=>`(${e.fellowshipID},${e.userID},1)`).join(",")};`);
+
+
+await conn.end();
+
+})
+app.post("/api/aus",async(req,res)=>{
+
+  console.log("INVOKED");
+res.send({
+  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about
+})
+  
+})
+
 
 app.use("/api/n/",handle(require("./routes/none.cjs")))
 app.use("/api/u/",handle(require("./routes/user.cjs")))

@@ -178,7 +178,7 @@ router.post("/sca",(req,res)=>{
                         JSON.stringify(
 
                           req.body.ans
-                                                ),"now()",result[0].ID,data.id,(
+                                                ),"now()",result[0].chapterID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
                     
@@ -292,7 +292,7 @@ router.post("/spa",(req,res)=>{
                         JSON.stringify(
 
                           req.body.ans
-                                                ),"now()",result[0].ID,data.id,(
+                                                ),"now()",result[0].examID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
                     
@@ -404,7 +404,7 @@ router.post("/sfa",(req,res)=>{
                         JSON.stringify(
 
                           req.body.ans
-                                                ),"now()",result[0].ID,data.id,(
+                                                ),"now()",result[0].examID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
                     
@@ -554,15 +554,19 @@ router.post("/gcv",async(req,res)=>{
                 
                 if((await readCon("coursessubscription",["courseID"],[["userID",'=',data.id],['courseID','=',req.body.courseID]])).length>0){
                     let videos=[];
+                    let infos=Object();
                     if(banned.length>0){
                         videos=(await readCon("videos",["videoUrl",'videoTitle'],[['courseID','=',req.body.courseID],['dateAdded','<',banned[0].dateBanned]]));
+                        infos = await getAllCourseInfo(0,req.body.courseID,banned[0].dateBanned);
 
                     }else{
                         videos=(await readCon("videos",["videoUrl",'videoTitle'],[['courseID','=',req.body.courseID]]));
+                        infos = await getAllCourseInfo(0,req.body.courseID);
 
                     }
                     res.send({
-                        d:videos
+                        d:[videos,infos],
+
                     });
                     
                 }else{
@@ -634,17 +638,20 @@ router.post("/gfv",async(req,res)=>{
 
                 if((await readCon("fellowshipssubscription",["userID"],[["userID",'=',data.id],['fellowshipID','=',req.body.fellowshipID]])).length>0){
                     let videos=[];
-
+                    let infos=Object();
                     if(banned.length>0){
                         videos=(await readCon("fellowshipvideos",["videoURL",'title'],[['fellowshipID','=',req.body.fellowshipID],['dateAdded','<',banned[0].dateBanned]]));
+                        infos = await getAllCourseInfo(1,req.body.courseID,banned[0].dateBanned);
+
 
                     }else{
                         videos=(await readCon("fellowshipvideos",["videoURL",'title'],[['fellowshipID','=',req.body.fellowshipID]]));
+                        infos = await getAllCourseInfo(1,req.body.fellowshipID);
 
                     }
                     
                     res.send({
-                        d:videos
+                        d:[videos,infos]
                     });
                     
                 }else{
@@ -704,4 +711,82 @@ if(req.body.token){
     
     });
 
+
+    /**
+     * 
+     * @param {Number} studentID 
+     * @param {Number} type wether it's a fellowship or course
+     * @param {Number} ID the course/fellowship number 
+     */
+async function getAllCourseInfo(type,ID,banningDate=null) {
+    
+//check if the user is banned, if so 
+
+
+    // const chapters=await readCon("chapter",null,[['type','=',type,['ID','=',ID]]]);
+    // const chapterResults =await readCon("results",null,[['type','=',0,['userID','=',studentID],['ID','in',`(${chapters.map((e)=>e.chapterID).join(",")})`]]]);
+    // const exams = await readCon("finalexams",null,[[['ID','=',ID]]]);
+    
+
+    if (banningDate){
+        const chapters=await readCon("chapter",['title','link','details','questions','ID'],[['ID','=',ID],['dateAdded','<',banningDate],['type','=',type]]);
+
+        if(type){
+
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+ 
+            return {
+                ffs:ffs,fss:fss,fps:fps,
+                ch:chapters
+            };
+
+        }else{
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+
+           return {
+            cfs:cfs,
+            css:css,
+            cps:cps,
+            ch:chapters
+           };
+
+        }
+
+    }else{
+
+        const chapters=await readCon("chapter",['title','link','details','questions','ID'],[['ID','=',ID],['type','=',type]]);
+
+        if(type){
+
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
+ 
+            return {
+                ffs:ffs,fss:fss,fps:fps,chapters:chapters
+            };
+
+        }else{
+            const chapters=await readCon("chapter",['title','link','details','questions','type','ID'],[['ID','=',ID]]);
+
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending'],[['courseID','=',ID]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending'],[['courseID','=',ID]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending'],[['courseID','=',ID]]);
+
+           return {
+            cfs:cfs,
+            css:css,
+            cps:cps
+            ,
+            ch:chapters
+           };
+
+        }
+    }
+
+}
 module.exports = router

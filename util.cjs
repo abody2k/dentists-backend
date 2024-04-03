@@ -216,6 +216,7 @@ function uploadFile(files,folder,fileName) {
     
 
 
+      
 
       
 
@@ -227,67 +228,99 @@ function uploadFile(files,folder,fileName) {
         region: 'us-east-1',
       });
 
+      const listParams = {
+        Bucket:"dentists-iq",
+        Prefix:folder+"/"+fileName
+    };
+      
 
-    if (folder=="products" && files.files.length){
-
-
-        for (let i = 0; i < files.files.length; i++) {
-
-            const file = files.files[i];
-            // console.log("reading filees");
-            // console.log(file);
-            
-        
-            const params = {
-              Bucket: 'dentists-iq',
-              Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
-              Body: file.data,
-              ACL: 'public-read', // Set the ACL permissions as needed
+      s3.listObjectsV2(listParams, function(err, data) {
+        if (err) {
+            console.error('Error listing objects:', err);
+        } else {
+            // Delete each object in the folder
+            const deleteParams = {
+                Bucket: "dentists-iq",
+                Delete: { Objects: [] }
             };
-          console.log( folder+"/"+fileName.toString()+"/"+i.toString() );
-            // Upload the file to S3
-            
-            s3.upload(params, (err, data) => {
-              if (err) {
-                console.log(err);
-                throw err;
-              }else{
-
-                console.log("done done");
-                console.log(data);
-              }
-          
-            });    
-            
-        }
-        
-    }else{
-        console.log("going here");
-        const file = files[Object.keys(files)[0]];
-        // console.log("reading filees");
-        // console.log(file);
-        
     
-        const params = {
-          Bucket: 'dentists-iq',
-          Key: folder+"/"+fileName.toString()+"/0" ,
-          Body: file.data,
-          ACL: 'public-read', // Set the ACL permissions as needed
-        };
-      
-        // Upload the file to S3
-        console.log(params);
-        
-        s3.upload(params, (err, data) => {
-          if (err) {
-            console.log(err);
-            throw err;
-          }else{
-            console.log("done uploading");
-          }
-      
-        });       
-    }
+            data.Contents.forEach((obj) => {
+                deleteParams.Delete.Objects.push({ Key: obj.Key });
+            });
+    
+            s3.deleteObjects(deleteParams, function(err, deleteData) {
+                if (err) {
+                    console.error('Error deleting objects:', err);
+                }else{
+                    console.log("deleted all ");
+                    if (folder=="products" && files.files.length){
+
+
+                        for (let i = 0; i < files.files.length; i++) {
+                
+                            const file = files.files[i];
+                            // console.log("reading filees");
+                            // console.log(file);
+                            
+                        
+                            const params = {
+                              Bucket: 'dentists-iq',
+                              Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
+                              Body: file.data,
+                              ACL: 'public-read', // Set the ACL permissions as needed
+                            };
+                          console.log( folder+"/"+fileName.toString()+"/"+i.toString() );
+                            // Upload the file to S3
+                            
+                            s3.upload(params, (err, data) => {
+                              if (err) {
+                                console.log(err);
+                                throw err;
+                              }else{
+                
+                                console.log("done done");
+                                console.log(data);
+                              }
+                          
+                            });    
+                            
+                        }
+                        
+                    }else{
+                        console.log("going here");
+                        const file = files[Object.keys(files)[0]];
+                        // console.log("reading filees");
+                        // console.log(file);
+                        
+                    
+                        const params = {
+                          Bucket: 'dentists-iq',
+                          Key: folder+"/"+fileName.toString()+"/0" ,
+                          Body: file.data,
+                          ACL: 'public-read', // Set the ACL permissions as needed
+                        };
+                      
+                        // Upload the file to S3
+                        console.log(params);
+                        
+                        s3.upload(params, (err, data) => {
+                          if (err) {
+                            console.log(err);
+                            throw err;
+                          }else{
+                            console.log("done uploading");
+                          }
+                      
+                        });       
+                    }
+                }
+            });
+        }
+    });
+
+
+    console.log("deleted all of the pics");
+
     
  
       

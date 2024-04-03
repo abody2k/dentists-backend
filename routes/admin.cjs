@@ -32,8 +32,37 @@ router.post("/gfxms", async (req, res) => {
 
 
         try {
-            const data= await read("finalexams",null);
-            res.send({d:data})
+
+            if(req.body.t){
+                const fellowshipsstageexams= await readCon("fellowshipsstageexams",null,[['fellowshipID','=',req.body.id]]);
+                const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",null,[['fellowshipID','=',req.body.id]]);
+                const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",null,[['fellowshipID','=',req.body.id]]);
+                res.send({d:{
+                    
+                    
+                    fellowshipsfinalexams:fellowshipsfinalexams,
+                    fellowshipsstageexams:fellowshipsstageexams,
+                    fellowshipsperodicexams:fellowshipsperodicexams
+                }})
+            }else{
+
+                const coursesfinalexams= await readCon("coursesfinalexams",null,[['courseID','=',req.body.id]]);
+                const coursesstageexams= await readCon("coursesstageexams",null,[['courseID','=',req.body.id]]);
+                const coursesperodicexams= await readCon("coursesperodicexams",null,[['courseID','=',req.body.id]]);
+    
+                
+                res.send({d:{
+                    
+                    
+                    coursesfinalexams:coursesfinalexams,
+
+                    coursesstageexams:coursesstageexams,
+
+                    coursesperodicexams:coursesperodicexams,
+
+                }})
+            }
+   
 
         } catch (error) {
             console.log(error);
@@ -3136,11 +3165,64 @@ router.post("/nfxm", async (req, res) => {
 
 
     if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.ending&&req.body.title&&req.body.startingDate&&req.body.ID&&req.body.v!=null&&req.body.type!=null&&req.body.groupID) {
-
+console.log(req.body);
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("finalexams",["type","answers","questions",'ending','startingDate','title','perodic','visible',"ID",'groupID'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.type,req.body.v,req.body.ID,req.body.groupID]);
+                    if(!req.body.t){
+
+                        switch (req.body.type) {
+                            case 0:
+                                await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+                                case 1:
+                                    await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+                                case 2:
+                                    await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+
+                        }
+                        // if(req.body.type){
+                        //     await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                        // }else{
+                        //     await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                        // }
+
+                    }else{
+
+                        
+                        switch (req.body.type) {
+                            case 0:
+                                await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+                                case 1:
+                                    await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+                                case 2:
+                                    await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                break;
+
+                        }
+
+                        // if(req.body.type){
+                        //     await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                        // }else{
+                        //     await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                        // }
+                    }
+
+                    // await write("finalexams",["type","answers","questions",'ending','startingDate','title','perodic','visible',"ID",'groupID'],[req.body.t,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.type,req.body.v,req.body.ID,req.body.groupID]);
           
 
                 } catch (error) {
@@ -3586,7 +3668,7 @@ router.post("/ufxm", async (req, res) => {
 
 console.log(req.body);
 
-    if (req.body.t>=-9 &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&req.body.groupID&&req.body.perodic>=-9) {
+    if (req.body.t!=null &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&req.body.groupID&&req.body.type!=null) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -3611,10 +3693,6 @@ console.log(req.body);
                         fields["title"] =  req.body.title;
 
                     }
-                    if ( req.body.perodic != -9) {
-                        fields["perodic"] =  req.body.perodic;
-
-                    }
                     if ( req.body.groupID != -9) {
                         fields["groupID"] =  req.body.groupID;
 
@@ -3624,9 +3702,35 @@ console.log(req.body);
 
                     }
                     if (Object.keys(fields).length > 0) {
-                        await updateJSON("finalexams", Object.keys(fields), Object.values(fields), [
-                            ["examID", '=', req.body.ID]
-                        ]);
+
+                        if(req.body.type){
+                            if(req.body.t){
+                                await updateJSON("fellowshipsperodicexams", Object.keys(fields), Object.values(fields), [
+                                    ["examID", '=', req.body.ID]
+                                ]);
+    
+                            }else{
+                                await updateJSON("fellowshipsfinalexams", Object.keys(fields), Object.values(fields), [
+                                    ["examID", '=', req.body.ID]
+                                ]);
+                                
+                            }
+                        }else{
+
+                            if(req.body.t){
+                                await updateJSON("coursesfinalexams", Object.keys(fields), Object.values(fields), [
+                                    ["examID", '=', req.body.ID]
+                                ]);
+    
+                            }else{
+                                await updateJSON("coursesperodicexams", Object.keys(fields), Object.values(fields), [
+                                    ["examID", '=', req.body.ID]
+                                ]);
+                                
+                            }
+                        }
+
+                   
                     }else{
 
                         res.sendStatus(200);
