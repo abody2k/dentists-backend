@@ -138,6 +138,8 @@ app.post("/api/dan",async (req,res)=>{
 
 
   res.sendStatus(200);
+  if(!req.ip.includes("127.0.0.1"))
+  return;
 
   await deleteCon("notifications",[['(datediff(now(),exp))','>','10']]);
 })
@@ -146,9 +148,10 @@ app.post("/api/dan",async (req,res)=>{
 app.post("/api/bau",async (req,res)=>{
 
 
-
   res.sendStatus(200);
-   
+  if(!req.ip.includes("127.0.0.1"))
+  return;
+
   const subsc=await readCon("coursessubscription",['userID','courseID'],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
   const subsf=await readCon("fellowshipssubscription",['userID','fellowshipID'],[[' datediff(now(),expDate)','>=','0'],['status','>',-1]]);
   if(subsc.length>0)
