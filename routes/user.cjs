@@ -10,6 +10,7 @@ const router = require("express").Router();
 //get exam questions for courses
 router.post("/gexqc",(req,res)=>{
 
+    console.log(req.body);
         if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.courseID)=="number"){
             console.log("debug 1");
             auth(req.cookies,res,async function(data){
@@ -30,6 +31,7 @@ switch (req.body.examType) {
 }
     const result =await readCon(table,null,[['examID','=',req.body.examID],['ending','>','(now())']]);
     console.log("debug 3");
+    console.log(result);
 
             
             if((result).length>0){
@@ -45,7 +47,7 @@ pass=true;
             
             if(!pass){
 
-
+                console.log("no pass");
                 res.sendStatus(403);
                 return;
             }else{
@@ -73,7 +75,7 @@ pass=true;
                 
             
         }else{
-
+            console.log("bit");
             res.sendStatus(404);
         }
 
@@ -256,7 +258,7 @@ router.post("/sca",(req,res)=>{
                     
                         JSON.stringify(
 
-                          req.body.ans
+                          {ans:req.body.ans,rs:result[0].answers}
                                                 ),"now()",result[0].chapterID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
@@ -370,7 +372,7 @@ router.post("/spa",(req,res)=>{
                     
                         JSON.stringify(
 
-                          req.body.ans
+                            {ans:req.body.ans,rs:result[0].answers}
                                                 ),"now()",result[0].examID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
@@ -481,7 +483,7 @@ router.post("/sfa",(req,res)=>{
                     
                         JSON.stringify(
 
-                          req.body.ans
+                            {ans:req.body.ans,rs:result[0].answers}
                                                 ),"now()",result[0].examID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
@@ -646,7 +648,7 @@ router.post("/sfa",(req,res)=>{
                     
                         JSON.stringify(
 
-                          req.body.ans
+                            {ans:req.body.ans,rs:result[0].answers}
                                                 ),"now()",result[0].examID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
@@ -1030,9 +1032,9 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
 
         if(type){
 
-            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
-            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
-            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
  
             return {
                 ffs:ffs,fss:fss,fps:fps,
@@ -1040,9 +1042,9 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
             };
 
         }else{
-           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
-           const css=await readCon("coursesstageexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
-           const cps=await readCon("coursesperodicexams",['title','startingDate','ending'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
 
            return {
             cfs:cfs,
@@ -1059,9 +1061,9 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
 
         if(type){
 
-            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
-            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
-            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending'],[['fellowshipID','=',ID]]);
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
  
             return {
                 ffs:ffs,fss:fss,fps:fps,chapters:chapters
@@ -1070,9 +1072,9 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
         }else{
             const chapters=await readCon("chapter",['title','link','details','questions','type','ID'],[['ID','=',ID]]);
 
-           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending'],[['courseID','=',ID]]);
-           const css=await readCon("coursesstageexams",['title','startingDate','ending'],[['courseID','=',ID]]);
-           const cps=await readCon("coursesperodicexams",['title','startingDate','ending'],[['courseID','=',ID]]);
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
 
            return {
             cfs:cfs,

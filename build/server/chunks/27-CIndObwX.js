@@ -32,7 +32,7 @@ var _page_server = /*#__PURE__*/Object.freeze({
 
 const index = 27;
 let component_cache;
-const component = async () => component_cache ??= (await import('./_page.svelte-CSTV6ycb.js')).default;
+const component = async () => component_cache ??= (await import('./_page.svelte-2Ind9R5K.js')).default;
 const server_id = "src/routes/exams/[exam]/+page.server.js";
 const imports = ["_app/immutable/nodes/27.DCb1qezg.js","_app/immutable/chunks/scheduler.DkkY9i-5.js","_app/immutable/chunks/index.D9rRt9oS.js"];
 const stylesheets = [];

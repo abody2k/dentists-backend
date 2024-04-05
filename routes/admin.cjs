@@ -4689,6 +4689,7 @@ try {
             try {
 
                 console.log(req.body);
+                await updateCon(req.body.acourse ?"coursessubscription":"fellowshipssubscription",['groupID'],[req.body.gID],[[req.body.acourse ?"courseID":"fellowshipID",'=',req.body.ID],['userID','=',req.body.userID]]);
                 await handlePaymentUnbanningAndExpDate(...Object.values(req.body))
                 res.sendStatus(200);
             
@@ -4807,7 +4808,9 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
 
         await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID'],[ID,payment,userID]);
         //send an email
-        const user=readCon("login",['email'],[['userID','=',userID]])[0];
+        const user=await readCon("login",['email'],[['userID','=',Number(userID)]]);
+        console.log(user);
+        console.log(userID);
         const nodemailer = require("nodemailer");
 
         const transporter = nodemailer.createTransport({
@@ -4822,14 +4825,18 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
         });
         
         
-        await transporter.sendMail({
-          from:"dentists-iq@mail.ru",
-          to: user.email+"@gmail.com", // list of receivers
-          subject: "contacting us", // Subject line
-          text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
-        }).then((e)=>{
-          console.log(e);
-        });
+        try {
+            await transporter.sendMail({
+                from:"dentists-iq@mail.ru",
+                to: user[0].email+"@gmail.com", // list of receivers
+                subject: "contacting us", // Subject line
+                text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
+              }).then((e)=>{
+                console.log(e);
+              }).catch((e)=>{});
+        } catch (error) {
+            
+        }
 }
 
 async function removingSomeoneFromBannedTable(userID,acourse,ID) {
