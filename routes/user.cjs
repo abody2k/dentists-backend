@@ -7,35 +7,41 @@ const router = require("express").Router();
 
 
 
-//get exam questions
-router.post("/gexq",(req,res)=>{
+//get exam questions for courses
+router.post("/gexqc",(req,res)=>{
 
-        if(typeof(req.body.examID)=="number"){
+        if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.courseID)=="number"){
             console.log("debug 1");
             auth(req.cookies,res,async function(data){
                 console.log("debug 2");
 
-    const result =await readCon("finalexams",null,[['examID','=',req.body.examID],['ending','>','(now())']]);
+                let table="";
+switch (req.body.examType) {
+    case 0:
+    table="coursesperodicexams";    
+        break;
+    case 1:
+    table="coursesstageexams";  
+        break;
+    case 2:
+    table="coursesfinalexams";      
+        break;
+
+}
+    const result =await readCon(table,null,[['examID','=',req.body.examID],['ending','>','(now())']]);
     console.log("debug 3");
 
             
-                        if((result).length>0){
+            if((result).length>0){
                             console.log("debug 4");
 
                             let pass=false;
 
-                            if(result[0].type==0){
-                                if((await(readCon("coursessubscription",null,[['courseID','=',result[0].ID],['groupID','=',result[0].groupID]]))).length>0){
+                                if((await(readCon("coursessubscription",null,[['courseID','=',req.body.courseID],['groupID','=',result[0].groupID]]))).length>0){
 pass=true;
                                 }
 
-                            }else{
-
-                                if((await(readCon("fellowshipssubscription",null,[['fellowshipID','=',result[0].ID],['groupID','=',result[0].groupID]]))).length>0){
-                                    pass=true;
-
-                                }
-                            }
+                            
             
             if(!pass){
 
@@ -72,6 +78,79 @@ pass=true;
         }
 
     });
+
+
+//get exam questions for fellowships
+router.post("/gexqf",(req,res)=>{
+
+    if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.fellowshipID)=="number"){
+        console.log("debug 1");
+        auth(req.cookies,res,async function(data){
+            console.log("debug 2");
+let table="";
+switch (req.body.examType) {
+    case 0:
+    table="fellowshipsperodicexams";    
+        break;
+    case 1:
+    table="fellowshipsstageexams";  
+        break;
+    case 2:
+    table="fellowshipsfinalexams";      
+        break;
+
+}
+const result =await readCon(table,null,[['examID','=',req.body.examID],['ending','>','(now())']]);
+console.log("debug 3");
+
+        
+                    if((result).length>0){
+                        console.log("debug 4");
+
+                        let pass=false;
+
+
+                if((await(readCon("fellowshipssubscription",null,[['fellowshipID','=',req.body.fellowshipID],['groupID','=',result[0].groupID]]))).length>0){
+                  pass=true;
+
+              }
+                        
+        
+        if(!pass){
+
+
+            res.sendStatus(403);
+            return;
+        }else{
+
+
+            res.send({
+                q:result[0].questions
+            })
+        }
+
+        
+        
+                    }else{
+        
+                        res.sendStatus(403);
+                        return;
+                    }
+                    
+                
+        
+                
+            },function(){},1)
+            
+            
+            
+        
+    }else{
+
+        res.sendStatus(404);
+    }
+
+});
 //handle users requesting videos of the course
 //we start with checking the parametters like courseID if it's not valid then reject
 //first we check if this is actually a user or admin we only verify the token
@@ -378,7 +457,7 @@ router.post("/sfa",(req,res)=>{
     console.log(data);
         if(req.body.ID&&req.body.ans&&req.body.i){
 
-            const result =await readCon((req.body.t!=0?"fellowshipsstageexams":"coursesstageexams"),null,[['examID','=',req.body.i],['perodic','=',0]]);
+            const result =await readCon((req.body.t!=0?"fellowshipsstageexams":"coursesstageexams"),null,[['examID','=',req.body.i]]);
             
             if(req.body.ans.length==result[0].answers.length){
 
