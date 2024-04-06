@@ -1,1 +1,0 @@
-import{s as o}from"../chunks/scheduler.DkkY9i-5.js";import{S as i,i as r}from"../chunks/index.D9rRt9oS.js";function c(a,t,s){let{data:e}=t;return a.$$set=n=>{"data"in n&&s(0,e=n.data)},[e]}class u extends i{constructor(t){super(),r(this,t,c,null,o,{data:0})}}export{u as component};
