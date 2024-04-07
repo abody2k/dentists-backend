@@ -1949,7 +1949,8 @@ console.log(req.files);
 
 
 router.post("/nc", async (req, res) => {
-
+console.log(req.body);
+// req.files= req.body.files;
     console.log(req.files);
     req.body = JSON.parse(req.body.body);
 
@@ -4357,6 +4358,7 @@ console.log("to be contiuned");
 
 
                     await deleteCon("fellowshipvideos",[['fellowshipID','=',req.body.id]]);
+                    await deleteCon("fellowshipstuition",[['fellowshipID','=',req.body.id]]);
                     await deleteCon("fellowshipssubscription",[['fellowshipID','=',req.body.id]]);
                     await deleteCon("fellowships",[['fellowshipID','=',req.body.id]]);
 

@@ -6,11 +6,18 @@ const express = require('express');
 const {auth} = require('./auth.cjs');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readFile, readCon, deleteCon, default: util, updateCon } = require('./util.cjs');
+const { readCon, deleteCon, default: util, updateCon } = require('./util.cjs');
 import {handler} from "./build/handler.js"
+import { readdir } from "node:fs";
 require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
+
+
+const request = require("supertest")
+
+
+
 
 
 app.use(require("cors")({
@@ -93,7 +100,7 @@ try {
 
 app.use(require("cookie-parser")())
 app.use(fileUpload())
-app.use(express.json())
+app.use(express.json({limit:"50mb"}))
 
 
 app.post("/api/mma",(req,res)=>{
@@ -243,6 +250,8 @@ app.use((req,res)=>{
 })
 
 
+
+
  
 //  BEoyvDKJRZk0w9MFzs_VZ6SWfUmjD7E-vNDzsqh_VQFyxPukZjYE2UPcC9mHcs4KaGWDp5zu1Gl_iSrJjL4Hk9U 
 // Define a route to handle file uploads
@@ -259,4 +268,45 @@ app.use((req,res)=>{
 //   packageRoot:process.cwd(),
 //   maintainerEmail:"alhmdanyb902@gmail.com"
 // }).serve(app) 
-app.listen(3000,()=>{console.log("the server is alive");})
+app.listen(3000,()=>{
+  
+  
+  console.log("the server is alive");
+
+
+return;
+const txt=`Vivamus egestas ipsum ut mauris tempus, vitae pharetra libero aliquet. Sed porttitor non dolor et fermentum. Suspendisse nulla ante, luctus in bibendum in, vulputate eget turpis.
+
+Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
+
+Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.
+
+Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
+Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.`;
+
+return;
+readdir("./courses",(e,d)=>{
+  for (let i = 0; i <d.length; i++) {
+    console.log(d[i]);
+    
+
+      // console.log(e);
+      request(app).post("/api/a/nb").attach("files","courses/"+d[i]).field("body",JSON.stringify({"title":txt.slice(0,Math.floor(Math.random()*20))
+      ,"bd":`Vivamus egestas ipsum ut mauris tempus, vitae pharetra libero aliquet. Sed porttitor non dolor et fermentum. Suspendisse nulla ante, luctus in bibendum in, vulputate eget turpis.
+
+      Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
+      
+      Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.
+      
+      Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
+      Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.` + txt.slice(0,Math.floor(Math.random()*100))})).expect(200).end((w,s)=>{
+        // console.log(w);
+        // console.log(s);
+      
+    })  
+    
+  }
+  // d.length
+})
+
+})

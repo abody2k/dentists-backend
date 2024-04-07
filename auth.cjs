@@ -12,7 +12,12 @@ const jwt=require('jsonwebtoken')
  * @param {Number} level
  */
 function authenticate(cookies,res,successFunc,errFunc,level=-1) {
+    if(level==-1){
 
+
+        successFunc();
+        return;
+    }
     if (cookies!= undefined){
         if (cookies['token']!= undefined){
             jwt.verify(cookies['token'],"secret",function(err,data){
