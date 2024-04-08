@@ -62,7 +62,7 @@ const Blogs = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.blogs(blogs);
   $$result.css.add(css$3);
   return `   <div class="svelte-zd5oyq"><div class="icon svelte-zd5oyq"><button style="padding: 4px 4px 0px 4px;float: inline-end;right: 10%;bottom: 7px;" class="svelte-zd5oyq" data-svelte-h="svelte-d8n0jw"><img src="/open.png" style="right: 10%;width: 33px; width: 33px;" class="svelte-zd5oyq"></button></div>  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;" class="svelte-zd5oyq"><div class="#2e3b6f-title svelte-zd5oyq" style="color: transparent;">${escape(" , ")}</div> </div> <div class="postCard svelte-zd5oyq"><div class="imageCont svelte-zd5oyq">${each(blogs, (blog, index) => {
-    return `${index == currentIndex ? `<img${add_attribute("src", blog.src, 0)} alt="Neumorphic Picture" id="blog-image" class="rectangular-image svelte-zd5oyq">` : ``}`;
+    return `${index == currentIndex ? `<img${add_attribute("src", blog.src + "/0", 0)} alt="Neumorphic Picture" id="blog-image" class="rectangular-image svelte-zd5oyq">` : ``}`;
   })} <div class="nextImageBtn svelte-zd5oyq" data-svelte-h="svelte-nl1vs9">&lt;</div> <div class="previousImageBtn svelte-zd5oyq" data-svelte-h="svelte-dra8cl">&gt;</div></div> ${blogs.length > 0 ? `<div class="captionCont svelte-zd5oyq"><h2 style="margin:-2px 0 -10px 0; " class="svelte-zd5oyq">${escape(blogs[currentIndex].title)}</h2> ${blogs.length > 0 ? `<p class="svelte-zd5oyq">${escape(blogs[currentIndex].text)}</p> ` : ``}</div>` : ``} <div class="dots-container svelte-zd5oyq">${each([0, 1, 2], (_, index) => {
     return `<div style="margin-top: 10px; margin-bottom: 10px;" class="${"dot " + escape(index === currentIndex ? "light-dot" : "dark-dot", true) + " svelte-zd5oyq"}"></div>`;
   })}</div></div></div>`;
@@ -188,4 +188,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-CZoALlbY.js.map
+//# sourceMappingURL=_page.svelte-_yUx-1BO.js.map
