@@ -10,10 +10,10 @@ return {
 	assets: new Set(["ab.png","add.png","addImage.png","addP.png","Arimo-Bold.ttf","Arimo-BoldItalic.ttf","Arimo-Italic.ttf","Arimo-Regular.ttf","at.png","AT2.png","Atsign.png","back-icon.png","Barlow-Black.ttf","Barlow-BlackItalic.ttf","Barlow-Bold.ttf","Barlow-BoldItalic.ttf","Barlow-ExtraBold.ttf","Barlow-ExtraBoldItalic.ttf","Barlow-ExtraLight.ttf","Barlow-ExtraLightItalic.ttf","Barlow-Italic.ttf","Barlow-Light.ttf","Barlow-LightItalic.ttf","Barlow-Medium.ttf","Barlow-MediumItalic.ttf","Barlow-Regular.ttf","Barlow-SemiBold.ttf","Barlow-SemiBoldItalic.ttf","Barlow-Thin.ttf","Barlow-ThinItalic.ttf","bell.png","bell2.png","bg.jpg","cancel.png","cash.png","close.png","contact.png","cr.png","date.png","del.png","details.png","diver.png","doct.png","done.png","ds.png","ds2.png","edit.png","email.png","exams.png","Facebook.png","favicon.png","FB.png","firebase-messaging-sw.js","hide.png","IG.png","Instagram.png","left.png","Logo.png","nots.png","open.png","password.png","pf.png","PH.png","Phone.png","Place.png","play.png","ppl.png","ppl2.png","profs.png","pt.png","ques.png","quizdate.png","quizic.png","qus.png","read.png","redclose.png","right.png","save.png","sch.png","show.png","sources.png","srch.png","srch2.png","TA.png","Telegram.png","ticb.png","time.png","transfer.png","up-arrow.png","upload.png","url.png","username.png","videos.png","WA.png","WhatsApp.png"]),
 	mimeTypes: {".png":"image/png",".ttf":"font/ttf",".jpg":"image/jpeg",".js":"text/javascript"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.DuaNLavq.js","app":"_app/immutable/entry/app.B9-Vdbvs.js","imports":["_app/immutable/entry/start.DuaNLavq.js","_app/immutable/chunks/entry.CUxa_M6q.js","_app/immutable/chunks/scheduler.DNJrJgMj.js","_app/immutable/chunks/index.B03ITOfd.js","_app/immutable/entry/app.B9-Vdbvs.js","_app/immutable/chunks/preload-helper.BQ24v_F8.js","_app/immutable/chunks/scheduler.DNJrJgMj.js","_app/immutable/chunks/index.BOq-2PnM.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
+		client: {"start":"_app/immutable/entry/start.Cc27rjZ0.js","app":"_app/immutable/entry/app.DCpbcOZ1.js","imports":["_app/immutable/entry/start.Cc27rjZ0.js","_app/immutable/chunks/entry.CgFVJitK.js","_app/immutable/chunks/scheduler.DNJrJgMj.js","_app/immutable/chunks/index.B03ITOfd.js","_app/immutable/entry/app.DCpbcOZ1.js","_app/immutable/chunks/preload-helper.BQ24v_F8.js","_app/immutable/chunks/scheduler.DNJrJgMj.js","_app/immutable/chunks/index.BOq-2PnM.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
 		nodes: [
 			__memo(() => import('./chunks/0-Db9TuuD3.js')),
-			__memo(() => import('./chunks/1-oRWv0UJb.js')),
+			__memo(() => import('./chunks/1-D65IbvkI.js')),
 			__memo(() => import('./chunks/2-B7OxuOsM.js')),
 			__memo(() => import('./chunks/3-Di12BoHU.js')),
 			__memo(() => import('./chunks/4-ehlgEPGJ.js')),
@@ -43,7 +43,7 @@ return {
 			__memo(() => import('./chunks/28-DIJIGmH1.js')),
 			__memo(() => import('./chunks/29-BEHbekCZ.js')),
 			__memo(() => import('./chunks/30-DjmfGMwX.js')),
-			__memo(() => import('./chunks/31-BHu8iJaZ.js')),
+			__memo(() => import('./chunks/31-Cwbf5m6Y.js')),
 			__memo(() => import('./chunks/32-DLKtCz9-.js'))
 		],
 		routes: [
