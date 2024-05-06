@@ -6,14 +6,15 @@ const express = require('express');
 const {auth} = require('./auth.cjs');
 const { sign } = require('jsonwebtoken');
 const fileUpload = require('express-fileupload');
-const { readCon, deleteCon, default: util, updateCon } = require('./util.cjs');
+const { readCon, deleteCon, default: util, updateCon, deleteConOR } = require('./util.cjs');
 import {handler} from "./build/handler.js"
 import { readdir } from "node:fs";
+import { Random } from "random";
 require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
 
-
+                    
 const request = require("supertest")
 
 
@@ -149,6 +150,8 @@ app.post("/api/dan",async (req,res)=>{
   return;
 
   await deleteCon("notifications",[['(datediff(now(),exp))','>','10']]);
+  await deleteConOR("reset_p",[['(datediff(now(),expDate))','>=',0],['timediff(now(),expDate)','>',0]]);
+//>0 or datediff(now(),expDate)>0
 })
 
 //ban all users that are expiered
@@ -169,10 +172,10 @@ app.post("/api/bau",async (req,res)=>{
   let sql = require("mysql2/promise");
 
   const conn =  await sql.createConnection({
-    host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+    host:"localhost",
     user:"root",
     database:"dentists",
-    password:"grabyOli0001",
+    password:"0001",
     port:3306,
     timezone:"+03:00",
 

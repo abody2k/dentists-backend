@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
     "nodemailer": "^6.9.8",
+    "random": "^4.1.0",
     "supertest": "^6.3.4"
   }
 }

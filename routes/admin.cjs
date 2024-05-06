@@ -2807,13 +2807,20 @@ router.post("/nacc", async (req, res) => {
 
 
 
-    if (req.body.username &&req.body.email&& req.body.password&&typeof(req.body.level)=='number') {
+    if (req.body.username &&req.body.email&&req.body.code&& req.body.password&&typeof(req.body.level)=='number'&&typeof(req.body.gender)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    const id=(await write("login",["username","password","level",'status','email'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.email]));
-                    await write("profile",['userID','courses','fellowships','email','username'],[id,null,null,req.body.email,req.body.username]);
+                    let id;
+if(req.body.phonenumber){
+    id=(await write("login",["username","password","level",'status','code','email','phonenumber',"gender"],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.code,req.body.email,req.body.phonenumber,req.body.gender]));
+
+}else{
+    id=(await write("login",["username","password","level",'status','code','email','gender'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.code,req.body.email,req.body.gender]));
+
+}         
+                   await write("profiles",['userID','courses','fellowships','email','username'],[id,null,null,req.body.email,req.body.username]);
                     const nodemailer = require("nodemailer");
 
                     const transporter = nodemailer.createTransport({
@@ -2873,7 +2880,7 @@ router.post("/uacc", async (req, res) => {
 
 
 
-    if (req.body.username&&req.body.userID &&req.body.email&& req.body.password&&typeof(req.body.level)=='number') {
+    if (req.body.username&&req.body.userID &&req.body.email&&req.body.code&& req.body.password&&typeof(req.body.level)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
@@ -2915,8 +2922,20 @@ router.post("/uacc", async (req, res) => {
                         fields["level"] =  req.body.level;
 
                     }
-                    if ( req.body.status != -9) {
+                    if ( req.body.status>=0 ) {
                         fields["status"] =  req.body.status;
+
+                    }
+                    if ( req.body.gender>=0 ) {
+                        fields["gender"] =  req.body.gender;
+
+                    }
+                    if ( req.body.code != -9) {
+                        fields["code"] =  req.body.code;
+
+                    }
+                    if ( req.body.phonenumber ) {
+                        fields["phonenumber"] =  req.body.phonenumber;
 
                     }
 
@@ -3366,10 +3385,10 @@ router.post("/gcs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })         
@@ -3471,10 +3490,10 @@ router.post("/gfs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })                    
@@ -3564,6 +3583,120 @@ router.post("/gph", async (req, res) => {
     // res.cookie()
 
 })
+
+
+//get all users in login table
+router.post("/gau", async (req, res) => {
+
+
+
+    auth(req.cookies, res, async (data) => {
+
+        try {
+            res.send({
+
+                d:(await read("login",['ID','username','email','code','phonenumber']))
+            });
+
+            return;
+
+        } catch (error) {
+            console.log(error);
+            res.sendStatus(403);
+            return;
+        }
+
+
+
+    }, () => {
+
+
+        console.log("something went wrong");
+
+
+
+    }, 0)
+
+
+
+
+
+// res.cookie()
+
+})
+
+//delete user
+router.post("/du", async (req, res) => {
+
+
+
+   
+    if (req.body.uid>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    await deleteCon("fellowshipschapterresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("fellowshipsfinalresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("fellowshipsperodicresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("fellowshipsstageresults",[['userID','=',req.body.uid]]);
+
+                    await deleteCon("courseschapterresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("coursesfinalresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("coursesperodicresults",[['userID','=',req.body.uid]]);
+                    await deleteCon("coursesstageresults",[['userID','=',req.body.uid]]);
+
+                    await deleteCon("fellowshipstuition",[['userID','=',req.body.uid]]);
+                    await deleteCon("coursestuition",[['userID','=',req.body.uid]]);
+
+                    await deleteCon("notifications",[['userID','=',req.body.uid]]);
+                    await deleteCon("profiles",[['userID','=',req.body.uid]]);
+                    await deleteCon("banned",[['userID','=',req.body.uid]]);
+
+                    
+                    await deleteCon("coursessubscription",[['userID','=',req.body.uid]]);
+                    await deleteCon("fellowshipssubscription",[['userID','=',req.body.uid]]);
+                    await deleteCon("login",[['userID','=',req.body.uid]]);
+
+                      res.sendStatus(200);
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 
 //get all final exams
 router.post("/gafxm", async (req, res) => {
@@ -4674,6 +4807,374 @@ router.post("/dacv", async (req, res) => {
 })
 
 
+//give a specific student all exams for all courses and fellowships
+router.post("/gsaex", async (req, res) => {
+
+
+    if (req.body.sid>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                console.log("Everything went well");
+                const cpr= await readCon(" coursesperodicresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid]]);
+                const cfr= await readCon(" coursesfinalresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid]]);
+                const csr= await readCon("coursesstageresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid]]);
+                const fpr= await readCon("fellowshipsperodicresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid]]);
+                const ffr= await readCon("fellowshipsfinalresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid]]);
+                const fsr= await readCon("fellowshipsstageresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid]]);
+                const namescp = await read("coursesperodicexams",['examID','title','courseID'])
+                const namescf = await read("coursesfinalexams",['examID','title','courseID'])
+                const namescs = await read("coursesstageexams",['examID',"title","courseID"])
+                const namesfs = await read("fellowshipsstageexams",['examID',"title","fellowshipID"])
+                const namesfp = await read("fellowshipsperodicexams",['examID',"title","fellowshipID"])
+                const namesff = await read("fellowshipsfinalexams",['examID',"title","fellowshipID"])
+
+
+
+
+              
+
+                    res.send({
+                        cpr:cpr,
+                        cfr:cfr,
+                        csr:csr,
+                        fpr:fpr,
+                        ffr:ffr,
+                        fsr:fsr,
+                        namescp:namescp,
+                        namescf:namescf,
+                        namescs:namescs,
+                        namesfs:namesfs,
+                        namesfp:namesfp,
+                        namesff:namesff
+                    });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//give a specific student all exams for one course
+router.post("/gsacex", async (req, res) => {
+
+
+    if (req.body.sid&&req.body.cid) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                console.log("Everything went well");
+                const cpr= await readCon(" coursesperodicresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid],['courseID','=',req.body.cid]]);
+                const cfr= await readCon(" coursesfinalresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid],['courseID','=',req.body.cid]]);
+                const csr= await readCon("coursesstageresults",['examID','mark','submissiondate','courseID'],[['userID','=',req.body.sid],['courseID','=',req.body.cid]]);
+                const namescp = await readCon("coursesperodicexams",['examID','title','courseID'],[['courseID','=',req.body.cid]])
+                const namescf = await readCon("coursesfinalexams",['examID','title','courseID'],[['courseID','=',req.body.cid]])
+                const namescs = await readCon("coursesstageexams",['examID',"title","courseID"],[['courseID','=',req.body.cid]])
+
+
+
+              
+
+                    res.send({
+                        cpr:cpr,
+                        cfr:cfr,
+                        csr:csr,
+                        namescp:namescp,
+                        namescf:namescf,
+                        namescs:namescs,
+                    });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//give a specific student all exams for one fellowship
+router.post("/gsafx", async (req, res) => {
+
+
+    if (req.body.sid&&req.body.fid) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                console.log("Everything went well");
+                const cpr= await readCon(" fellowshipsperodicresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid],['fellowshipID','=',req.body.fid]]);
+                const cfr= await readCon(" fellowshipsfinalresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid],['fellowshipID','=',req.body.fid]]);
+                const csr= await readCon("fellowshipsstageresults",['examID','mark','submissiondate','fellowshipID'],[['userID','=',req.body.sid],['fellowshipID','=',req.body.fid]]);
+                const namesfp = await readCon("fellowshipsperodicexams",['examID','title','fellowshipID'],[['fellowshipID','=',req.body.fid]])
+                const namesff = await readCon("fellowshipsfinalexams",['examID','title','fellowshipID'],[['fellowshipID','=',req.body.fid]])
+                const namesfs = await readCon("fellowshipsstageexams",['examID',"title","fellowshipID"],[['fellowshipID','=',req.body.fid]])
+
+
+
+              
+
+                    res.send({
+                        fpr:cpr,
+                        ffr:cfr,
+                        fsr:csr,
+                        namesfs:namesfs,
+                        namesfp:namesfp,
+                        namesff:namesff
+                    });
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//give all students for one exams for one course
+router.post("/gascex", async (req, res) => {
+
+
+    if (req.body.examID&&req.body.et>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                console.log("Everything went well");
+                //get all the student marks and ID of that type of that exam
+                //get the student names of all the students
+
+                let data;
+
+                let sql = require("mysql2/promise");
+
+                const conn =  await sql.createConnection({
+                    host:"localhost",
+                    user:"root",
+                    database:"dentists",
+                    password:"0001",
+                    port:3306,
+                    timezone:"+03:00"
+                    
+                })
+                
+                switch (req.body.et) {
+                    case 0: // perodic
+                    console.log(req.body);
+                    data= (await conn.query(`select  login.username,coursesperodicresults.mark,coursesperodicresults.submissionDate from coursesperodicresults inner join login on coursesperodicresults.userID = login.userID where coursesperodicresults.examID=${req.body.examID}`))[0];
+
+                        break;
+                        case 1: //stage
+                     data= (await conn.query(`select  login.username,coursesstageresults.mark,coursesstageresults.submissionDate from coursesstageresults inner join login on coursesstageresults.userID = login.userID where coursesstageresults.examID=${req.body.examID}`))[0];
+                   
+                        break;
+                        case 2: //final
+                    data= (await conn.query(`select  login.username,coursesfinalresults.mark,coursesfinalresults.submissionDate from coursesfinalresults inner join login on coursesfinalresults.userID = login.userID where coursesfinalresults.examID=${req.body.examID}`))[0];
+           
+                        break;
+                    default:
+                        break;
+                }
+                await conn.end();
+
+
+              
+
+                    res.send({d:data});
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//give all students for one exams for one fellowship
+router.post("/gasfex", async (req, res) => {
+
+
+    if (req.body.examID&&req.body.et>=0) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                console.log("Everything went well");
+                //get all the student marks and ID of that type of that exam
+                //get the student names of all the students
+
+                let data;
+
+                let sql = require("mysql2/promise");
+
+                const conn =  await sql.createConnection({
+                    host:"localhost",
+                    user:"root",
+                    database:"dentists",
+                    password:"0001",
+                    port:3306,
+                    timezone:"+03:00"
+                    
+                })
+
+                switch (req.body.et) {
+                    case 0: // perodic
+                    data= (await conn.query(`select  login.username,fellowshipsperodicresults.mark,fellowshipsperodicresults.submissionDate from fellowshipsperodicresults inner join login on fellowshipsperodicresults.userID = login.userID where fellowshipsperodicresults.examID=${req.body.examID}`))[0];
+
+                        break;
+                        case 1: //stage
+                     data= (await conn.query(`select  login.username,fellowshipsstageresults.mark,fellowshipsstageresults.submissionDate from fellowshipsstageresults inner join login on fellowshipsstageresults.userID = login.userID where fellowshipsstageresults.examID=${req.body.examID}`))[0];
+                   
+                        break;
+                        case 2: //final
+                    data= (await conn.query(`select  login.username,fellowshipsfinalresults.mark,fellowshipsfinalresults.submissionDate from fellowshipsfinalresults inner join login on fellowshipsfinalresults.userID = login.userID where fellowshipsfinalresults.examID=${req.body.examID}`))[0];
+           
+                        break;
+                    default:
+                        break;
+                }
+                await conn.end();
+
+
+              
+
+                    res.send({d:data});
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 //handlePayment
 router.post("/hP", async (req, res) => {
 

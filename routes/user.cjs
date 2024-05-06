@@ -1,5 +1,14 @@
+let rand;
+import("random").then((d)=>{
+
+
+rand=d;
+
+
+})
+const { hash } = require("argon2");
 const {auth} = require("../auth.cjs");
-const {  readCon, write, read, readOrdered, updateCon } = require("../util.cjs");
+const {  readCon, write, read, readOrdered, updateCon, deleteCon } = require("../util.cjs");
 
 const router = require("express").Router();
 
@@ -811,10 +820,10 @@ router.post("/gcv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
@@ -924,10 +933,10 @@ router.post("/gfv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
@@ -974,6 +983,132 @@ router.post("/gfv",async(req,res)=>{
     }
 
 });
+
+
+//forgot password
+router.post("/fop",async(req,res)=>{
+
+
+    if (req.body){
+        if(req.body.email){
+            let ID="";
+            let resd= (await readCon("login",["userID"],[['email','=',req.body.email.replace("gmail",'echo')]]));
+            console.log(req.body.email.replace("gmail",'echo'));
+            if(resd.length<=0){
+                console.log("OUT");
+                res.sendStatus(403);
+                return;
+            }else{
+                ID=resd[0].userID;
+                try {
+                    const d = (new Date());
+                    d.setMinutes(d.getMinutes()+10);
+                    let r = new rand.Random("dento_echo_rando")
+                    const token =(r.float()).toString(36).slice(2);
+                    await write("reset_p",['userID',"expDate","token"],[ID,`( now() + interval 10 minute)`,token]);
+
+                    const nodemailer = require("nodemailer");
+
+                    const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
+                    
+                    await transporter.sendMail({
+                      from:"dentists-iq@mail.ru",
+                      to: req.body.email.replace("echo","gmail"), // list of receivers
+                      subject: "contacting us", // Subject line
+                      html:`
+                      <p>Hello , you forgot your password, enter this link in order for you to reset your password</p>
+                      
+                      <a href="http://localhost:5173/reset/${token}">Here</a>`
+                    }).then((e)=>{
+                      console.log(e);
+                    });
+
+                    res.send({d:"0"});
+
+
+
+                } catch (error) {
+                    res.sendStatus(403);
+                    return;   
+                }
+            }
+
+        }else{
+            console.log("OUT 3");
+
+            res.sendStatus(403);
+            return;   
+        }
+    }else{
+        console.log("OUT 4");
+
+        res.sendStatus(403);
+        return;   
+    }
+
+});
+
+//change password
+router.post("/chngp",async(req,res)=>{
+
+
+    if (req.body){
+        if(req.body.token&&req.body.password){
+            let ID="";
+            let resd= (await readCon("reset_p",["userID","expDate"],[['token','=',req.body.token]]));
+
+            if(resd.length<=0){
+                console.log("OUT");
+                res.sendStatus(403);
+                return;
+            }else{
+                if((new Date()) > (new Date(resd[0].expDate))){
+                    res.sendStatus(403);
+                    await deleteCon("reset_p",[['userID','=',resd[0].userID]]);
+                    return;
+                }
+
+                ID=resd[0].userID;
+                await deleteCon("reset_p",[['userID','=',resd[0].userID]]);
+                try {
+
+                    await updateCon("login",['password'],[await hash(req.body.password)],[['userID','=',ID]]);
+
+                    res.send({d:"0"});
+
+
+
+                } catch (error) {
+                    res.sendStatus(403);
+                    return;   
+                }
+            }
+
+        }else{
+            console.log("OUT 3");
+
+            res.sendStatus(403);
+            return;   
+        }
+    }else{
+        console.log("OUT 4");
+
+        res.sendStatus(403);
+        return;   
+    }
+
+});
+
 //get notifications
 router.post("/gn",(req,res)=>{
 
