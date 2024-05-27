@@ -94,7 +94,7 @@ router.post("/gcf/",async (req,res)=>{
 router.post("/si/",async (req,res)=>{
 
     if((req.body.email)&&req.body.p){
-        let data = (await util.readCon("login",['password',"email","notToken",'userID'],[['email','=',req.body.email]]));
+        let data = (await util.readCon("login",['password',"email","notToken",'userID','level'],[['email','=',req.body.email]]));
         if(data.length<=0){
 
             res.sendStatus(403);
@@ -106,7 +106,7 @@ router.post("/si/",async (req,res)=>{
             if(e){
 
 const options ={
-    l:1,
+    l:data[0].level,
     id:data[0].userID,
 };
 
@@ -120,6 +120,7 @@ const options ={
             
                 res.send({
                     n:(await util.readCon("notifications",['notification'],[['userID','=',data[0].userID]])).map((e)=>e.notification),
+                    t:data[0].level,
                   e:0,
                 //   m: options["mac"] ? 0 : 1
                 });
@@ -192,8 +193,8 @@ router.post("/gb/",async (req,res)=>{
 router.post("/gpp/",async (req,res)=>{
 
     if(req.body.code){
-        const data = (await util.readCon("profiles",['courses','fellowships'],['profileID','=',req.body.code]));
-        res.send({d:data});
+        // const data = (await util.readCon("profiles",['courses','fellowships'],['profileID','=',req.body.code]));
+        res.send({d:"data"});
     }else{
         res.sendStatus(403)
     }

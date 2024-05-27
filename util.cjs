@@ -190,7 +190,7 @@ async function write(table,keys,values) {
         port:3306,
         timezone:"+03:00"
     })
-    const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
+    const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")||v.includes("STR_TO_DATE")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
     console.log(value);
     const [rows,fields]=(await conn.query(`insert into ${table} (${keys.join(",")}) values(${value.join(",")}) ;`));
     await conn.end();
@@ -277,6 +277,7 @@ function uploadFile(files,folder,fileName) {
             s3.deleteObjects(deleteParams, function(err, deleteData) {
                 if (err) {
                     console.error('Error deleting objects:', err);
+
                     if (folder=="products" && files.files.length){
 
 
@@ -310,7 +311,34 @@ function uploadFile(files,folder,fileName) {
                             
                         }
                         
-                    }else{
+                    }
+                    
+                    else if (folder=="cvs"){
+
+                      const file = files[Object.keys(files)[0]];
+                      
+                      const params = {
+                        Bucket: 'dentists-iq',
+                        Key: "cvs/"+fileName.toString() ,
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed
+                      };
+                    
+                      // Upload the file to S3
+                      console.log(params);
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                        }
+                    
+                      });                
+                    }
+                    else{
+
                         console.log("going here");
                         const file = files[Object.keys(files)[0]];
                         // console.log("reading filees");
