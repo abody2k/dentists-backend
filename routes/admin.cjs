@@ -417,6 +417,57 @@ router.post("/ug", async (req, res) => {
 
 })
 
+//delete payment
+
+router.post("/rmpymt", async (req, res) => {
+
+
+
+    if (req.body.id>0 && req.body.c != null) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await deleteCon(req.body.c?'coursestuition':"fellowshipstuition",[['tuitionID','=',req.body.id]]);
+                    await write(req.body.c?"coursesremovedpayments": "fellowshipsremovedpayments",['userID',req.body.c?'courseID':"fellowshipID",'payment'],[req.body.userID,req.body.cid,req.body.payment])
+                    //
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 
 //delete genre
 
@@ -2214,9 +2265,9 @@ router.post("/atf", (req, res) => {
                             await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.f, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]);
 
                             if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
-                                await write("fellowshipstuition",[("fellowshipID"),'tuition','userID'],[req.body.f,Math.floor(req.body.totalFee-req.body.remFee),req.body.i]);
+                                await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne"],[req.body.f,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0]);
                           }else{
-                            await write("fellowshipstuition",[("fellowshipID"),'tuition','userID'],[req.body.f,req.body.totalFee,req.body.i]);
+                            await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne"],[req.body.f,req.body.totalFee,req.body.i,1]);
                           }
 
 
@@ -2300,10 +2351,10 @@ router.post("/atc", (req, res) => {
                             (await write("coursessubscription", ['courseID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.c, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]));
                             
                             if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
-                                  await write("coursestuition",[("courseID"),'tuition','userID'],[req.body.c,Math.floor(req.body.totalFee-req.body.remFee),req.body.i]);
+                                  await write("coursestuition",[("courseID"),'tuition','userID',"lastOne"],[req.body.c,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0]);
 
                             }else{
-                                await write("coursestuition",[("courseID"),'tuition','userID'],[req.body.c,req.body.totalFee,req.body.i]);
+                                await write("coursestuition",[("courseID"),'tuition','userID',"lastOne"],[req.body.c,req.body.totalFee,req.body.i,1]);
                             }
 
 
@@ -2754,7 +2805,7 @@ router.post("/ncv", async (req, res) => {
 
 })
 
-//new course video
+//get courses videos
 router.post("/gcv", async (req, res) => {
 
 
@@ -2770,7 +2821,8 @@ router.post("/gcv", async (req, res) => {
                 try {
                     res.send({
 
-                        d:(await readCon("videos",null,[['courseID','=',req.body.cid]]))
+                        d:(await readCon("videos",null,[['courseID','=',req.body.cid]])),
+                        l:(await readCon("courses",['levels'],[['courseID','=',req.body.cid]]))[0].levels
                     });
                     return;
                 } catch (error) {
@@ -2804,6 +2856,55 @@ router.post("/gcv", async (req, res) => {
 })
 
 
+//get fellowship videos
+router.post("/gfv", async (req, res) => {
+
+
+
+   
+    if (typeof(req.body.fid)=='number') {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    res.send({
+
+                        d:(await readCon("fellowshipvideos",null,[['fellowshipID','=',req.body.fid]])),
+                        l:(await readCon("fellowships",['levels'],[['fellowshipID','=',req.body.fid]]))[0].levels
+                    });
+                    return;
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+
+                    return;
+                }
+    
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 
 //new course/fellowship video notification
 router.post("/nvot", async (req, res) => {
@@ -3057,12 +3158,12 @@ router.post("/nch", async (req, res) => {
 
 
 
-    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID) {
+    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID&&req.body.level>=0) {
 
             auth(req.cookies, res, async (data) => {
 
                 try {
-                    await write("chapter",["title","answers","questions",'link','type',"ID",'chapterID'],[req.body.ti,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.url,req.body.t,req.body.ID,req.body.chID]);
+                    await write("chapter",["title","answers","questions",'link','type',"ID",'chapterID',"level"],[req.body.ti,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.url,req.body.t,req.body.ID,req.body.chID,req.body.level]);
           
 
                 } catch (error) {
@@ -3101,7 +3202,7 @@ router.post("/uch", async (req, res) => {
 
     console.log(req.body);
 
-    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID&&req.body.nchID) {
+    if (req.body.ti &&req.body.ans&& req.body.q&&req.body.url&&req.body.t>=0&&req.body.ID&&req.body.chID) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -3118,15 +3219,21 @@ router.post("/uch", async (req, res) => {
                         fields["questions"] =  JSON.stringify(req.body.q);
 
                     }
-                    if ( req.body.nchID != -9) {
-                        fields["chapterID"] = req.body.nchID;
-                        updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
+                    if ( req.body.level ) {
+                        fields["level"] =  Number(req.body.level);
 
                     }
+                    // if ( req.body.nchID != -9) {
+                    //     fields["chapterID"] = req.body.chID;
+                    //     // updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
+
+                    // }
                     if ( req.body.ti != -9) {
                         fields["title"] =  req.body.ti;
 
                     }
+
+                    console.log(fields);
                     if (Object.keys(fields).length > 0) {
                         await updateJSON("chapter", Object.keys(fields), Object.values(fields), [
                             ["chapterID", '=', req.body.chID],['ID','=',req.body.ID],['type','=',req.body.t]
@@ -3402,7 +3509,9 @@ router.post("/gch", async (req, res) => {
                 try {
                     res.send({
 
-                        d:(await readCon("chapter",null,[["ID",'=',req.body.ID],['type','=',req.body.t]]))
+                        d:(await readCon("chapter",null,[["ID",'=',req.body.ID],['type','=',req.body.t]])),
+                        l:(await readCon(req.body.t==0 ? "courses":"fellowships",['levels'],[[req.body.t==0 ?'courseID':"fellowshipID",'=',req.body.ID]]))[0].levels
+
                     });
 
                     return;
@@ -3619,7 +3728,8 @@ router.post("/gph", async (req, res) => {
                 try {
                     res.send({
 
-                        d:(await readCon((req.body.t ? "fellowshipstuition":"coursestuition"),null,[[req.body.t?"fellowshipID": "courseID",'=',req.body.ID],['userID','=',req.body.userID]]))
+                        d:(await readCon((req.body.t ? "fellowshipstuition":"coursestuition"),null,[[req.body.t?"fellowshipID": "courseID",'=',req.body.ID],['userID','=',req.body.userID]])),
+                        de:(await readCon((req.body.t ? "fellowshipsremovedpayments":"coursesremovedpayments"),null,[[req.body.t?"fellowshipID": "courseID",'=',req.body.ID],['userID','=',req.body.userID]]))
                     });
 
                     return;
@@ -4305,6 +4415,7 @@ router.post("/ucv", async (req, res) => {
 
                     }
 
+                    console.log(fields);
                     if (Object.keys(fields).length > 0) {
                         console.log(await updateCon("videos", Object.keys(fields), Object.values(fields), [
                             ["videoID", '=', req.body.vid]
@@ -4425,11 +4536,10 @@ router.post("/db", async (req, res) => {
 router.post("/dch", async (req, res) => {
 
 
-    req.body= JSON.parse(req.body.body)
 
-
+console.log(req.body);
    
-    if (req.body.chid &&typeof(req.body.chid)=='number') {
+    if (req.body.chid ) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -4439,7 +4549,7 @@ router.post("/dch", async (req, res) => {
                 try {
 
 
-                    await deleteCon("chapter",[['chapterID','in',`(${req.body.chid.join(",")})`]]);
+                    await deleteCon("chapter",[['chapterID','in',`(${req.body.chid.join(",")})`],['type','=',req.body.t],['ID','=',req.body.id]]);
 
               
                       res.sendStatus(200);
@@ -5422,7 +5532,7 @@ router.post("/hP", async (req, res) => {
 try {
     
    console.log(req.body);
-    if (req.body.subscriptionID>=0&&req.body.payment&&req.body.acourse!=null&&req.body.ID&&req.body.userID>=0&&req.body.newDate) {
+    if (req.body.subscriptionID>=0&&req.body.payment>=0&&req.body.acourse!=null&&req.body.ID&&req.body.userID>=0&&req.body.newDate&&req.body.finishedTuition!=null) {
 
         auth(req.cookies, res, async (data) => {
 
@@ -5525,9 +5635,9 @@ async function newBlog (blogDetails,title, files) {
  * @param {String} newDate 
  * @param {Boolean} unband 
  */
-async function handlePaymentUnbanningAndExpDate(subscriptionID,  payment, acourse,ID,userID,newDate,gID,renew,totalFee) {
+async function handlePaymentUnbanningAndExpDate(subscriptionID,  payment, acourse,ID,userID,newDate,gID,renew,totalFee,finishedTuition) {
     
-    await payTuition(subscriptionID,payment,acourse,ID,userID,(new Date(newDate)).toISOString().replace("Z",''),gID,renew,totalFee);
+    await payTuition(subscriptionID,payment,acourse,ID,userID,(new Date(newDate)).toISOString().replace("Z",''),gID,renew,totalFee,finishedTuition);
     if(payment>0)
     await removingSomeoneFromBannedTable(userID,acourse,ID);
     // if(newDate)
@@ -5535,7 +5645,7 @@ async function handlePaymentUnbanningAndExpDate(subscriptionID,  payment, acours
 
 }
 
-async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,gID,renew,totalFee) {
+async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,gID,renew,totalFee,finishedTuition) {
 
 
     if(renew){
@@ -5543,13 +5653,13 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
         await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee','expDate','groupID','totalFee'],[totalFee-payment,newDate,gID,totalFee],[['subscriptionID','=',subscriptionID]]);
 
     }else{
-        await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee','expDate','groupID'],[`(totalFee-${payment})`,newDate,gID],[['subscriptionID','=',subscriptionID]]);
+        await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee','expDate','groupID'],[`(remainingFee-${payment})`,newDate,gID],[['subscriptionID','=',subscriptionID]]);
 
     }
     await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee'],[0],[['remainingFee','<',0],['subscriptionID','=',subscriptionID]]);
         console.log("done done ND FINISHED");
 
-        await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID',"expDate"],[ID,payment,userID,newDate]);
+        await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID',"expDate","lastOne"],[ID,payment,userID,newDate,finishedTuition]);
         //send an email
         const user=await readCon("login",['email'],[['userID','=',Number(userID)]]);
         console.log(user);
