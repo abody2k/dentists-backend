@@ -3641,7 +3641,7 @@ router.post("/gcs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
@@ -3746,7 +3746,7 @@ router.post("/gfs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
@@ -5348,7 +5348,7 @@ router.post("/gascex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
@@ -5432,7 +5432,7 @@ router.post("/gasfex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
