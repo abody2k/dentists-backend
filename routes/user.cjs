@@ -500,7 +500,7 @@ router.post("/sfa",(req,res)=>{
                     ]);
 
 
-                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=0.6){
+                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=result[0].passing){
 
                         await updateCon("coursessubscription",['level'],['(level + 1)'],[['userID','=',data.id]]);
                         // let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
@@ -665,7 +665,7 @@ router.post("/sfa",(req,res)=>{
                     ]);
 
 
-                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=0.6){
+                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=result[0].passing){
 
                         await updateCon("coursessubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
                         let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];

@@ -2302,6 +2302,9 @@ router.post("/atf", (req, res) => {
 
 
                           
+                          // read the profile
+                          // check if the fellowship exists
+                          //
 
                             res.sendStatus(200);
 
@@ -2609,12 +2612,19 @@ router.post("/agtf", (req, res) => {
  */
 async function newCourse(courseName, courseDuration, files,expDate,levels, courseDetails = null) {
 
-    const id = (await write("courses", ["courseName", "courseDuration", "courseDetails","expDate","levels"], [courseName, courseDuration, courseDetails,
+    let id ;
+    
+    if(expDate){
+        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","expDate","levels"], [courseName, courseDuration, courseDetails,
         
         `STR_TO_DATE("${(new Date(expDate)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`
         
 
-        ,levels]));
+        ,levels]));  
+    }else{
+        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","levels"], [courseName, courseDuration, courseDetails,levels]));  
+    }
+  
     upload(files, "courses", id.toString());
 
     return id;
@@ -2681,9 +2691,18 @@ async function updateProduct(productID, productName, productPrice,genre,discount
  */
 async function newfellowship(fellowshipName, fellowshipDuration, files,expDate,levels, fellowshipDetails = null) {
 
-    const id = (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","expDate","levels"], [fellowshipName, fellowshipDuration, fellowshipDetails,
-        `STR_TO_DATE("${(new Date(expDate)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`
-        ,levels]));
+    let id;
+    
+    if(expDate){
+
+        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","expDate","levels"], [fellowshipName, fellowshipDuration, fellowshipDetails,
+            `STR_TO_DATE("${(new Date(expDate)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`
+            ,levels]));
+    }else{
+        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","levels"], [fellowshipName, fellowshipDuration, fellowshipDetails,levels]));
+
+    }
+
     upload(files, "fellowships", id.toString());
 
     return id;
@@ -3410,30 +3429,84 @@ console.log(req.body);
                         switch (req.body.type) {
                             case 0:
                                 if(req.body.note){
-                                    await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                    if(req.body.passing){
+                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
+
+                                    }else{
+                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                    }
 
                                 }else{
-                                    await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+
+                                    if(req.body.passing){
+                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
+
+                                    }else{
+                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                    }
                                 }
 
                                 break;
                                 case 1:
 
                                 if(req.body.note){
-                                    await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                    if(req.body.passing){
+
+                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
+
+                                    }else{
+                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                        
+                                    }
+
+
 
                                 }else{
-                                    await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                    if(req.body.passing){
+
+                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
+
+                                    }else{
+
+                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                        
+                                    }
+
 
                                 }
 
                                 break;
                                 case 2:
                                     if(req.body.note){
-                                        await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note"],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                        if(req.body.passing){
+
+                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note",'passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
+
+                                        }else{
+    
+                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note"],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                            
+                                        }
+    
 
                                     }else{
-                                        await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                        if(req.body.passing){
+
+                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
+
+                                        }else{
+    
+                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                            
+                                        }
+    
 
                                     }
 
@@ -4094,6 +4167,10 @@ console.log(req.body);
                     }
                     if ( req.body.visible != -9) {
                         fields["visible"] =  req.body.visible;
+
+                    }
+                    if ( req.body.passing) {
+                        fields["passing"] =  req.body.passing;
 
                     }
                     if (Object.keys(fields).length > 0) {
@@ -5661,6 +5738,65 @@ try {
     // res.cookie()
 
 })
+
+
+
+//get user profile depending on the code
+router.post("/gup", async (req, res) => {
+
+
+
+    if (req.body.code) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+
+
+                    // get the user ID
+                    // get the 
+
+
+                    res.send({
+
+                        d:(await readCon("chapter",null,[["ID",'=',req.body.ID],['type','=',req.body.t]])),
+                        l:(await readCon(req.body.t==0 ? "courses":"fellowships",['levels'],[[req.body.t==0 ?'courseID':"fellowshipID",'=',req.body.ID]]))[0].levels
+
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
 
 /**
  * 
