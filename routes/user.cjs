@@ -809,6 +809,7 @@ router.post("/gcv",async(req,res)=>{
             }
             auth(req.cookies,res,async(data)=>{
                 console.log('777');
+                console.log(data);
 
                 let banned = (await readCon("banned",null,[['userID','=',data.id],['ID','=',req.body.courseID],['type','=',0]]));
                 
@@ -845,12 +846,13 @@ router.post("/gcv",async(req,res)=>{
                     }else{
                         console.log('77789');
 
-                        videos=(await readCon("videos",["videoUrl",'videoTitle'],[['courseID','=',req.body.courseID]]));
+                        videos=(await readCon("videos",["videoUrl",'videoTitle','level'],[['courseID','=',req.body.courseID]]));
                         infos = await getAllCourseInfo(0,req.body.courseID);
 
                     }
                     res.send({
                         d:[videos,infos],
+                        levels : (await readCon("courses",['levels'],[['courseID','=',req.body.courseID]]))[0]['levels']
 
                     });
                     console.log('sent it');
@@ -953,13 +955,15 @@ router.post("/gfv",async(req,res)=>{
 
 
                     }else{
-                        videos=(await readCon("fellowshipvideos",["videoURL",'title'],[['fellowshipID','=',req.body.fellowshipID]]));
+                        videos=(await readCon("fellowshipvideos",["videoUrl",'videoTitle','level'],[['fellowshipID','=',req.body.fellowshipID]]));
                         infos = await getAllCourseInfo(1,req.body.fellowshipID);
 
                     }
                     
                     res.send({
-                        d:[videos,infos]
+                        d:[videos,infos],
+                        levels : (await readCon("fellowships",['levels'],[['fellowshipID','=',req.body.fellowshipID]]))[0]['levels']
+
                     });
                     
                 }else{
@@ -1124,15 +1128,15 @@ console.log(data);
 
 });
 //update notificationToken
-router.post("/gn",(req,res)=>{
+router.post("/un",(req,res)=>{
 if(req.body.token){
 
     auth(req.cookies,res,async function(data){
-
+        console.log(data);
             await updateCon("login",['notToken'],[req.body.token],[['userID','=',data.id]]);
             res.sendStatus(200);
             
-        },function(){},1)
+        },function(){},-1)
     
         
 }else{
@@ -1163,13 +1167,13 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
     
 
     if (banningDate){
-        const chapters=await readCon("chapter",['title','link','details','questions','ID'],[['ID','=',ID],['dateAdded','<',banningDate],['type','=',type]]);
+        const chapters=await readCon("chapter",['title','link','details','questions','ID','level'],[['ID','=',ID],['dateAdded','<',banningDate],['type','=',type]]);
 
         if(type){
 
-            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
-            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
-            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
  
             return {
                 ffs:ffs,fss:fss,fps:fps,
@@ -1177,9 +1181,9 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
             };
 
         }else{
-           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
-           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
-           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID],['dateAdded','<',banningDate]]);
 
            return {
             cfs:cfs,
@@ -1192,24 +1196,24 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
 
     }else{
 
-        const chapters=await readCon("chapter",['title','link','details','questions','ID'],[['ID','=',ID],['type','=',type]]);
+        const chapters=await readCon("chapter",['title','link','details','questions','ID','level'],[['ID','=',ID],['type','=',type]]);
 
         if(type){
 
-            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
-            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
-            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID'],[['fellowshipID','=',ID]]);
+            const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
+            const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
+            const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
  
             return {
-                ffs:ffs,fss:fss,fps:fps,chapters:chapters
+                ffs:ffs,fss:fss,fps:fps,ch:chapters
             };
 
         }else{
-            const chapters=await readCon("chapter",['title','link','details','questions','type','ID'],[['ID','=',ID]]);
+            const chapters=await readCon("chapter",['title','link','details','questions','type','ID','level'],[['ID','=',ID]]);
 
-           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
-           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
-           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID'],[['courseID','=',ID]]);
+           const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID]]);
+           const css=await readCon("coursesstageexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID]]);
+           const cps=await readCon("coursesperodicexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID]]);
 
            return {
             cfs:cfs,

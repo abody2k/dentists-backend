@@ -12,13 +12,32 @@ const jwt=require('jsonwebtoken')
  * @param {Number} level
  */
 function authenticate(cookies,res,successFunc,errFunc,level=-1) {
-    successFunc();
-    return;
+    // successFunc();
+    // return;
     if(level==-1){
 
 
-        successFunc();
-        return;
+        jwt.verify(cookies['token'],"secret",function(err,data){
+            if (err!= undefined){
+                if (errFunc)
+                errFunc();
+                res.sendStatus(403);
+            }else{
+
+console.log(level);
+console.log(data);
+                if (level !=-1 && data['l']!=level){
+                    errFunc();
+                res.sendStatus(403);
+                return;
+                }
+                if(successFunc)
+                successFunc(data);
+            }
+            // console.log(err);
+            // console.log(data);
+        })
+                return;
     }
     if (cookies!= undefined){
         if (cookies['token']!= undefined){

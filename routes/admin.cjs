@@ -606,7 +606,7 @@ async function notifityUsers(courseID,acourse=true,update=false,videoID=null) {
     }
     let video="";
     if (update){
-        video=(await readCon(acourse ?"videos" :"fellowshipvideos",[acourse? "videoTitle":"title"],[["videoID",'=',videoID]]))[0];
+        video=(await readCon(acourse ?"videos" :"fellowshipvideos",["videoTitle"],[["videoID",'=',videoID]]))[0];
         if(acourse){
 video.name=video.videoTitle;
         }else{
@@ -797,13 +797,14 @@ async function notifityUsersChapters(courseID,acourse=true,update=false,chapterI
 
     let video="";
 
-
+console.log(chapterID);
     if (update){
         video=(await readCon("chapter",["title"],[["chapterID",'=',chapterID]]))[0];
 
 
 
     }
+
 
 
     console.log("user IDs left : "+usersIds.length);
@@ -815,6 +816,7 @@ async function notifityUsersChapters(courseID,acourse=true,update=false,chapterI
 
     console.log("user IDs left : "+usersIds.length);
     console.log(usersIds);
+    console.log(video);
 
     if(usersIds.length<1)
     return;
@@ -883,17 +885,45 @@ async function notifityUsersChapters(courseID,acourse=true,update=false,chapterI
         }
 
     } else {
-       console.log((await apps[0].messaging().sendEach(
 
+        console.log("we are here");
+        console.log(tokens);
+
+
+        
+        if(tokens.map((e)=>e.notToken).filter((s)=>s!=null).length<=0){
+            return;
+
+        }
+        console.log(name);
+       console.log((await apps[0].messaging().sendEach(
 
         tokens.map(token => (Object({
             notification: {
                 title: "Update!",
                 body: (!update) ? `a new chapter has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a chapter "${video.title}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
             },
-            token: token.notToken
+            token: token.notToken,
+     webpush:{
+        "fcm_options": {
+            "link": `http://localhost:5173/${acourse? "courses":"fellowships"}/${courseID}`
+          }     }
         })))
     )).responses[0].error);
+
+
+    
+        // (await apps[0].messaging().sendEach(
+
+
+        //     tokens.map(token => (Object({
+        //         notification: {
+        //             title: "Update!",
+        //             body: (!update) ? `a new chapter has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a chapter "${video.title}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+        //         },
+        //         token: token.notToken
+        //     })))
+        // ))
 
         
     }
@@ -2943,6 +2973,7 @@ router.post("/not", async (req, res) => {
 
 
 
+    console.log(req.body);
    
     if (typeof(req.body.cid)=='number'||typeof(req.body.fid)=='number') {
 
@@ -2950,7 +2981,16 @@ router.post("/not", async (req, res) => {
                 // notifityUsersFinalExams(req.body.cid || req.body.fid,req.body.cid ? true : false,);
 
                 try {
-                    await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false);
+
+                    if(req.body.vid){
+                        await notifityUsers(req.body.cid || req.body.fid,req.body.cid ? true : false,true,req.body.vid);
+
+                    }
+                    if(req.body.chid){
+                        console.log(req.body.chid);
+                        await notifityUsersChapters(req.body.cid || req.body.fid,req.body.cid ? true : false,true,req.body.chid);
+
+                    }
                     // await notifityUsersChapters(req.body.cid || req.body.fid,req.body.cid ? true : false,false,12)
                     // notifyAUsers(7,1,"",20000,false)
                 } catch (error) {
@@ -3164,7 +3204,7 @@ router.post("/nch", async (req, res) => {
 
                 try {
                     await write("chapter",["title","answers","questions",'link','type',"ID",'chapterID',"level"],[req.body.ti,JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.url,req.body.t,req.body.ID,req.body.chID,req.body.level]);
-          
+                    await notifityUsersChapters(req.body.ID,req.body.t ? false : true,false,req.body.chID);
 
                 } catch (error) {
                     console.log(error);
@@ -3369,15 +3409,33 @@ console.log(req.body);
 
                         switch (req.body.type) {
                             case 0:
-                                await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                if(req.body.note){
+                                    await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                }else{
+                                    await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                }
 
                                 break;
                                 case 1:
+
+                                if(req.body.note){
+                                    await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                }else{
                                     await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                }
 
                                 break;
                                 case 2:
-                                    await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                    if(req.body.note){
+                                        await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note"],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                    }else{
+                                        await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                    }
 
                                 break;
 
@@ -3395,15 +3453,35 @@ console.log(req.body);
                         
                         switch (req.body.type) {
                             case 0:
+
+                            if(req.body.note){
+
+                                await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                            }else{
                                 await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
 
+                            }
                                 break;
                                 case 1:
+
+                                if(req.body.note){
+                                    await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                }else{
                                     await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                }
 
                                 break;
                                 case 2:
-                                    await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                    if(req.body.note){
+                                        await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                    }else{
+                                        await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+
+                                    }
+
 
                                 break;
 
@@ -4002,6 +4080,10 @@ console.log(req.body);
                         fields["startingDate"] =  req.body.sd;
 
                     }
+                    if ( req.body.note != -9) {
+                        fields["note"] =  req.body.note;
+
+                    }
                     if ( req.body.title != -9) {
                         fields["title"] =  req.body.title;
 
@@ -4165,7 +4247,7 @@ router.post("/nfv", async (req, res) => {
     
                     try {
                         await updateCon("fellowshipvideos",['`order`'],["(`order`+1)"],[["fellowshipID",'=',req.body.fid],['`order`',">=",req.body.o]]);
-                        await write("fellowshipvideos",["videoURL","title","fellowshipID",'`order`','level'],[req.body.url,req.body.vt,req.body.fid,req.body.o,req.body.level]);
+                        await write("fellowshipvideos",["videoUrl","videoTitle","fellowshipID",'`order`','level'],[req.body.url,req.body.vt,req.body.fid,req.body.o,req.body.level]);
               
     
                     } catch (error) {
@@ -4258,7 +4340,7 @@ router.post("/nfv", async (req, res) => {
 router.post("/ufv", async (req, res) => {
 
     console.log( req.body);
-    req.body = JSON.parse(req.body.body);
+    // req.body = JSON.parse(req.body.body);
 
 
    
@@ -4272,10 +4354,10 @@ router.post("/ufv", async (req, res) => {
                 try {
                     let fields = {};
                     if (req.body.vt != -9) {
-                        fields["title"] = req.body.vt;
+                        fields["videoTitle"] = req.body.vt;
                     }
                     if ( req.body.url != -9) {
-                        fields["videoURL"] =  req.body.url;
+                        fields["videoUrl"] =  req.body.url;
                     }
                     if ( req.body.o != -9) {
                         fields["`order`"] =  req.body.o;
@@ -4845,7 +4927,7 @@ router.post("/dfv", async (req, res) => {
 
    
     if (req.body.fid &&typeof(req.body.fid)=='number'&&req.body.v) {
-
+        console.log(req.body);
             auth(req.cookies, res, async (data) => {
 
 

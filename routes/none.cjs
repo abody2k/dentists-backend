@@ -32,10 +32,16 @@ router.post("/rb/",async (req,res)=>{
 
 //send courses to all users
 router.post("/gc/",async (req,res)=>{
+    let data;
+    if(req.body.id){
+       data= (await util.readCon("courses",null,[['archived','=',0]],`${req.body.id? req.body.id: 0},10`));
+    }else{
+    data= (await util.readCon("courses",null,[['archived','=',0]],`${req.body.id? req.body.id: 0},10`));
 
-
-    const data = (await util.readCon("courses",null,[['archived','=',0]]));
-    res.send({d:data});
+    }
+    res.send({d:data,
+        c:(await (util.read("courses",['count(*) as count'])))[0]['count']
+    });
 });
 
 
@@ -117,7 +123,8 @@ const options ={
                 require("jsonwebtoken").sign(options,"secret"), {httpOnly:true,expires:(da)}
                 );
                 console.log(data);
-            
+                console.log('THIS IS OPTIONS');
+                console.log(options);
                 res.send({
                     n:(await util.readCon("notifications",['notification'],[['userID','=',data[0].userID]])).map((e)=>e.notification),
                     t:data[0].level,
@@ -142,8 +149,20 @@ const options ={
 router.post("/gf/",async (req,res)=>{
 
 
-    const data = (await util.readCon("fellowships",null,[['archived','=',0]]));
-    res.send({d:data});
+    // const data = (await util.readCon("fellowships",null,[['archived','=',0]],10));
+
+
+
+    let data;
+    if(req.body.id){
+       data= (await util.readCon("fellowships",null,[['archived','=',0]],`${req.body.id? req.body.id: 0},10`));
+    }else{
+    data= (await util.readCon("fellowships",null,[['archived','=',0]],`${req.body.id? req.body.id: 0},10`));
+
+    }
+    res.send({d:data,
+        c:(await (util.read("fellowships",['count(*) as count'])))[0]['count']
+    });
 });
 
 router.post("/se",async(req,res)=>{
