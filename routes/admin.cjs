@@ -2063,7 +2063,7 @@ console.log(req.body);
     // res.sendStatus(200);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
     if (req.body && req.files) {
-        if (req.body.courseName&& typeof(req.body.levels)=="number"&&req.body.expDate) {
+        if (req.body.courseName&& typeof(req.body.levels)=="number") {
 
             auth(req.cookies, res, async (data) => {
 
@@ -2125,7 +2125,7 @@ router.post("/nf", async (req, res) => {
     console.log(req.body);
     // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
     if (req.body && req.files) {
-        if (req.body.fellowshipName&& typeof(req.body.levels)=="number"&&req.body.expDate ) {
+        if (req.body.fellowshipName&& typeof(req.body.levels)=="number" ) {
 
             auth(req.cookies, res, async (data) => {
 
