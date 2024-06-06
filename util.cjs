@@ -291,6 +291,7 @@ function uploadFile(files,folder,fileName) {
     
             s3.deleteObjects(deleteParams, function(err, deleteData) {
                 if (err) {
+                  console.log('something went south');
                     console.error('Error deleting objects:', err);
 
                     if (folder=="products" && files.files.length){
