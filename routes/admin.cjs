@@ -16,6 +16,8 @@ const {
     auth
 } = require("../auth.cjs");
 const aws = require('aws-sdk');
+aws.config.update({region: 'me-central-1'});
+
 const { hash } = require("argon2");
 
 const router = require("express").Router();

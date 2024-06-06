@@ -1,5 +1,6 @@
 let sql = require("mysql2/promise");
 const aws = require('aws-sdk');
+aws.config.update({region: 'me-central-1'});
 
 /**
  * 
