@@ -1817,9 +1817,9 @@ router.post("/uofi", (req, res) => {
 
                         try {
                             const s3 = new aws.S3({
-                                accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                                secretAccessKey: '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',
-                                region: 'us-east-1',
+                                accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                                secretAccessKey: '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',
+                                region: 'me-central-1',
                               });
                      
                       
@@ -1884,14 +1884,14 @@ router.post("/dofi", (req, res) => {
                         try {
 
                             const s3 = new aws.S3({
-                                accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                                secretAccessKey: '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',
-                                region: 'us-east-1',
+                                accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                                secretAccessKey: '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',
+                                region: 'me-central-1',
                               });
                
 
                             s3.deleteObject({
-                                Bucket:"dentists-iq",
+                                Bucket:"echo-dentists",
 
                                 Key:"/offers/"+req.body.id
                             })
@@ -1983,14 +1983,14 @@ router.post("/dp", async (req, res) => {
                     await deleteCon("products",[['productID','=',req.body.id]])
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                        secretAccessKey: '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',
-                        region: 'us-east-1',
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
                       });
              
               
                       const listParams = {
-                        Bucket:"dentists-iq",
+                        Bucket:"echo-dentists",
                         Prefix:"products/"+req.body.id
                     };
                       
@@ -2902,7 +2902,8 @@ async function updateCourse(id, courseName, courseDuration, files,expDate,levels
         fields["courseName"] = courseName;
     }
     if (courseDetails != -9) {
-        fields["courseDetails"] = courseDetails;
+        const mysql = require("mysql2")
+        fields["courseDetails"] = mysql.escape(courseDetails);
     }
 
 
@@ -3856,10 +3857,10 @@ router.post("/gcs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })         
@@ -3961,10 +3962,10 @@ router.post("/gfs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })                    
@@ -4784,15 +4785,15 @@ router.post("/db", async (req, res) => {
                     await deleteCon("blogs",[['blogID','=',req.body.bid]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                        secretAccessKey: '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',
-                        region: 'us-east-1',
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
                       });
                       res.sendStatus(200);
 
                       s3.deleteObject({
 
-                        Bucket:"dentists-iq",
+                        Bucket:"echo-dentists",
                         Key:"blogs/"+req.body.bid
                       },(e,d)=>{
 
@@ -4962,14 +4963,14 @@ router.post("/dc", async (req, res) => {
                     await deleteCon("courses",[['courseID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                        secretAccessKey: '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',
-                        region: 'us-east-1',
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
                       });
 
                       s3.deleteObject({
 
-                        Bucket:"dentists-iq",
+                        Bucket:"echo-dentists",
                         Key:"courses/"+req.body.id
                       },(e,d)=>{
 
@@ -5035,14 +5036,14 @@ console.log("to be contiuned");
                     await deleteCon("fellowships",[['fellowshipID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIAT4PTBJP62OQ26E3R',
-                        secretAccessKey: '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',
-                        region: 'us-east-1',
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
                       });
 
                       s3.deleteObject({
 
-                        Bucket:"dentists-iq",
+                        Bucket:"echo-dentists",
                         Key:"fellowships/"+req.body.id
                       },(e,d)=>{
 
@@ -5567,10 +5568,10 @@ router.post("/gascex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
-                    password:"grabyOli0001",
+                    password:"0001",
                     port:3306,
                     timezone:"+03:00"
                     
@@ -5651,10 +5652,10 @@ router.post("/gasfex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
-                    password:"grabyOli0001",
+                    password:"0001",
                     port:3306,
                     timezone:"+03:00"
                     

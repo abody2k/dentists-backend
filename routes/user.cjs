@@ -821,10 +821,10 @@ router.post("/gcv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
@@ -935,10 +935,10 @@ router.post("/gfv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
