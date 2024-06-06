@@ -36,7 +36,7 @@ app.use(require("cors")({
 
 var admin = require("firebase-admin");
 
-var serviceAccount = require("./dentists-iq-firebase-adminsdk-mtl5z-1a880f2ce3.json");
+var serviceAccount = require("./echo-dentists-firebase-adminsdk-mtl5z-1a880f2ce3.json");
 
 const fbApp =admin.initializeApp({
   

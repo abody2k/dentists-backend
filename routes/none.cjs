@@ -178,14 +178,14 @@ router.post("/se",async(req,res)=>{
           secure: true,
           auth: {
             // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-            user: "dentists-iq@mail.ru",
+            user: "echo-dentists@mail.ru",
             pass: "S4x0cMyN7N8f0H21vKBf",
           },
         });
         
         
         await transporter.sendMail({
-          from:"dentists-iq@mail.ru",
+          from:"echo-dentists@mail.ru",
           to: "alhmdanyb902@gmail.com", // list of receivers
           subject: "contacting us", // Subject line
           text: `this message has been sent to you by ${req.body.e} and their name is ${req.body.n} and their message is : ${req.body.msg}`, // plain text body

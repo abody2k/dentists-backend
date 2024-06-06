@@ -1019,14 +1019,14 @@ router.post("/fop",async(req,res)=>{
                       secure: true,
                       auth: {
                         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "dentists-iq@mail.ru",
+                        user: "echo-dentists@mail.ru",
                         pass: "S4x0cMyN7N8f0H21vKBf",
                       },
                     });
                     
                     
                     await transporter.sendMail({
-                      from:"dentists-iq@mail.ru",
+                      from:"echo-dentists@mail.ru",
                       to: req.body.email.replace("echo","gmail"), // list of receivers
                       subject: "contacting us", // Subject line
                       html:`

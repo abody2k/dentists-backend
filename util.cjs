@@ -52,7 +52,7 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
     return data;
 }
 //https://echo-dentists.s3.amazonaws.com/
-//https://dentists-iq.s3.amazonaws.com/
+//https://echo-dentists.s3.amazonaws.com/
 //grabyOli0001
 //host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com"
 //dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com
@@ -266,14 +266,22 @@ function uploadFile(files,folder,fileName) {
         Prefix:folder+"/"+fileName
     };
       
+    console.log('HERE');
 
       s3.listObjectsV2(listParams, function(err, data) {
+        console.log('HERE');
         if (err) {
-            console.error('Error listing objects:', err);
+          console.log("something bad happened");
+          console.log(err);
+          console.log('HERE');
+
+          console.error('Error listing objects:', err);
         } else {
-            // Delete each object in the folder
+          console.log('HERE');
+
+          // Delete each object in the folder
             const deleteParams = {
-                Bucket: "dentists-iq",
+                Bucket: "echo-dentists",
                 Delete: { Objects: [] }
             };
     
@@ -296,7 +304,7 @@ function uploadFile(files,folder,fileName) {
                             
                         
                             const params = {
-                              Bucket: 'dentists-iq',
+                              Bucket: 'echo-dentists',
                               Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
                               Body: file.data,
                               ACL: 'public-read', // Set the ACL permissions as needed
@@ -325,7 +333,7 @@ function uploadFile(files,folder,fileName) {
                       const file = files[Object.keys(files)[0]];
                       
                       const params = {
-                        Bucket: 'dentists-iq',
+                        Bucket: 'echo-dentists',
                         Key: "cvs/"+fileName.toString() ,
                         Body: file.data,
                         ACL: 'public-read', // Set the ACL permissions as needed
@@ -353,7 +361,7 @@ function uploadFile(files,folder,fileName) {
                         
                     
                         const params = {
-                          Bucket: 'dentists-iq',
+                          Bucket: 'echo-dentists',
                           Key: folder+"/"+fileName.toString()+"/0" ,
                           Body: file.data,
                           ACL: 'public-read', // Set the ACL permissions as needed
@@ -385,7 +393,7 @@ function uploadFile(files,folder,fileName) {
                             
                         
                             const params = {
-                              Bucket: 'dentists-iq',
+                              Bucket: 'echo-dentists',
                               Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
                               Body: file.data,
                               ACL: 'public-read', // Set the ACL permissions as needed
@@ -415,7 +423,7 @@ function uploadFile(files,folder,fileName) {
                         
                     
                         const params = {
-                          Bucket: 'dentists-iq',
+                          Bucket: 'echo-dentists',
                           Key: folder+"/"+fileName.toString()+"/0" ,
                           Body: file.data,
                           ACL: 'public-read', // Set the ACL permissions as needed
@@ -460,7 +468,7 @@ function readFile(fileName,folder,res) {
 
 
     const params = {
-      Bucket: 'dentists-iq',
+      Bucket: 'echo-dentists',
       Key: folder+"/"+fileName,
     };
 
@@ -492,7 +500,7 @@ function readFile(fileName,folder,res) {
 
 
 //     const params = {
-//       Bucket: 'dentists-iq',
+//       Bucket: 'echo-dentists',
 //       Key: folder+"/"+fileName,
 //     };
 

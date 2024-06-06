@@ -1826,7 +1826,7 @@ router.post("/uofi", (req, res) => {
                      
                       
                               const params = {
-                                Bucket: 'dentists-iq',
+                                Bucket: 'echo-dentists',
                                 Key: "offers/"+req.body.id.toString() ,
                                 Body:req.files.files.data,
                                 ACL: 'public-read', // Set the ACL permissions as needed
@@ -2003,7 +2003,7 @@ router.post("/dp", async (req, res) => {
                         } else {
                             // Delete each object in the folder
                             const deleteParams = {
-                                Bucket: "dentists-iq",
+                                Bucket: "echo-dentists",
                                 Delete: { Objects: [] }
                             };
                     
@@ -3192,14 +3192,14 @@ if(req.body.phonenumber){
                       secure: true,
                       auth: {
                         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "dentists-iq@mail.ru",
+                        user: "echo-dentists@mail.ru",
                         pass: "S4x0cMyN7N8f0H21vKBf",
                       },
                     });
                     
                     
                     await transporter.sendMail({
-                      from:"dentists-iq@mail.ru",
+                      from:"echo-dentists@mail.ru",
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
@@ -3261,14 +3261,14 @@ router.post("/uacc", async (req, res) => {
                       secure: true,
                       auth: {
                         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "dentists-iq@mail.ru",
+                        user: "echo-dentists@mail.ru",
                         pass: "S4x0cMyN7N8f0H21vKBf",
                       },
                     });
                     
                     
                     await transporter.sendMail({
-                      from:"dentists-iq@mail.ru",
+                      from:"echo-dentists@mail.ru",
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
@@ -6035,7 +6035,7 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
           secure: true,
           auth: {
             // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-            user: "dentists-iq@mail.ru",
+            user: "echo-dentists@mail.ru",
             pass: "S4x0cMyN7N8f0H21vKBf",
           },
         });
@@ -6043,7 +6043,7 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
         
         try {
             await transporter.sendMail({
-                from:"dentists-iq@mail.ru",
+                from:"echo-dentists@mail.ru",
                 to: user[0].email+"@gmail.com", // list of receivers
                 subject: "contacting us", // Subject line
                 text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
