@@ -1114,6 +1114,70 @@ router.post("/uf", async (req, res) => {
 
 });
 
+
+//update fellowship
+router.post("/uft", async (req, res) => {
+
+    req.body = JSON.parse(req.body.body);
+    // req.body.fellowshipDuration = Number(req.body.fellowshipDuration);
+
+    // req.body = Object.keys(req.body);
+    // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
+    // res.sendStatus(200);
+    console.log(req.body);
+    // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
+    if ( req.body.id&&req.body.expDate) {
+
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            if ((await readCon("fellowships", ['fellowshipID'], [
+                    ['fellowshipID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                await updateCon("fellowships",['expDate'],[req.body.expDate],[['fellowshipID','=',req.body.id]])
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
 //update course
 router.post("/uc", async (req, res) => {
 
@@ -1143,6 +1207,72 @@ router.post("/uc", async (req, res) => {
 
                 try {
                     await updateCourse(req.body.id, req.body.courseName, req.body.courseDuration, req.files,req.body.expDate,req.body.levels, req.body.courseDetails);
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+            } else {
+                console.log("wroooong");
+                res.sendStatus(403);
+                return;
+            }
+
+
+        }, () => {
+
+
+            console.log("something went wrong");
+
+
+
+        }, 0)
+
+
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+});
+
+
+//update course
+router.post("/uct", async (req, res) => {
+
+    console.log( req.body); 
+    req.body = JSON.parse(req.body.body);
+
+    // req.body.courseDuration = Number(req.body.courseDuration);
+ 
+    // req.body = Object.keys(req.body);
+    // res.cookie("token","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsIjowLCJpYXQiOjE3MDQ2MTMxMTZ9.XngdKrHGUsC2zd-B1zmhC0A0vHsabbwb8HeLMveoL4Q",{httpOnly:true,maxAge:(60*60*60*24)});
+    // res.sendStatus(200);
+    console.log(req.body);
+    // insert into courses (courseName,courseDuration,courseDetails) values(?,?,?);
+    if (req.body.expDate && req.body.id) {
+
+
+
+
+        auth(req.cookies, res, async (data) => {
+
+            if ((await readCon("courses", ['courseID'], [
+                    ['courseID', '=', req.body.id]
+                ])).length > 0) {
+
+
+                console.log("Everything went well");
+
+                try {
+                    await updateCon("courses",['expDate'],[req.body.expDate],[['courseID','=',req.body.id]]);
                 } catch (error) {
                     console.log(error);
                     res.sendStatus(403);

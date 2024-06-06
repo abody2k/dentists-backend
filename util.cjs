@@ -50,8 +50,8 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
     return data;
 }
 
-
-
+// host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com"
+//host:"dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com"
 // dentists.cp22o2g04xb8.me-central-1.rds.amazonaws.com
 /**
  * 
