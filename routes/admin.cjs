@@ -1079,6 +1079,7 @@ router.post("/uf", async (req, res) => {
                 try {
                     await updateFellowship(req.body.id, req.body.fellowshipName, req.body.fellowshipDuration, req.files,req.body.expDate,req.body.levels, req.body.fellowshipDetails);
                 } catch (error) {
+                    console.log(error);
                     res.sendStatus(403);
                     return;
                 }
@@ -3282,11 +3283,11 @@ router.post("/uch", async (req, res) => {
                         fields["level"] =  Number(req.body.level);
 
                     }
-                    // if ( req.body.nchID != -9) {
-                    //     fields["chapterID"] = req.body.chID;
-                    //     // updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
+                    if ( req.body.nchID != -9) {
+                        fields["chapterID"] = req.body.nchID;
+                        // updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
 
-                    // }
+                    }
                     if ( req.body.ti != -9) {
                         fields["title"] =  req.body.ti;
 
@@ -3294,9 +3295,16 @@ router.post("/uch", async (req, res) => {
 
                     console.log(fields);
                     if (Object.keys(fields).length > 0) {
-                        await updateJSON("chapter", Object.keys(fields), Object.values(fields), [
-                            ["chapterID", '=', req.body.chID],['ID','=',req.body.ID],['type','=',req.body.t]
-                        ]);
+                        try {
+                            await updateJSON("chapter", Object.keys(fields), Object.values(fields), [
+                                ["chapterID", '=', req.body.chID],['ID','=',req.body.ID],['type','=',req.body.t]
+                            ]);
+                        } catch (error) {
+                            console.log(error);
+                            res.sendStatus(403);
+                            return;
+                        }
+                        console.log('done done');
                     }else{
 
                         res.sendStatus(200);
@@ -3304,14 +3312,18 @@ router.post("/uch", async (req, res) => {
                     }
 
           
+                    console.log('heeeeer4');
 
                 } catch (error) {
+                    console.log('heeeeer');
                     console.log(error);
                     res.sendStatus(403);
                     return;
                 }
+
                 console.log(data);
                 res.sendStatus(200);
+                return;
 
 
             }, () => {
