@@ -8,10 +8,10 @@ const aws = require('aws-sdk');
  */
 async function read(table,fields) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
         
@@ -21,7 +21,7 @@ async function read(table,fields) {
         host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     */
@@ -38,10 +38,10 @@ async function read(table,fields) {
 
 async function readOrder(table,fields,conditions,orderer,limit=null) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -53,8 +53,9 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
 //https://echo-dentists.s3.amazonaws.com/
 //https://dentists-iq.s3.amazonaws.com/
 //grabyOli0001
-//host:"localhost"
-//host:"localhost"
+//host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com"
+//dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com
+//host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com"
 // dentists.cp22o2g04xb8.region: 'me-central-1'.rds.amazonaws.com
 /**
  * 
@@ -64,10 +65,10 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
  */
 async function readConditionally(table,fields,conditions,limit=null) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -80,10 +81,10 @@ async function readConditionally(table,fields,conditions,limit=null) {
 
 async function deleteConditionally(table,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -96,10 +97,10 @@ async function deleteConditionally(table,conditions) {
 
 async function deleteConditionallyOR(table,conditions) {
   const conn =  await sql.createConnection({
-      host:"localhost",
+      host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
       user:"root",
       database:"dentists",
-      password:"0001",
+      password:"grabyOli0001",
       port:3306,
       timezone:"+03:00"
   })
@@ -119,10 +120,10 @@ async function deleteConditionallyOR(table,conditions) {
  */
 async function updateConditionally(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00",
 
@@ -154,10 +155,10 @@ async function updateConditionally(table,fields,values,conditions) {
  */
 async function updateConditionallyJSON(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00",
 
@@ -187,10 +188,10 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
  */
 async function write(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -210,10 +211,10 @@ async function write(table,keys,values) {
  */
 async function writeMany(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"localhost",
+        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })

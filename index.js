@@ -172,10 +172,10 @@ app.post("/api/bau",async (req,res)=>{
   let sql = require("mysql2/promise");
 
   const conn =  await sql.createConnection({
-    host:"localhost",
+    host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
     user:"root",
     database:"dentists",
-    password:"0001",
+    password:"grabyOli0001",
     port:3306,
     timezone:"+03:00",
 
