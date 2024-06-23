@@ -27,18 +27,21 @@ router.post("/gexqc",(req,res)=>{
 
                 let table="";
 switch (req.body.examType) {
-    case 0:
+    case 1:
     table="coursesperodicexams";    
         break;
-    case 1:
+    case 2:
     table="coursesstageexams";  
         break;
-    case 2:
+    case 3:
     table="coursesfinalexams";      
         break;
 
 }
-    const result =await readCon(table,null,[['examID','=',req.body.examID],['ending','>','(now())']]);
+
+// ['ending','>','(now())'],['now()','>','startingDate']
+
+    const result =await readCon(table,null,[['examID','=',req.body.examID]]);
     console.log("debug 3");
     console.log(result);
 
@@ -61,10 +64,83 @@ pass=true;
                 return;
             }else{
 
+                const dif= Math.ceil(((new Date()) - (new Date(result[0].ending)))/(1000*60*60*24));
 
-                res.send({
-                    q:result[0].questions
-                })
+
+                
+                if((new Date())  > (new Date(result[0].ending))){ // exam ended send results to the user
+
+                    // get all the results 
+                    let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['atype','=',0],['examType','=',req.body.examType]]);
+                    let names=[];
+                    console.log(['userID','in',`(${results.map((e)=>e.userID).join(",")})`]);
+                    if(results.length>0){
+                        names=await readCon("login",['username as n','userID as i'],[['userID','in',`(${results.map((e)=>e.i).join(",")})`]]);
+                        console.log(names);
+                    }
+                    
+                if(dif>14){
+                    res.send({
+                        r:results,
+                        na:names,
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note,
+                    })
+                }else{
+                    res.send({
+                        r:results,
+                        na:names,
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note,
+                        qu:result[0].questions,
+                        ans:result[0].answers,
+                        uans:(await readCon(table.replace("exams",'results'),['answer'],[['userID','=',data.id],['examID','=',req.body.examID]]))
+
+                    })
+                }
+                    return;
+
+                }
+                else if((new Date())  > (new Date(result[0].startingDate)) && (new Date())  < (new Date(result[0].ending))){ // exam is still ongoing send the questions
+                    let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',0],['examType','=',req.body.examType],['userID','=',data.id]]);
+                    if(aresult.length>0){
+                        res.send({
+                            title:result[0].title,
+                            sd:result[0].startingDate,
+                            en:result[0].ending,
+                            l:result[0].level,
+                            n:result[0].note
+                        })
+                    }else{
+                        res.send({
+                            q:result[0].questions.map((s)=>{
+                                delete s['n'];
+                                return s;}),
+                            title:result[0].title,
+                            sd:result[0].startingDate,
+                            en:result[0].ending,
+                            l:result[0].level,
+                            n:result[0].note
+                        })
+                    }
+
+                }else{ //exam hasn't got started yet so send the details only
+                    res.send({
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note
+                    })
+                
+                }
+
             }
    
             
@@ -100,33 +176,37 @@ router.post("/gexqf",(req,res)=>{
             console.log("debug 2");
 let table="";
 switch (req.body.examType) {
-    case 0:
+    case 1:
     table="fellowshipsperodicexams";    
         break;
-    case 1:
+    case 2:
     table="fellowshipsstageexams";  
         break;
-    case 2:
+    case 3:
     table="fellowshipsfinalexams";      
         break;
 
 }
-const result =await readCon(table,null,[['examID','=',req.body.examID],['ending','>','(now())']]);
+
+const result =await readCon(table,null,[['examID','=',req.body.examID]]);
 console.log("debug 3");
 
         
                     if((result).length>0){
+
+
                         console.log("debug 4");
 
                         let pass=false;
-
-
+ 
+ 
                 if((await(readCon("fellowshipssubscription",null,[['fellowshipID','=',req.body.fellowshipID],['groupID','=',result[0].groupID]]))).length>0){
                   pass=true;
 
               }
-                        
         
+              
+        console.log(pass);
         if(!pass){
 
 
@@ -134,10 +214,88 @@ console.log("debug 3");
             return;
         }else{
 
+            console.log('arried');
 
-            res.send({
-                q:result[0].questions
-            })
+            const dif= Math.ceil(((new Date()) - (new Date(result[0].ending)))/(1000*60*60*24));
+            
+
+
+            if((new Date())  > (new Date(result[0].ending))){ // exam ended send results to the user
+
+                // get all the results 
+                let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['atype','=',1],['examType','=',req.body.examType]]);
+                let names=[];
+
+                //check if there are 14 days or less if so send the question as well
+                if(results.length>0){
+                    names=await readCon("login",['username as n','userID as i'],[['userID','in',`(${results.map((e)=>e.i).join(",")})`]]);
+                }
+                
+                if(dif>14){
+                    res.send({
+                        r:results,
+                        na:names,
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note,
+                    })
+                }else{
+
+                    res.send({
+                        r:results,
+                        na:names,
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note,
+                        qu:result[0].questions,
+                        ans:result[0].answers,
+                        uans:(await readCon(table.replace("exams",'results'),['answer'],[['userID','=',data.id],['examID','=',req.body.examID]]))
+
+
+                    })
+                }
+                return;
+
+            }
+            else if((new Date()) > (new Date(result[0].startingDate)) && (new Date()) < (new Date(result[0].ending)) ){ // ongoing exam
+
+                let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['examType','=',req.body.examType],['userID','=',data.id]]);
+                if(aresult.length>0){
+                    res.send({
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note
+                    })
+                }else{
+                    res.send({
+                        q:result[0].questions.map((s)=>{
+                            delete s['n'];
+                            return s;}),
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note
+                    })
+                }
+
+            }else{ //exam hasn't started yet
+                res.send({
+
+                    title:result[0].title,
+                    sd:result[0].startingDate,
+                    en:result[0].ending,
+                    l:result[0].level,
+                    n:result[0].note
+                })}
+
+
         }
 
         
@@ -267,7 +425,7 @@ router.post("/sca",(req,res)=>{
                     
                         JSON.stringify(
 
-                          {ans:req.body.ans,rs:result[0].answers}
+                          req.body.ans
                                                 ),"now()",result[0].chapterID,data.id,(
                                                     ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
                                                 )
@@ -373,20 +531,23 @@ router.post("/spa",(req,res)=>{
 
             if(req.body.t==0){
                 console.log("here");
-                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',result[0].ID],['status','=',0]])).length>0){
+                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',req.body.ID],['status','=',0]])).length>0){
 
 
                  try {
-                    await write(("fellowshipsperodicresults"),['answer','submissionDate','ID','userID','mark'],[
-                    
+                    await write(("coursesperodicresults"),['answer','submissionDate','examID','userID','mark','courseID'],[
+                         
                         JSON.stringify(
 
-                            {ans:req.body.ans,rs:result[0].answers}
+                           req.body.ans
                                                 ),"now()",result[0].examID,data.id,(
-                                                    ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
-                                                )
+                                                    ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                                                ),req.body.ID
                     
                     ]);
+
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                ,req.body.i,1,0]);
                  } catch (error) {
                     
 
@@ -406,22 +567,24 @@ router.post("/spa",(req,res)=>{
             }else{
                 console.log("here 2");
 
-                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',result[0].ID],['status','=',0]])).length>0){
+                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',req.body.ID],['status','=',0]])).length>0){
 
                     try {
                         
-                    await write("coursesperodicresults",['answer','submissionDate','ID','userID','mark'],[
+                    await write("fellowshipsperodicresults",['answer','submissionDate','examID','userID','mark','fellowshipID'],[
                     
                         JSON.stringify(
 
                            req.body.ans
                             
                     ),"now()",result[0].ID,data.id,(
-                            ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
+                            ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
-                        )
+                        ), req.body.ID
                     
                     ]);
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,1,1]);
                     } catch (error) {
 
                         res.sendStatus(403);
@@ -462,7 +625,7 @@ router.post("/spa",(req,res)=>{
     });
 
 //submit stage exam answers
-router.post("/sfa",(req,res)=>{
+router.post("/ssa",(req,res)=>{
 
     auth(req.cookies,res,async function(data){
     console.log(data);
@@ -484,23 +647,27 @@ router.post("/sfa",(req,res)=>{
 
             if(req.body.t==0){
                 console.log("here");
-                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',result[0].ID],['status','=',0]])).length>0){
 
+                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',req.body.ID],['status','=',0]])).length>0){
 
                  try {
-                    await write("coursesstageresults",['answer','submissionDate','ID','userID','mark'],[
+                    await write("coursesstageresults",['answer','submissionDate','examID','userID','mark','courseID'],[
                     
                         JSON.stringify(
 
-                            {ans:req.body.ans,rs:result[0].answers}
+                           req.body.ans
                                                 ),"now()",result[0].examID,data.id,(
-                                                    ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
-                                                )
+                                                    ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                                                ),req.body.ID
                     
                     ]);
+                    console.log('here as well II');
+
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,2,0]);
 
 
-                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=result[0].passing){
+                    if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){
 
                         await updateCon("coursessubscription",['level'],['(level + 1)'],[['userID','=',data.id]]);
                         // let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
@@ -529,7 +696,7 @@ router.post("/sfa",(req,res)=>{
                     }
 
                  } catch (error) {
-                    
+                    console.log(error);
 
                     res.sendStatus(403);
                     return;
@@ -547,24 +714,55 @@ router.post("/sfa",(req,res)=>{
             }else{
                 console.log("here 2");
 
-                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',result[0].ID],['status','=',0]])).length>0){
+                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',req.body.ID],['status','=',0]])).length>0){
 
                     try {
                         
-                    await write("fellowshipsstageresults",['answer','submissionDate','ID','userID','mark'],[
+                    await write("fellowshipsstageresults",['answer','submissionDate','examID','userID','mark','fellowshipID'],[
                     
                         JSON.stringify(
 
                            req.body.ans
                             
                     ),"now()",result[0].ID,data.id,(
-                            ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
+                            ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
-                        )
+                        ),req.body.ID
                     
                     ]);
 
-                    await updateCon("fellowshipssubscription",['level'],['(level + 1)'],[['userID','=',data.id]]);
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,2,1]);
+
+
+                    if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){
+
+                        await updateCon("fellowshipssubscription",['level'],['(level + 1)'],[['userID','=',data.id]]);
+                        // let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
+                        // if(userProfile['courses']){
+                        //     userProfile['courses'] = JSON.parse(userProfile['courses']);
+                        //     userProfile['courses'].push({
+                        //         name:result[0].courseName,
+                        //         mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //         date:(new Date())
+
+                        //     })
+
+
+                        // }else{
+                        //     userProfile['courses'] = [
+                        //         {
+                        //             name:result[0].courseName,
+                        //             mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //             date:(new Date())
+                        //         }
+                        //     ];
+                        // }
+
+                        // await updateCon("profiles",['courses'],[JSON.stringify(userProfile['courses'])],[['userID','=',data.id]]);
+
+                    }
+
                     // let userProfile = await readCon("profiles",null,[['userID','=',data.id]])[0];
                     // if(userProfile['fellowships']){
                     //         userProfile['fellowships'] = JSON.parse(userProfile['fellowships']);
@@ -626,6 +824,80 @@ router.post("/sfa",(req,res)=>{
     
     });
 
+
+    //get user profile depending on the code
+router.post("/gup", async (req, res) => {
+
+
+
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+
+
+                    // get the user ID
+                    
+                    const user = (await readCon("login",['userID','username','email','phonenumber','gender','code'],[['userID','=',data.id]]))[0];
+                    // get the user courses,fellowships
+                    const courses = await readCon("coursessubscription",null,[['userID','=',user.userID]]);
+                    const fellowships = await readCon("fellowshipssubscription",null,[['userID','=',user.userID]]);
+                    const coursesPayments = await readCon("coursestuition",null,[['userID','=',user.userID]]);
+                    const fellowshipsPayments = await readCon("fellowshipstuition",null,[['userID','=',user.userID]]);
+                   let coursesInfos=[];
+                    if(courses.length>0)
+{                     coursesInfos = await readCon("courses",['courseName','courseID'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
+
+}                   
+
+let fellowshipsInfos=[];
+if(fellowships.length>0){
+    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
+}
+                    
+
+
+                    res.send({
+
+                        u:user,
+                        c:courses,
+                        f:fellowships,
+                        cp:coursesPayments,
+                        fp:fellowshipsPayments,
+                        ci:coursesInfos,
+                        fi:fellowshipsInfos
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 1)
+
+   
+
+    
+
+    // res.cookie()
+
+})
+
+
+
 //submit final exam answers
 router.post("/sfa",(req,res)=>{
 
@@ -633,7 +905,7 @@ router.post("/sfa",(req,res)=>{
     console.log(data);
         if(req.body.ID&&req.body.ans&&req.body.i){
 
-            const result =await readCon((req.body.t!=0?"fellowshipsfinalexams":"coursesfinalexams"),null,[['examID','=',req.body.i],['perodic','=',0]]);
+            const result =await readCon((req.body.t!=0?"fellowshipsfinalexams":"coursesfinalexams"),null,[['examID','=',req.body.i]]);
             
             if(req.body.ans.length==result[0].answers.length){
 
@@ -649,53 +921,57 @@ router.post("/sfa",(req,res)=>{
 
             if(req.body.t==0){
                 console.log("here");
-                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',result[0].ID],['status','=',0]])).length>0){
+                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',req.body.ID],['status','=',0]])).length>0){
 
 
                  try {
-                    await write("coursesfinalresults",['answer','submissionDate','ID','userID','mark'],[
+                    await write("coursesfinalresults",['answer','submissionDate','examID','userID','mark','courseID'],[
                     
                         JSON.stringify(
 
-                            {ans:req.body.ans,rs:result[0].answers}
+                           req.body.ans
                                                 ),"now()",result[0].examID,data.id,(
-                                                    ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
-                                                )
+                                                    ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                                                ),req.body.ID
                     
                     ]);
 
 
-                    if (((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length)>=result[0].passing){
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,3,0]);
+
+                    if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){
 
                         await updateCon("coursessubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
-                        let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
-                        if(userProfile['courses']){
-                            userProfile['courses'] = JSON.parse(userProfile['courses']);
-                            userProfile['courses'].push({
-                                name:result[0].courseName,
-                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
-                                date:(new Date())
 
-                            })
+                        // let userProfile = await readCon("profiles",null,['userID','=',data.id])[0];
+                        // if(userProfile['courses']){
+                        //     userProfile['courses'] = JSON.parse(userProfile['courses']);
+                        //     userProfile['courses'].push({
+                        //         name:result[0].courseName,
+                        //         mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //         date:(new Date())
+
+                        //     })
 
 
-                        }else{
-                            userProfile['courses'] = [
-                                {
-                                    name:result[0].courseName,
-                                    mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
-                                    date:(new Date())
-                                }
-                            ];
-                        }
+                        // }else{
+                        //     userProfile['courses'] = [
+                        //         {
+                        //             name:result[0].courseName,
+                        //             mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //             date:(new Date())
+                        //         }
+                        //     ];
+                        // }
 
-                        await updateCon("profiles",['courses'],[JSON.stringify(userProfile['courses'])],[['userID','=',data.id]]);
+                        // await updateCon("profiles",['courses'],[JSON.stringify(userProfile['courses'])],[['userID','=',data.id]]);
 
                     }
 
                  } catch (error) {
                     
-
+console.log(error);
                     res.sendStatus(403);
                     return;
                  }
@@ -712,48 +988,62 @@ router.post("/sfa",(req,res)=>{
             }else{
                 console.log("here 2");
 
-                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',result[0].ID],['status','=',0]])).length>0){
+                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',req.body.ID],['status','=',0]])).length>0){
 
                     try {
+
+                        console.log(result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString())));
+                        console.log(req.body.ans);
                         
-                    await write("fellowshipsfinalresults",['answer','submissionDate','ID','userID','mark'],[
+                        // console.log(res);
+
+                    await write("fellowshipsfinalresults",['answer','submissionDate','examID','userID','mark','fellowshipID'],[
                     
                         JSON.stringify(
 
                            req.body.ans
                             
-                    ),"now()",result[0].ID,data.id,(
-                            ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
+                    ),"now()",result[0].examID,data.id,(
+                            ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
-                        )
+                        ),req.body.ID
                     
                     ]);
 
-                    await updateCon("fellowshipssubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
-                    let userProfile = await readCon("profiles",null,[['userID','=',data.id]])[0];
-                    if(userProfile['fellowships']){
-                            userProfile['fellowships'] = JSON.parse(userProfile['fellowships']);
-                            userProfile['fellowships'].push({
-                                name:result[0].fellowshipName,
-                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
-                                date:(new Date())
 
-                            })
+                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,3,1]);
 
-                    }else{
-                        userProfile['fellowships'] = [
-                            {
-                                name:result[0].fellowshipName,
-                                mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
-                                date:(new Date())
-                            }
-                        ];
+                    if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){
+
+                        await updateCon("fellowshipssubscription",['level','status'],['(level + 1)',1],[['userID','=',data.id]]);
+
+                        // let userProfile = await readCon("profiles",null,[['userID','=',data.id]])[0];
+                        // if(userProfile['fellowships']){
+                        //         userProfile['fellowships'] = JSON.parse(userProfile['fellowships']);
+                        //         userProfile['fellowships'].push({
+                        //             name:result[0].fellowshipName,
+                        //             mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //             date:(new Date())
+    
+                        //         })
+    
+                        // }else{
+                        //     userProfile['fellowships'] = [
+                        //         {
+                        //             name:result[0].fellowshipName,
+                        //             mark : ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100,
+                        //             date:(new Date())
+                        //         }
+                        //     ];
+                        // }
+
                     }
+                    // await updateCon("profiles",['fellowships'],[JSON.stringify(userProfile['fellowships'])],[['userID','=',data.id]]);
 
-                    await updateCon("profiles",['fellowships'],[JSON.stringify(userProfile['fellowships'])],[['userID','=',data.id]]);
 
                     } catch (error) {
-
+                        console.log(error);
                         res.sendStatus(403);
                      return;   
                     }
@@ -821,10 +1111,10 @@ router.post("/gcv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
@@ -935,10 +1225,10 @@ router.post("/gfv",async(req,res)=>{
                         let sql = require("mysql2/promise");
 
                         const conn =  await sql.createConnection({
-                            host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                            host:"localhost",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"0001",
                             port:3306,
                             timezone:"+03:00"
                         })
@@ -1019,20 +1309,20 @@ router.post("/fop",async(req,res)=>{
                       secure: true,
                       auth: {
                         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "echo-dentists@mail.ru",
+                        user: "dentists-iq@mail.ru",
                         pass: "S4x0cMyN7N8f0H21vKBf",
                       },
                     });
                     
                     
                     await transporter.sendMail({
-                      from:"echo-dentists@mail.ru",
+                      from:"dentists-iq@mail.ru",
                       to: req.body.email.replace("echo","gmail"), // list of receivers
                       subject: "contacting us", // Subject line
                       html:`
                       <p>Hello , you forgot your password, enter this link in order for you to reset your password</p>
                       
-                      <a href="http://localhost:5173/reset/${token}">Here</a>`
+                      <a href="http://3.29.235.228:5173/reset/${token}">Here</a>`
                     }).then((e)=>{
                       console.log(e);
                     });
@@ -1127,6 +1417,113 @@ console.log(data);
 
 
 });
+
+
+//get an exam result
+router.post("/gex",(req,res)=>{
+
+    if(typeof(req.body.examID)=='number'&&typeof(req.body.atype)=='number'&&typeof(req.body.examType)=='number'){
+
+        auth(req.cookies,res,async function(data){
+
+            //check if such exam actually exists and check if the time is not too late
+
+            let exam=[];
+            let result;
+
+            switch (req.body.atype) {
+                case 0:
+                    switch (req.body.examType) {
+
+                        // courses exams starts from 1 because chapter exams does not exist in courses
+                        case 1:
+                    
+                        exam = await readCon("coursesperodicexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                            case 2:
+                        exam = await readCon("coursesstageexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                            case 3:
+                        exam = await readCon("coursesfinalexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                    }
+                break;
+                case 1:
+                    switch (req.body.examType) {
+
+                        case 0:
+                            
+                            break;
+                        case 1:
+                            exam = await readCon("fellowshipsperodicexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                            case 2:
+                        exam = await readCon("fellowshipsstageexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                            case 3:
+                        exam = await readCon("fellowshipsfinalexams",null,[['examID','=',req.body.examID],['timediff(now(),ending + interval 14 day)','<','0'],['timediff(now(),ending)','>=','0']]);
+                            break;
+                    }                    
+                break;
+
+            }
+
+            if(exam.length>0){ // time has not passed yet
+
+                switch (req.body.atype) {
+                    case 0:
+                        switch (req.body.examType) {
+    
+                            // courses exams starts from 1 because chapter exams does not exist in courses
+                            case 1:
+                        
+                            result = await readCon("coursesperodicresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                                case 2:
+                                    result = await readCon("coursesstageresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                                case 3:
+                                    result = await readCon("coursesfinalresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                        }
+                    break;
+                    case 1:
+                        switch (req.body.examType) {
+    
+                            case 0:
+                                // result = await readCon("fellowshipschapterresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+
+                                break;
+                            case 1:
+                                result = await readCon("fellowshipsperodicresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                                case 2:
+                            result = await readCon("fellowshipsstageresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                                case 3:
+                            result = await readCon("fellowshipsfinalresults",null,[['examID','=',req.body.examID],['userID','=',data.id]]);
+                                break;
+                        }                    
+                    break;
+    
+                }     
+            }else{
+
+                result = await readCon("allexams",['grade'],[["userID",'=',data.id]]);
+
+            }
+            res.send({
+                    d:result
+                });
+                
+            },function(){},1)
+    }
+
+    
+    
+    
+    });
+
 //update notificationToken
 router.post("/un",(req,res)=>{
 if(req.body.token){
@@ -1136,7 +1533,7 @@ if(req.body.token){
             await updateCon("login",['notToken'],[req.body.token],[['userID','=',data.id]]);
             res.sendStatus(200);
             
-        },function(){},-1)
+        },function(){},1)
     
         
 }else{

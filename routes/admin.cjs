@@ -44,7 +44,9 @@ router.post("/gfxms", async (req, res) => {
                     
                     fellowshipsfinalexams:fellowshipsfinalexams,
                     fellowshipsstageexams:fellowshipsstageexams,
-                    fellowshipsperodicexams:fellowshipsperodicexams
+                    fellowshipsperodicexams:fellowshipsperodicexams,
+                    l:(await readCon("fellowships",['levels'],[['fellowshipID','=',req.body.id]]))[0].levels
+
                 }})
             }else{
 
@@ -61,6 +63,7 @@ router.post("/gfxms", async (req, res) => {
                     coursesstageexams:coursesstageexams,
 
                     coursesperodicexams:coursesperodicexams,
+                    l:(await readCon("courses",['levels'],[['courseID','=',req.body.id]]))[0].levels
 
                 }})
             }
@@ -261,7 +264,64 @@ router.post("/uaus", async (req, res) => {
 
 });
 
-//new blog
+
+//update or add a cv
+router.post("/aucv", async (req, res) => {
+
+
+    req.body = JSON.parse(req.body.body);
+    console.log(req.body);
+    console.log(req.files);
+    if (req.body && req.files) {
+
+        if (req.body.code&& Object.keys(req.files).length >0) {
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+                    upload(req.files,'cvs',req.body.code);
+
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            console.log("wroooong");
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
 
 router.post("/nb", async (req, res) => {
 
@@ -315,7 +375,6 @@ router.post("/nb", async (req, res) => {
     // res.cookie()
 
 })
-
 
 //new genre
 
@@ -528,6 +587,8 @@ router.post("/ub", async (req, res) => {
     req.body = JSON.parse(req.body.body);
 
 
+
+
     if (req.body.id && req.body.bd ) {
 
 
@@ -543,7 +604,7 @@ router.post("/ub", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await updateBlog(req.body.id,req.body.files, req.body.bd,req.body.title);
+                    await updateBlog(req.body.id,req.files.files, req.body.bd,req.body.title);
                 } catch (error) {
                     console.log(error);
                     res.sendStatus(403);
@@ -590,7 +651,7 @@ async function notifityUsers(courseID,acourse=true,update=false,videoID=null) {
 
     //get all the users that are in this course
     let usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
-        [acourse ? "courseID" :"fellowshipID", '=', courseID]
+        [acourse ? "courseID" :"fellowshipID", '=', courseID],['status','=',0]
     ])).map((e)=>e.userID);
 
 
@@ -640,7 +701,7 @@ video.name=video.videoTitle;
     if ((tokens).length > 500) {
 
 
-        for (let index = 0; index < (Math.ceil(tokens.length) / 500.0); index++) {
+        for (let index = 0; index < Math.ceil((tokens.length) / 500.0); index++) {
             let currentTokens = [];
 
             for (let j = index * 500; j < (index + 1) * 500; j++) {
@@ -665,6 +726,8 @@ video.name=video.videoTitle;
                             token: token.notToken
                         })))
                     );
+                    await writeMany("notifications",["userID","notification"],currentTokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,videoID ? 0 : 1]));
+
 
                     break;
                 } else {
@@ -690,6 +753,8 @@ video.name=video.videoTitle;
                             token: token.notToken
                         })))
                     );
+                    await writeMany("notifications",["userID","notification"],currentTokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,videoID ? 0 : 1]));
+
 
                     currentTokens = [];
                 }
@@ -713,7 +778,7 @@ video.name=video.videoTitle;
             token: token.notToken,
      webpush:{
         "fcm_options": {
-            "link": `http://localhost:5173/${acourse? "courses":"fellowships"}/${courseID}`
+            "link": `http://3.29.235.228:3000/${acourse? "courses":"fellowships"}/${courseID}`
           }     }
         })))
     )).responses[0].error);
@@ -721,8 +786,9 @@ video.name=video.videoTitle;
         
     }
 
+    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,videoID ? 0 : 1]));
 
-    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
+    // await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
 
 
 }
@@ -779,7 +845,7 @@ async function notifityUsersChapters(courseID,acourse=true,update=false,chapterI
 
     //get all the users that are in this course
     let usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
-        [acourse ? "courseID" :"fellowshipID", '=', courseID]
+        [acourse ? "courseID" :"fellowshipID", '=', courseID],['status','=',0]
     ])).map((e)=>e.userID);
 
 
@@ -835,7 +901,7 @@ console.log(chapterID);
     if ((tokens).length > 500) {
 
 
-        for (let index = 0; index < (Math.ceil(tokens.length) / 500.0); index++) {
+        for (let index = 0; index < Math.ceil((tokens.length) / 500.0); index++) {
             let currentTokens = [];
 
             for (let j = index * 500; j < (index + 1) * 500; j++) {
@@ -861,6 +927,8 @@ console.log(chapterID);
                             
                         })))
                     );
+                    await writeMany("notifications",["userID","notification"],currentTokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,2]));
+
 
                     break;
                 } else {
@@ -879,6 +947,8 @@ console.log(chapterID);
                             token: token.notToken
                         })))
                     );
+                    await writeMany("notifications",["userID","notification"],currentTokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,2]));
+
 
                     currentTokens = [];
                 }
@@ -908,7 +978,7 @@ console.log(chapterID);
             token: token.notToken,
      webpush:{
         "fcm_options": {
-            "link": `http://localhost:5173/${acourse? "courses":"fellowships"}/${courseID}`
+            "link": `http://3.29.235.228:3000/${acourse? "courses":"fellowships"}/${courseID}`
           }     }
         })))
     )).responses[0].error);
@@ -930,8 +1000,9 @@ console.log(chapterID);
         
     }
 
+    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,name.name,2]));
 
-    await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
+    // await writeMany("notifications",["userID","notification"],tokens.map((e)=>[e.userID,acourse?1:0,update?1:0,courseID]));
 
 
 }
@@ -949,7 +1020,7 @@ async function notifityUsersFinalExams(courseID,acourse=true) {
 
     //get all the users that are in this course
     const usersIds = (await readCon(acourse ? 'coursessubscription' :"fellowshipssubscription", ['userID'], [
-        [acourse ? "courseID" :"fellowshipID", '=', courseID]
+        [acourse ? "courseID" :"fellowshipID", '=', courseID,['status','=',0]]
     ])).map((e)=>e.userID);
 
     console.log(usersIds);
@@ -983,7 +1054,7 @@ async function notifityUsersFinalExams(courseID,acourse=true) {
     if ((tokens).length > 500) {
 
 
-        for (let index = 0; index < (Math.ceil(tokens.length) / 500.0); index++) {
+        for (let index = 0; index < Math.ceil((tokens.length) / 500.0); index++) {
             let currentTokens = [];
 
             for (let j = index * 500; j < (index + 1) * 500; j++) {
@@ -2358,6 +2429,48 @@ router.post("/ee", async (req, res) => {
 
 })
 
+//get groups
+router.post("/gcp", async (req, res) => {
+
+
+    if (req.body) {
+        if (req.body.ID && req.body.course!=null) {
+
+            auth(req.cookies, res, async (data) => {
+
+   
+                res.send({
+                    g: await readCon(req.body.course?"coursessubscription":"fellowshipssubscription",['distinct groupID'],[[req.body.course?'courseID':"fellowshipID",'=',req.body.ID]])
+
+                });
+
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        } else {
+            res.sendStatus(403);
+            return;
+        }
+
+    } else {
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
 
 //get users by name
 router.post("/srch", async (req, res) => {
@@ -3168,6 +3281,9 @@ router.post("/not", async (req, res) => {
 //new account
 router.post("/nacc", async (req, res) => {
 
+    req.body = JSON.parse(req.body.body);
+
+ 
 
 
     if (req.body.username &&req.body.email&&req.body.code&& req.body.password&&typeof(req.body.level)=='number'&&typeof(req.body.gender)=='number') {
@@ -3183,23 +3299,26 @@ if(req.body.phonenumber){
     id=(await write("login",["username","password","level",'status','code','email','gender'],[req.body.username,await hash(req.body.password),req.body.level,0,req.body.code,req.body.email,req.body.gender]));
 
 }         
+if(req.files){
+    upload(req.files,"pfps",req.body.code);
+}
                    await write("profiles",['userID','courses','fellowships','email','username'],[id,null,null,req.body.email,req.body.username]);
                     const nodemailer = require("nodemailer");
 
                     const transporter = nodemailer.createTransport({
-                      host: "smtp.mail.ru",
-                      port: 465,
-                      secure: true,
-                      auth: {
-                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "echo-dentists@mail.ru",
-                        pass: "S4x0cMyN7N8f0H21vKBf",
-                      },
-                    });
+                        host: "smtp.mail.ru",
+                        port: 465,
+                        secure: true,
+                        auth: {
+                          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                          user: "dentists-iq@mail.ru",
+                          pass: "S4x0cMyN7N8f0H21vKBf",
+                        },
+                      });
                     
                     
                     await transporter.sendMail({
-                      from:"echo-dentists@mail.ru",
+                      from:"dentists-iq@mail.ru",
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
@@ -3243,7 +3362,12 @@ router.post("/uacc", async (req, res) => {
 
 
 
-    if (req.body.username&&req.body.userID &&req.body.email&&req.body.code&& req.body.password&&typeof(req.body.level)=='number') {
+    req.body = JSON.parse(req.body.body);
+
+
+    console.log(req.body);
+
+    if (req.body.username&&req.body.userID &&req.body.email&&req.body.code&&typeof(req.body.level)=='number') {
 
             auth(req.cookies, res, async (data) => {
 
@@ -3256,29 +3380,40 @@ router.post("/uacc", async (req, res) => {
                     const nodemailer = require("nodemailer");
 
                     const transporter = nodemailer.createTransport({
-                      host: "smtp.mail.ru",
-                      port: 465,
-                      secure: true,
-                      auth: {
-                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "echo-dentists@mail.ru",
-                        pass: "S4x0cMyN7N8f0H21vKBf",
-                      },
-                    });
+                        host: "smtp.mail.ru",
+                        port: 465,
+                        secure: true,
+                        auth: {
+                          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                          user: "dentists-iq@mail.ru",
+                          pass: "S4x0cMyN7N8f0H21vKBf",
+                        },
+                      });
                     
                     
                     await transporter.sendMail({
-                      from:"echo-dentists@mail.ru",
+                      from:"dentists-iq@mail.ru",
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
                     });
 
                     }
+
+
+                    let user;
+                    let pass=false;
+
+                    if(req.body.code){
+
+                        user = (await readCon("login",['code'],[['userID','=',req.body.userID]]))[0];
+                        pass= user.code != req.body.code;
+
+                    }
                     if (req.body.username != -9) {
                         fields["username"] = req.body.username;
                     }
-                    if ( req.body.password != -9) {
+                    if ( req.body.password ) {
                         fields["password"] =  await hash(req.body.password);
                     }
                     if ( req.body.level != -9) {
@@ -3293,8 +3428,79 @@ router.post("/uacc", async (req, res) => {
                         fields["gender"] =  req.body.gender;
 
                     }
-                    if ( req.body.code != -9) {
+                    if ( req.body.code && req.body.code != user.code) {
                         fields["code"] =  req.body.code;
+
+
+                        
+                        const aws = require('aws-sdk');
+                        aws.config.update({region: 'me-central-1'});
+                        const s3 = new aws.S3({        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                            secretAccessKey: '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',
+                            region: 'me-central-1',});
+
+
+
+let params = {
+    Bucket: 'echo-dentists',
+    Key: "cvs/"+req.body.code+".pdf" ,
+  CopySource: `/echo-dentists/cvs/${user.code}.pdf`,
+  ACL: 'public-read', // Set the ACL permissions as needed
+
+};
+
+
+s3.copyObject(params, (err, data) => {
+  if (err) {
+    console.error('Error copying object:', err);
+    console.log(data);
+  } else {
+    console.log('Object copied successfully:', data);
+    // Now delete the original object
+    s3.deleteObject({ Bucket:  'echo-dentists', Key: `cvs/${user.code}.pdf` }, (deleteErr) => {
+      if (deleteErr) {
+        console.error('Error deleting original object:', deleteErr);
+      } else {
+        console.log('Original object deleted successfully');
+      }
+    });
+  }
+});
+
+params = {
+    Bucket: 'echo-dentists',
+    Key: "pfps/"+req.body.code ,
+  CopySource: "/echo-dentists/pfps/"+user.code,
+};
+
+
+
+if(req.files){
+
+
+    upload(req.files,"pfps",req.body.code);
+}else{
+
+    s3.copyObject(params, (err, data) => {
+  if (err) {
+    console.error('Error copying object:', err);
+  } else {
+    console.log('Object copied successfully:', data);
+    // Now delete the original object
+    s3.deleteObject({ Bucket:  'echo-dentists', Key:"/pfps/"+user.code }, (deleteErr) => {
+      if (deleteErr) {
+        console.error('Error deleting original object:', deleteErr);
+      } else {
+        console.log('Original object deleted successfully');
+        
+      }
+    });
+  }
+});
+}
+
+
+
 
                     }
                     if ( req.body.phonenumber ) {
@@ -3310,10 +3516,15 @@ router.post("/uacc", async (req, res) => {
                         delete fields['level'];
                         delete fields['status'];
 
-                        await updateJSON("profiles", Object.keys(fields), Object.values(fields), [
-                            ["userID", '=', req.body.userID]
-                        ]);
+                        // await updateJSON("profiles", Object.keys(fields), Object.values(fields), [
+                        //     ["userID", '=', req.body.userID]
+                        // ]);
                     }
+
+                    if(req.files&&(!pass)){
+                        upload(req.files,"pfps",req.body.code);
+                    }
+
                     //send email to inform the user of the new password
 
                 } catch (error) {
@@ -3568,74 +3779,78 @@ router.post("/nfxm", async (req, res) => {
 console.log(req.body);
             auth(req.cookies, res, async (data) => {
 
+                let id;
+
                 try {
+                    console.log("look");
                     if(!req.body.t){
+                        console.log("look");
 
                         switch (req.body.type) {
-                            case 0:
+                            case 1:
                                 if(req.body.note){
                                     if(req.body.passing){
-                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
+                                       id= await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing,req.body.level]);
 
                                     }else{
-                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                       id= await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
 
                                     }
 
                                 }else{
-
-
-                                    if(req.body.passing){
-                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
-
-                                    }else{
-                                        await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
-
-                                    }
-                                }
-
-                                break;
-                                case 1:
-
-                                if(req.body.note){
+                                    console.log('we came here');
 
                                     if(req.body.passing){
-
-                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
-
-                                    }else{
-                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
-
-                                        
-                                    }
-
-
-
-                                }else{
-
-                                    if(req.body.passing){
-
-                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
+                                        id=   await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing,req.body.level]);
 
                                     }else{
+                                        id= await write("coursesperodicexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
 
-                                        await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
-                                        
                                     }
-
-
                                 }
 
                                 break;
                                 case 2:
+
+                                if(req.body.note){
+
+                                    if(req.body.passing){
+
+                                        id= await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing,req.body.level]);
+
+                                    }else{
+                                        id= await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
+
+                                        
+                                    }
+
+
+
+                                }else{
+
+                                    if(req.body.passing){
+
+                                        id= await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing,req.body.level]);
+
+                                    }else{
+
+                                        id= await write("coursesstageexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
+                                        
+                                    }
+
+
+                                }
+
+                                break;
+                                case 3:
                                     if(req.body.note){
                                         if(req.body.passing){
 
-                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note",'passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing]);
+                                            id=  await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note",'passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.passing,req.body.level]);
 
                                         }else{
     
-                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note"],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                            id=  await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID',"note",'level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
                                             
                                         }
     
@@ -3644,11 +3859,11 @@ console.log(req.body);
 
                                         if(req.body.passing){
 
-                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing]);
+                                            id= await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','passing','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.passing,req.body.level]);
 
                                         }else{
     
-                                            await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                            id= await write("coursesfinalexams",["answers","questions",'ending','startingDate','title','visible',"courseID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
                                             
                                         }
     
@@ -3670,33 +3885,34 @@ console.log(req.body);
 
                         
                         switch (req.body.type) {
-                            case 0:
+                            case 1:
 
                             if(req.body.note){
 
-                                await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                id= await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
                             }else{
-                                await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                id=  await write("fellowshipsperodicexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
 
                             }
                                 break;
-                                case 1:
-
+                                case 2:
+console.log('hwew qw EW');
                                 if(req.body.note){
-                                    await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+
+                                    id=   await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
 
                                 }else{
-                                    await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                    id=  await write("fellowshipsstageexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
 
                                 }
 
                                 break;
-                                case 2:
+                                case 3:
                                     if(req.body.note){
-                                        await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note]);
+                                        id=   await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
 
                                     }else{
-                                        await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID]);
+                                        id=  await write("fellowshipsfinalexams",["answers","questions",'ending','startingDate','title','visible',"fellowshipID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),` ${req.body.ending}`,`${req.body.startingDate}`,req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
 
                                     }
 
@@ -3723,7 +3939,9 @@ console.log(req.body);
                     return;
                 }
                 console.log(data);
-                res.sendStatus(200);
+                res.send({
+                    id:id
+                });
 
 
             }, () => {
@@ -3859,10 +4077,10 @@ router.post("/gcs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })         
@@ -3964,10 +4182,10 @@ router.post("/gfs", async (req, res) => {
                     let sql = require("mysql2/promise");
 
                     const conn =  await sql.createConnection({
-                        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                        host:"localhost",
                         user:"root",
                         database:"dentists",
-                        password:"grabyOli0001",
+                        password:"0001",
                         port:3306,
                         timezone:"+03:00",
                     })                    
@@ -4070,7 +4288,7 @@ router.post("/gau", async (req, res) => {
         try {
             res.send({
 
-                d:(await read("login",['ID','username','email','code','phonenumber']))
+                d:(await read("login",['userID','username','email','code','phonenumber']))
             });
 
             return;
@@ -4104,8 +4322,10 @@ router.post("/gau", async (req, res) => {
 router.post("/du", async (req, res) => {
 
 
+    console.log(req.body);
+    req.body = JSON.parse(req.body.body);
 
-   
+    // return;
     if (req.body.uid>=0) {
 
             auth(req.cookies, res, async (data) => {
@@ -4277,7 +4497,7 @@ router.post("/ufxm", async (req, res) => {
 
 console.log(req.body);
 
-    if (req.body.t!=null &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&req.body.groupID&&req.body.type!=null) {
+    if (req.body.t!=null &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&typeof(req.body.passing)=='number'&&req.body.groupID&&req.body.type!=null) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -4285,8 +4505,7 @@ console.log(req.body);
 
                     let fields = {};
                     if (req.body.duration != -9) {
-                        fields["ending"] = req.body.duration;
-                    }
+                        fields["ending"] = `STR_TO_DATE("${(new Date(req.body.duration)).toLocaleString("en-US",{ timeZone: 'Asia/Baghdad',hour12: false }).replace(",","")}", "%m/%d/%Y %H:%i:%s")`;                    }
                     if ( req.body.ans != -9) {
                         fields["answers"] =  JSON.stringify(req.body.ans);
                     }
@@ -4295,7 +4514,7 @@ console.log(req.body);
 
                     }
                     if ( req.body.sd != -9) {
-                        fields["startingDate"] =  req.body.sd;
+                        fields["startingDate"] =`STR_TO_DATE("${(new Date(req.body.sd)).toLocaleString("en-US",{ timeZone: 'Asia/Baghdad',hour12: false }).replace(",","")}", "%m/%d/%Y %H:%i:%s")`;
 
                     }
                     if ( req.body.note != -9) {
@@ -4320,32 +4539,56 @@ console.log(req.body);
                     }
                     if (Object.keys(fields).length > 0) {
 
-                        if(req.body.type){
                             if(req.body.t){
-                                await updateJSON("fellowshipsperodicexams", Object.keys(fields), Object.values(fields), [
-                                    ["examID", '=', req.body.ID]
-                                ]);
-    
-                            }else{
-                                await updateJSON("fellowshipsfinalexams", Object.keys(fields), Object.values(fields), [
-                                    ["examID", '=', req.body.ID]
-                                ]);
-                                
-                            }
-                        }else{
 
-                            if(req.body.t){
-                                await updateJSON("coursesfinalexams", Object.keys(fields), Object.values(fields), [
-                                    ["examID", '=', req.body.ID]
-                                ]);
+
+                                switch (req.body.type) {
+                                    case 1:
+                                        await updateJSON("fellowshipsperodicexams", Object.keys(fields), Object.values(fields), [
+                                            ["examID", '=', req.body.ID]
+                                        ]);
+                                        break;
+                                        case 2:
+                                            await updateJSON("fellowshipsstageexams", Object.keys(fields), Object.values(fields), [
+                                                ["examID", '=', req.body.ID]
+                                            ]);
+                                        break;
+                                        case 3:
+                                            await updateJSON("fellowshipsfinalexams", Object.keys(fields), Object.values(fields), [
+                                                ["examID", '=', req.body.ID]
+                                            ]);                                      
+                                        break;
+                                }
+
     
                             }else{
-                                await updateJSON("coursesperodicexams", Object.keys(fields), Object.values(fields), [
-                                    ["examID", '=', req.body.ID]
-                                ]);
+
+     
+                                switch (req.body.type) {
+                                    case 1:
+                                        await updateJSON("coursesperodicexams", Object.keys(fields), Object.values(fields), [
+                                            ["examID", '=', req.body.ID]
+                                        ]);
+                                        break;
+                                        case 2:
+                                            await updateJSON("coursesstageexams", Object.keys(fields), Object.values(fields), [
+                                                ["examID", '=', req.body.ID]
+                                            ]);
+                                        break;
+                                        case 3:
+                                            await updateJSON("coursesfinalexams", Object.keys(fields), Object.values(fields), [
+                                                ["examID", '=', req.body.ID]
+                                            ]);                                 
+                                        break;
+                                }
+
+
+
                                 
                             }
-                        }
+
+               
+                        
 
                    
                     }else{
@@ -4773,7 +5016,7 @@ router.post("/db", async (req, res) => {
     req.body= JSON.parse(req.body.body)
 
 
-   
+   console.log(req.body);
     if (req.body.bid &&typeof(req.body.bid)=='number') {
 
             auth(req.cookies, res, async (data) => {
@@ -5570,10 +5813,10 @@ router.post("/gascex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
-                    password:"grabyOli0001",
+                    password:"0001",
                     port:3306,
                     timezone:"+03:00"
                     
@@ -5654,10 +5897,10 @@ router.post("/gasfex", async (req, res) => {
                 let sql = require("mysql2/promise");
 
                 const conn =  await sql.createConnection({
-                    host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+                    host:"localhost",
                     user:"root",
                     database:"dentists",
-                    password:"grabyOli0001",
+                    password:"0001",
                     port:3306,
                     timezone:"+03:00"
                     
@@ -5759,7 +6002,7 @@ router.post("/gexolc", async (req, res) => {
 
 
 
-            }, -1)
+            }, 0)
 
    
 
@@ -5814,7 +6057,7 @@ router.post("/gexolf", async (req, res) => {
 
 
 
-            }, -1)
+            }, 0)
 
    
 
@@ -5827,6 +6070,95 @@ router.post("/gexolf", async (req, res) => {
     // res.cookie()
 
 })
+
+
+// get a specific exam from a course or fellowship
+router.post("/gspx", async (req, res) => {
+
+
+    if ( (req.body.fellowshipID || req.body.courseID) && typeof(req.body.examID)=='number'&&req.body.examType) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let exam;
+                    if(req.body.courseID){
+
+                        switch (req.body.examType) {
+                            case 1:
+                            exam= await readCon("coursesperodicexams",null,[['examID','=',req.body.examID]]);
+   
+                            break;
+                            case 2:
+                            exam= await readCon("coursesstageexams",null,[['examID','=',req.body.examID]]);
+                          
+                            break;
+                            case 3:
+                            exam= await readCon("coursesfinalexams",null,[['examID','=',req.body.examID]]);    
+                            break;
+                            default:
+                                break;
+                        }
+                    }else{
+                        switch (req.body.examType) {
+                            case 1:
+                            exam= await readCon("fellowshipsperodicexams",null,[['examID','=',req.body.examID]]);
+                
+                            break;
+                            case 2:
+                            exam= await readCon("fellowshipsstageexams",null,[['examID','=',req.body.examID]]);
+                                
+                            break;
+                            case 3:
+                            exam= await readCon("fellowshipsfinalexams",null,[['examID','=',req.body.examID]]);   
+                            break;
+                            default:
+                                break;
+                        }
+
+                    }
+                    // const fellowshipsstageexams= await readCon("fellowshipsstageexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    // const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    // const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    res.send({d:exam
+
+
+                        , g: await readCon(req.body.courseID?"coursessubscription":"fellowshipssubscription",['distinct groupID'],[[req.body.courseID?"courseID":"fellowshipID",'=',req.body.courseID?req.body.courseID:req.body.fellowshipID]])
+                    })
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
 
 
 //handlePayment
@@ -5847,8 +6179,12 @@ try {
 
                 console.log(req.body);
                 await updateCon(req.body.acourse ?"coursessubscription":"fellowshipssubscription",['groupID'],[req.body.gID],[[req.body.acourse ?"courseID":"fellowshipID",'=',req.body.ID],['userID','=',req.body.userID]]);
-                await handlePaymentUnbanningAndExpDate(...Object.values(req.body))
-                res.sendStatus(200);
+                let paymentID=await handlePaymentUnbanningAndExpDate(...Object.values(req.body))
+                res.send({
+
+
+                    d:paymentID
+                });
             
 
             } catch (error) {
@@ -5900,14 +6236,31 @@ router.post("/gup", async (req, res) => {
 
 
                     // get the user ID
-                    // get the 
+                    const user = (await readCon("login",['userID','username','email','phonenumber','gender'],[['code','=',req.body.code]]))[0];
+                    // get the user courses,fellowships
+                    const courses = await readCon("coursessubscription",null,[['userID','=',user.userID]]);
+                    const fellowships = await readCon("fellowshipssubscription",null,[['userID','=',user.userID]]);
+                    const coursesPayments = await readCon("coursestuition",null,[['userID','=',user.userID]]);
+                    const fellowshipsPayments = await readCon("fellowshipstuition",null,[['userID','=',user.userID]]);
+                    let coursesInfos=[];
+                    if(courses.length>0)
+{                     coursesInfos = await readCon("courses",['courseName','courseID'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
 
+}                   
 
+let fellowshipsInfos=[];
+if(fellowships.length>0){
+    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
+}
                     res.send({
 
-                        d:(await readCon("chapter",null,[["ID",'=',req.body.ID],['type','=',req.body.t]])),
-                        l:(await readCon(req.body.t==0 ? "courses":"fellowships",['levels'],[[req.body.t==0 ?'courseID':"fellowshipID",'=',req.body.ID]]))[0].levels
-
+                        u:user,
+                        c:courses,
+                        f:fellowships,
+                        cp:coursesPayments,
+                        fp:fellowshipsPayments,
+                        ci:coursesInfos,
+                        fi:fellowshipsInfos
                     });
 
                     return;
@@ -5951,6 +6304,7 @@ router.post("/gup", async (req, res) => {
 async function updateBlog(id,  files, blogDetails = null,title=null) {
 
 
+    
     let fields = {};
     if (blogDetails != -9) {
         fields["blogDetails"] = blogDetails;
@@ -5965,8 +6319,9 @@ async function updateBlog(id,  files, blogDetails = null,title=null) {
             ["blogID", '=', id]
         ]);
     }
-
+console.log(files);
     if (files) {
+        console.log(id);
         upload(files, "blogs", id.toString());
 
     }
@@ -6000,11 +6355,13 @@ async function newBlog (blogDetails,title, files) {
  */
 async function handlePaymentUnbanningAndExpDate(subscriptionID,  payment, acourse,ID,userID,newDate,gID,renew,totalFee,finishedTuition) {
     
-    await payTuition(subscriptionID,payment,acourse,ID,userID,(new Date(newDate)).toISOString().replace("Z",''),gID,renew,totalFee,finishedTuition);
+    let paymentID= await payTuition(subscriptionID,payment,acourse,ID,userID,(new Date(newDate)).toISOString().replace("Z",''),gID,renew,totalFee,finishedTuition);
     if(payment>0)
     await removingSomeoneFromBannedTable(userID,acourse,ID);
     // if(newDate)
     // await changeExpDate(newDate,subscriptionID,acourse);
+
+    return paymentID;
 
 }
 
@@ -6022,37 +6379,41 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
     await updateCon((acourse? "coursessubscription":"fellowshipssubscription"),['remainingFee'],[0],[['remainingFee','<',0],['subscriptionID','=',subscriptionID]]);
         console.log("done done ND FINISHED");
 
-        await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID',"expDate","lastOne"],[ID,payment,userID,newDate,finishedTuition]);
+       let paymentID= await write(acourse?"coursestuition":"fellowshipstuition",[(acourse ?"courseID":"fellowshipID"),'tuition','userID',"expDate","lastOne"],[ID,payment,userID,newDate,finishedTuition]);
         //send an email
         const user=await readCon("login",['email'],[['userID','=',Number(userID)]]);
         console.log(user);
         console.log(userID);
         const nodemailer = require("nodemailer");
 
-        const transporter = nodemailer.createTransport({
-          host: "smtp.mail.ru",
-          port: 465,
-          secure: true,
-          auth: {
-            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-            user: "echo-dentists@mail.ru",
-            pass: "S4x0cMyN7N8f0H21vKBf",
-          },
-        });
+                            const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
         
         
         try {
             await transporter.sendMail({
-                from:"echo-dentists@mail.ru",
+                from:"dentists-iq@mail.ru",
                 to: user[0].email+"@gmail.com", // list of receivers
                 subject: "contacting us", // Subject line
                 text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
               }).then((e)=>{
+                console.log("sent email successfully");
                 console.log(e);
               }).catch((e)=>{});
         } catch (error) {
             
         }
+
+        return paymentID;
 }
 
 async function removingSomeoneFromBannedTable(userID,acourse,ID) {

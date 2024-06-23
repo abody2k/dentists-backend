@@ -9,10 +9,10 @@ aws.config.update({region: 'me-central-1'});
  */
 async function read(table,fields) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
         
@@ -22,7 +22,7 @@ async function read(table,fields) {
         host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     */
@@ -39,10 +39,10 @@ async function read(table,fields) {
 
 async function readOrder(table,fields,conditions,orderer,limit=null) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -54,9 +54,9 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
 //https://echo-dentists.s3.amazonaws.com/
 //https://echo-dentists.s3.amazonaws.com/
 //grabyOli0001
-//host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com"
+//host:"localhost"
 //dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com
-//host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com"
+//host:"localhost"
 // dentists.cp22o2g04xb8.region: 'me-central-1'.rds.amazonaws.com
 /**
  * 
@@ -66,10 +66,10 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
  */
 async function readConditionally(table,fields,conditions,limit=null) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -82,10 +82,10 @@ async function readConditionally(table,fields,conditions,limit=null) {
 
 async function deleteConditionally(table,conditions) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -98,10 +98,10 @@ async function deleteConditionally(table,conditions) {
 
 async function deleteConditionallyOR(table,conditions) {
   const conn =  await sql.createConnection({
-      host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+      host:"localhost",
       user:"root",
       database:"dentists",
-      password:"grabyOli0001",
+      password:"0001",
       port:3306,
       timezone:"+03:00"
   })
@@ -121,10 +121,10 @@ async function deleteConditionallyOR(table,conditions) {
  */
 async function updateConditionally(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00",
 
@@ -156,10 +156,10 @@ async function updateConditionally(table,fields,values,conditions) {
  */
 async function updateConditionallyJSON(table,fields,values,conditions) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00",
 
@@ -168,9 +168,9 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
     let setter=``;
     fields.forEach((element,i) => {
         if (i == (fields.length-1)){
-            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`:values[i])}` ;
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? (values[i].includes("STR_TO_DATE")?values[i]:`"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`):values[i])}` ;
         }else{
-            setter += ` ${element} = ${(typeof(values[i])== 'string' ? `"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`:values[i])} , `;
+            setter += ` ${element} = ${(typeof(values[i])== 'string' ? (values[i].includes("STR_TO_DATE")?values[i]:`"${values[i].replace(/'/g, "''") .replace(/"/g, '\\"')}"`):values[i])} , `;
         }
         
     });
@@ -189,10 +189,10 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
  */
 async function write(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -212,10 +212,10 @@ async function write(table,keys,values) {
  */
 async function writeMany(table,keys,values) {
     const conn =  await sql.createConnection({
-        host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+        host:"localhost",
         user:"root",
         database:"dentists",
-        password:"grabyOli0001",
+        password:"0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -335,9 +335,37 @@ function uploadFile(files,folder,fileName) {
                       
                       const params = {
                         Bucket: 'echo-dentists',
-                        Key: "cvs/"+fileName.toString() ,
+                        Key: "cvs/"+fileName.toString()+".pdf" ,
                         Body: file.data,
-                        ACL: 'public-read', // Set the ACL permissions as needed
+                        ACL: 'public-read', // Set the ACL permissions as needed,
+                        ContentDisposition: `inline; filename="${fileName.toString()+".pdf" }"`,
+
+                      };
+                    
+                      // Upload the file to S3
+                      console.log(params);
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                          console.log(data);
+                        }
+                    
+                      });                
+                    }
+                    else if (folder=="pfps"){
+
+                      const file = files[Object.keys(files)[0]];
+                      
+                      const params = {
+                        Bucket: 'echo-dentists',
+                        Key: "pfps/"+fileName.toString() ,
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed,
+
                       };
                     
                       // Upload the file to S3
@@ -356,7 +384,13 @@ function uploadFile(files,folder,fileName) {
                     else{
 
                         console.log("going here");
-                        const file = files[Object.keys(files)[0]];
+                        let file ;
+                        if(files.length){
+                          file= files[Object.keys(files)[0]];
+
+                        }else{
+file = files;
+                        }
                         // console.log("reading filees");
                         // console.log(file);
                         
@@ -369,7 +403,6 @@ function uploadFile(files,folder,fileName) {
                         };
                       
                         // Upload the file to S3
-                        console.log(params);
                         
                         s3.upload(params, (err, data) => {
                           if (err) {
@@ -416,7 +449,61 @@ function uploadFile(files,folder,fileName) {
                             
                         }
                         
-                    }else{
+                    }
+                    else if (folder=="cvs"){
+                      const file = files[Object.keys(files)[0]];
+                      
+                      const params = {
+                        Bucket: 'echo-dentists',
+                        Key: "cvs/"+fileName.toString()+".pdf" ,
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed
+                        ContentDisposition: `inline; filename="${fileName.toString()+".pdf" }"`,
+                        ContentType: 'application/pdf'
+
+
+                      };
+                    
+                      // Upload the file to S3
+                      console.log(params);
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                        }
+                    
+                      }); 
+
+                    }
+                    else if (folder=="pfps"){
+
+                      const file = files[Object.keys(files)[0]];
+                      
+                      const params = {
+                        Bucket: 'echo-dentists',
+                        Key: "pfps/"+fileName.toString() ,
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed,
+
+                      };
+                    
+                      // Upload the file to S3
+                      console.log(params);
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                        }
+                    
+                      });                
+                    }
+                    else{
                         console.log("going here");
                         const file = files[Object.keys(files)[0]];
                         // console.log("reading filees");

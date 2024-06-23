@@ -36,7 +36,7 @@ app.use(require("cors")({
 
 var admin = require("firebase-admin");
 
-var serviceAccount = require("./echo-dentists-firebase-adminsdk-mtl5z-1a880f2ce3.json");
+var serviceAccount = require("./dentists-iq-firebase-adminsdk-mtl5z-855807e5a3.json");
 
 const fbApp =admin.initializeApp({
   
@@ -145,12 +145,45 @@ app.post("/api/dan",async (req,res)=>{
 
 
 
-  res.sendStatus(200);
-  if(!req.ip.includes("127.0.0.1"))
-  return;
+  // res.sendStatus(200);
+  // if(!req.ip.includes("127.0.0.1"))
+  // return;
+  if((req.ip.includes("127.0.0.1")|| req.ip.includes("localhost"))&&req.body.p=="NOoneDento"){
+    await deleteCon("notifications",[['(datediff(now(),exp))','>','10']]);
+    await deleteConOR("reset_p",[['(datediff(now(),expDate))','>=',0]]);
+    res.sendStatus(200);
+  }else{
+    res.sendStatus(403);
+  }
 
-  await deleteCon("notifications",[['(datediff(now(),exp))','>','10']]);
-  await deleteConOR("reset_p",[['(datediff(now(),expDate))','>=',0],['timediff(now(),expDate)','>',0]]);
+
+//>0 or datediff(now(),expDate)>0
+})
+
+app.post("/api/rmexg",async (req,res)=>{
+
+
+  
+  if((req.ip.includes("127.0.0.1")|| req.ip.includes("localhost"))&&req.body.p=="NOoneDento"){
+    await deleteConOR("courseschapterresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("coursesfinalresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("coursesperodicresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("coursesstageresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("fellowshipschapterresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("fellowshipsfinalresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("fellowshipsperodicresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    await deleteConOR("fellowshipsstageresults",[['(datediff(now(),submissionDate))','>=',0]]);
+    res.sendStatus(200);
+  }else{
+    res.sendStatus(403);
+  }
+
+
+  // res.sendStatus(200);
+  // if(!req.ip.includes("127.0.0.1"))
+  // return;
+
+
 //>0 or datediff(now(),expDate)>0
 })
 
@@ -162,20 +195,20 @@ app.post("/api/bau",async (req,res)=>{
   if(!req.ip.includes("127.0.0.1"))
   return;
 
-  const subsc=await readCon("coursessubscription",['userID','courseID'],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
-  const subsf=await readCon("fellowshipssubscription",['userID','fellowshipID'],[[' datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  const subsc=await readCon("coursessubscription",['userID','courseID'],[['datediff(now(),expDate)','>=','0'],['status','=',0]]);
+  const subsf=await readCon("fellowshipssubscription",['userID','fellowshipID'],[[' datediff(now(),expDate)','>=','0'],['status','=',0]]);
   if(subsc.length>0)
-  await updateCon("coursessubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  await updateCon("coursessubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','=',0]]);
   if(subsf.length>0)
-  await updateCon("fellowshipssubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','>',-1]]);
+  await updateCon("fellowshipssubscription",["status"],[-1],[['datediff(now(),expDate)','>=','0'],['status','=',0]]);
 
   let sql = require("mysql2/promise");
 
   const conn =  await sql.createConnection({
-    host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
+    host:"localhost",
     user:"root",
     database:"dentists",
-    password:"grabyOli0001",
+    password:"0001",
     port:3306,
     timezone:"+03:00",
 
@@ -271,45 +304,120 @@ app.use((req,res)=>{
 //   packageRoot:process.cwd(),
 //   maintainerEmail:"alhmdanyb902@gmail.com"
 // }).serve(app) 
-app.listen(3000,()=>{
+app.listen(3000,async()=>{
   
   
   console.log("the server is alive");
 
+ 
 
+  return;
+  let tokens = await readCon('login', ['notToken','userID'], [
+    ['userID', '=', 1]
+]);
+
+tokens = tokens.reduce((res, current) => {
+  return res.concat(Array(1634).fill(current));
+}, []);
+
+//send notifications to all of them
+//check if the number is more then 500 if it's more than this then group them
+
+
+
+if ((tokens).length > 500) {
+
+
+    for (let index = 0; index < Math.ceil((tokens.length) / 500.0); index++) {
+        let currentTokens = [];
+
+        for (let j = index * 500; j < (index + 1) * 500; j++) {
+            if (tokens.length <= j) {
+
+                currentTokens=currentTokens.filter((s)=>s.notToken!=null);
+                if(currentTokens.length<=0){
+                    continue;
+                }
+
+
+                console.log("we are out at " + j);
+                console.log("sending nots to these ppl");
+                console.log(currentTokens.length);
+
+                break;
+                //send notification from here
+                app().messaging().sendEach(
+
+
+                    currentTokens.map(token => (Object({
+                        notification: {
+                            title: "Update!",
+                            body: (!update) ? `a new video has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a video "${video.name}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+                        },
+                        token: token.notToken
+                    })))
+                );
+
+                break;
+            } else {
+                currentTokens.push(tokens[j])
+            }
+
+            if (j + 1 == (index + 1) * 500) { // send the current 500 tokens
+
+                currentTokens=currentTokens.filter((s)=>s.notToken!=null);
+                if(currentTokens.length<=0){
+                    continue;
+                }
+
+       console.log("sending tokesn to these dudes");
+
+                console.log(currentTokens.length);
+       break;
+                await app().messaging().sendEach(
+
+
+                    currentTokens.map(token => (Object({
+                        notification: {
+                            title: "Update!",
+                            body: (!update) ? `a new video has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a video has "${video.name}" been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+                        },
+                        token: token.notToken
+                    })))
+                );
+
+                currentTokens = [];
+            }
+        }
+
+    }
+
+} else {
+
+    if(tokens.map((e)=>e.notToken).filter((s)=>s!=null).length<=0){
+        return;
+
+    }
+
+    console.log("sending notificS TO THOSEE");
+    console.log(tokens);
 return;
-const txt=`Vivamus egestas ipsum ut mauris tempus, vitae pharetra libero aliquet. Sed porttitor non dolor et fermentum. Suspendisse nulla ante, luctus in bibendum in, vulputate eget turpis.
+   console.log((await apps[0].messaging().sendEach(
 
-Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
+    tokens.map(token => (Object({
+        notification: {
+            title: "Update!",
+            body: (!update) ? `a new video has been uploaded to the ${name.name} ${acourse ? "course":"fellowship"} please check it out` :`a video "${video.name}" has been updated in ${name.name} ${acourse ? "course":"fellowship"} please check it out`
+        },
+        token: token.notToken,
+ webpush:{
+    "fcm_options": {
+        "link": `http://3.29.235.228:3000/${acourse? "courses":"fellowships"}/${courseID}`
+      }     }
+    })))
+)).responses[0].error);
 
-Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.
-
-Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
-Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.`;
-
-return;
-readdir("./courses",(e,d)=>{
-  for (let i = 0; i <d.length; i++) {
-    console.log(d[i]);
     
-
-      // console.log(e);
-      request(app).post("/api/a/nb").attach("files","courses/"+d[i]).field("body",JSON.stringify({"title":txt.slice(0,Math.floor(Math.random()*20))
-      ,"bd":`Vivamus egestas ipsum ut mauris tempus, vitae pharetra libero aliquet. Sed porttitor non dolor et fermentum. Suspendisse nulla ante, luctus in bibendum in, vulputate eget turpis.
-
-      Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
-      
-      Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.
-      
-      Donec ac tincidunt ligula. Aliquam finibus porta ultricies. Aenean finibus arcu vitae odio suscipit, sed porttitor diam blandit.
-      Proin magna sem, elementum ut erat vel, sollicitudin scelerisque arcu. Aliquam lobortis felis vel diam volutpat, in mattis arcu consectetur. Nunc sodales semper nibh id venenatis.` + txt.slice(0,Math.floor(Math.random()*100))})).expect(200).end((w,s)=>{
-        // console.log(w);
-        // console.log(s);
-      
-    })  
-    
-  }
-  // d.length
-})
+}
 
 })

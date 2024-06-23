@@ -145,6 +145,16 @@ const options = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css2?family=Tajawal&display=swap" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Tajawal' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Tajawal' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
 	</head>
 	<!-- Firebase App (the core Firebase SDK) -->
 <!-- <script defer src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"><\/script> -->
@@ -154,9 +164,28 @@ const options = {
 
 	<script>
 		if ('serviceWorker' in navigator) {
+
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then((registration) => {
       console.log('Service Worker registered with scope:', registration.scope);
+      console.log("appending a new msg");
+      navigator.serviceWorker.addEventListener('message', event => {
+console.log('new msg');
+console.log(event);
+let data=localStorage.getItem("data");
+
+if(data){
+data=JSON.parse(data);
+
+data.push(event.data);
+localStorage.setItem("data",JSON.stringify(data));
+}else{
+localStorage.setItem("data",JSON.stringify([event.data]));
+}
+// localStorage.setItem("data",event.data);
+});
+
+
     })
     .catch((error) => {
       console.error('Service Worker registration failed:', error);
@@ -378,7 +407,7 @@ a{
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "nnhpz3"
+  version_hash: "1v6i6z"
 };
 async function get_hooks() {
   return {};

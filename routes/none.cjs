@@ -96,11 +96,58 @@ router.post("/gcf/",async (req,res)=>{
     res.send({d:data[0]});
 });
 
+
+//get user profile depending on the code
+router.post("/gup", async (req, res) => {
+
+
+
+    if (req.body.code) {
+
+
+                try {
+
+
+
+                    // get the user ID
+                    const user = (await util.readCon("login",['userID','username','email','code','phonenumber','gender'],[['code','=',req.body.code]]))[0];
+                    // get the user courses,fellowships
+
+                    res.send({
+
+                        u:user,
+                    });
+
+                    return;
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+
+
+          
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
 //sign in
 router.post("/si/",async (req,res)=>{
 
     if((req.body.email)&&req.body.p){
-        let data = (await util.readCon("login",['password',"email","notToken",'userID','level'],[['email','=',req.body.email]]));
+        let data = (await util.readCon("login",['password',"email","notToken",'userID','level','username'],[['email','=',req.body.email]]));
         if(data.length<=0){
 
             res.sendStatus(403);
@@ -128,6 +175,8 @@ const options ={
                 res.send({
                     n:(await util.readCon("notifications",['notification'],[['userID','=',data[0].userID]])).map((e)=>e.notification),
                     t:data[0].level,
+                    i:data[0].userID,
+                    n:data[0].username,
                   e:0,
                 //   m: options["mac"] ? 0 : 1
                 });
@@ -172,20 +221,21 @@ router.post("/se",async(req,res)=>{
 
         const nodemailer = require("nodemailer");
 
-        const transporter = nodemailer.createTransport({
-          host: "smtp.mail.ru",
-          port: 465,
-          secure: true,
-          auth: {
-            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-            user: "echo-dentists@mail.ru",
-            pass: "S4x0cMyN7N8f0H21vKBf",
-          },
-        });
+                            const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
         
         
         await transporter.sendMail({
-          from:"echo-dentists@mail.ru",
+          from:"dentists-iq@mail.ru",
           to: "alhmdanyb902@gmail.com", // list of receivers
           subject: "contacting us", // Subject line
           text: `this message has been sent to you by ${req.body.e} and their name is ${req.body.n} and their message is : ${req.body.msg}`, // plain text body
@@ -209,15 +259,6 @@ router.post("/gb/",async (req,res)=>{
 });
 //get person profile
 
-router.post("/gpp/",async (req,res)=>{
 
-    if(req.body.code){
-        // const data = (await util.readCon("profiles",['courses','fellowships'],['profileID','=',req.body.code]));
-        res.send({d:"data"});
-    }else{
-        res.sendStatus(403)
-    }
-
-});
 module.exports = router;
 //

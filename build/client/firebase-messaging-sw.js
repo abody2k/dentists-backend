@@ -30,22 +30,61 @@ console.log("HAHHAHAHAHAHAH");
 // [START background_handler]
 console.log(messaging);
 
-// messaging.onBackgroundMessage(function(payload) {
-//   console.log(payload);
-//   console.log('[firebase-messaging-sw.js] Received background message ', payload);
+messaging.onBackgroundMessage(function(payload) {
+  console.log(payload);
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-//   // Customize notification here
-//   const notificationTitle = 'no title at all';
-//   const notificationOptions = {
-//     body: 'funny talk'
-//   };
 
-//   return self.registration.showNotification(notificationTitle,
-//       notificationOptions);
-// });
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage(payload);
+    });
+  });
+
+    // // Customize notification here
+  // const notificationTitle = 'no title at all';
+  // const notificationOptions = {
+  //   body: 'funny talk'
+  // };
+
+  // const openRequest = indexedDB.open('nots', 1);
+
+
+  // // Handle success (database is ready)
+  // openRequest.onsuccess = function(event) {
+
+  //     const db = event.target.result;
+  //     // Create a transaction (readwrite or readonly)
+  //     const tx = db.transaction('noti', 'readwrite');
+  //     // Get the object store
+  //     const store = tx.objectStore('noti');
+  //     // Add data to the object store
+      
+  //     const dataToAdd = { title:payload.notification.title,body:payload.notification.body, link:payload.fcmOptions.link };
+  //     store.add(dataToAdd);
+  //     // You can perform other operations (e.g., put, get, delete) here
+  //     tx.oncomplete = function() {
+  //         console.log('Data added successfully!');
+  //     };
+  // };
+
+  // return self.registration.showNotification(notificationTitle,
+  //     notificationOptions);
+});
 // [END background_handler]
 
 // Retrieve the FCM token after registration
+
+// firebase-messaging-sw.js
+// self.addEventListener('push', (event) => {
+//   const payload = event.data.json();
+//   // Save relevant data to local storage
+//   localStorage.setItem('notificationData', JSON.stringify(payload));
+//   // Display the notification
+//   // ...
+// });
+
+
 self.addEventListener('pushsubscriptionchange', (event) => {
   event.waitUntil(
     self.registration.pushManager.subscribe(event.newSubscription)
