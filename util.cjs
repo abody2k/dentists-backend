@@ -12,7 +12,7 @@ async function read(table,fields) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
         
@@ -22,7 +22,7 @@ async function read(table,fields) {
         host:"dentists.cjmuc6u8m5ok.us-east-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     */
@@ -42,7 +42,7 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -69,7 +69,7 @@ async function readConditionally(table,fields,conditions,limit=null) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -85,7 +85,7 @@ async function deleteConditionally(table,conditions) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -101,7 +101,7 @@ async function deleteConditionallyOR(table,conditions) {
       host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
       user:"root",
       database:"dentists",
-      password:"0001",
+      password:"grabyOli0001",
       port:3306,
       timezone:"+03:00"
   })
@@ -124,7 +124,7 @@ async function updateConditionally(table,fields,values,conditions) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00",
 
@@ -159,7 +159,7 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00",
 
@@ -192,7 +192,7 @@ async function write(table,keys,values) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })
@@ -215,7 +215,7 @@ async function writeMany(table,keys,values) {
         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
         user:"root",
         database:"dentists",
-        password:"0001",
+        password:"grabyOli0001",
         port:3306,
         timezone:"+03:00"
     })

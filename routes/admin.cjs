@@ -4080,7 +4080,7 @@ router.post("/gcs", async (req, res) => {
                         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                         user:"root",
                         database:"dentists",
-                        password:"0001",
+                        password:"grabyOli0001",
                         port:3306,
                         timezone:"+03:00",
                     })         
@@ -4185,7 +4185,7 @@ router.post("/gfs", async (req, res) => {
                         host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                         user:"root",
                         database:"dentists",
-                        password:"0001",
+                        password:"grabyOli0001",
                         port:3306,
                         timezone:"+03:00",
                     })                    
@@ -5816,7 +5816,7 @@ router.post("/gascex", async (req, res) => {
                     host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                     user:"root",
                     database:"dentists",
-                    password:"0001",
+                    password:"grabyOli0001",
                     port:3306,
                     timezone:"+03:00"
                     
@@ -5900,7 +5900,7 @@ router.post("/gasfex", async (req, res) => {
                     host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                     user:"root",
                     database:"dentists",
-                    password:"0001",
+                    password:"grabyOli0001",
                     port:3306,
                     timezone:"+03:00"
                     
