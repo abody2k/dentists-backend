@@ -227,11 +227,26 @@ app.post("/api/aus",async(req,res)=>{
 
   console.log("INVOKED");
 res.send({
-  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about
+  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about,
+
 })
   
 })
+app.post("/api/aaus",async(req,res)=>{
 
+  console.log("INVOKED");
+res.send({
+  d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about,
+  pn:(await fbApp.firestore().collection("dentists").doc("about").get()).data().phoneNumber,
+  e:(await fbApp.firestore().collection("dentists").doc("about").get()).data().email,
+  n:(await fbApp.firestore().collection("dentists").doc("about").get()).data().name,
+  s:(await fbApp.firestore().collection("dentists").doc("about").get()).data().social,
+  l:(await fbApp.firestore().collection("dentists").doc("about").get()).data().location,
+  em:(await readCon("login",['email as e','level as l'],[['level','!=',1]]))
+
+})
+  
+})
 
 app.use("/api/n/",handle(require("./routes/none.cjs")))
 app.use("/api/u/",handle(require("./routes/user.cjs")))

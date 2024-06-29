@@ -18,7 +18,7 @@ const {
 const aws = require('aws-sdk');
 aws.config.update({region: 'me-central-1'});
 
-const { hash } = require("argon2");
+const { hash, verify } = require("argon2");
 
 const router = require("express").Router();
 
@@ -132,6 +132,7 @@ router.post("/ggs", async (req, res) => {
 
 })
 
+
 //ban user
 router.post("/bu", async (req, res) => {
 
@@ -233,12 +234,30 @@ router.post("/uaus", async (req, res) => {
 
 
     if (req.body.aus ) {
+        await apps[0].firestore().collection("dentists").doc("about").update({about:req.body.aus});
 
+    }
 
-        apps[0].firestore().collection("dentists").doc("about").update({about:req.body.aus})
+        if(req.body.pn){
+            await apps[0].firestore().collection("dentists").doc("about").update({phoneNumber:req.body.pn});
 
+        }
+        if(req.body.email){
+            await apps[0].firestore().collection("dentists").doc("about").update({email:req.body.email});
 
+        }
+        if(req.body.name){
+            await apps[0].firestore().collection("dentists").doc("about").update({name:req.body.name});
 
+        }
+        if(req.body.social){
+            await apps[0].firestore().collection("dentists").doc("about").update({social:req.body.social});
+
+        }
+        if(req.body.location){
+            await apps[0].firestore().collection("dentists").doc("about").update({location:req.body.location});
+
+        }
         auth(req.cookies, res, async (data) => {
 
             res.sendStatus(200);
@@ -254,11 +273,7 @@ router.post("/uaus", async (req, res) => {
 
 
 
-    } else {
-        console.log("it stopped here");
-        res.sendStatus(403);
-        return;
-    }
+    
 
     // res.cookie()
 
@@ -321,6 +336,92 @@ router.post("/aucv", async (req, res) => {
 
 })
 
+
+//update logo or bg
+router.post("/alobg", async (req, res) => {
+
+
+    req.body = JSON.parse(req.body.body);
+    console.log(req.body);
+    console.log(req.files);
+    if (req.body && req.files) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+
+                try {
+
+
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
+                      });
+                      
+                    const file = req.files[Object.keys(req.files)[0]];
+                      
+                      const params = {
+                        Bucket: 'echo-dentists',
+                        Key: req.body.bg ? "bg":"EDTULOGO.png",
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed,
+                        ContentDisposition: `inline`,
+                      };
+                    
+                      // Upload the file to S3
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                          console.log(data);
+                        }
+                    
+                      });  
+
+
+                    if(req.body.bg){
+
+                    }else{ //upload logo
+
+                    }
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+                console.log(data);
+                res.sendStatus(200);
+
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
 
 
 router.post("/nb", async (req, res) => {
@@ -566,7 +667,7 @@ router.post("/dg", async (req, res) => {
 
 
 
-            }, 0)
+            }, 2)
 
         
 
@@ -2112,7 +2213,7 @@ router.post("/dp", async (req, res) => {
 
 
 
-            }, 0)
+            }, 2)
 
         
 
@@ -2173,7 +2274,7 @@ router.post("/up", async (req, res) => {
 
 
 
-        }, 0)
+        }, 2)
 
 
 
@@ -3691,6 +3792,88 @@ router.post("/uch", async (req, res) => {
 
 })
 
+
+//update admin data
+router.post("/uadmn", async (req, res) => {
+
+
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+                    let fields = {};
+                    let p;
+                    if (req.body.e) {
+                        fields["email"] = req.body.e;
+                    }
+                    if ( req.body.op && req.body.np) {
+
+                        p = await readCon('login',['password'],[['level','=',req.body.l]]);
+                        if(p.length>0){
+
+                            if(await require("argon2").verify(p[0].password,req.body.op.toString())){
+                                fields["password"] =  await hash(req.body.np);
+
+                            }else{
+                                console.log("wrong password");
+                                res.sendStatus(403);
+                                return;
+                            }
+                            
+                            
+                       
+
+                        }
+                    }
+
+                    if (Object.keys(fields).length > 0) {
+                        try {
+                            await updateCon("login", Object.keys(fields), Object.values(fields), [
+                                ["level", '=', req.body.l]
+                            ]);
+                        } catch (error) {
+                            console.log(error);
+                            res.sendStatus(403);
+                            return;
+                        }
+                        console.log('done done');
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+          
+
+                } catch (error) {
+                    console.log('heeeeer');
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+                console.log(data);
+                res.sendStatus(200);
+                return;
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    
+
+    // res.cookie()
+
+})
 
 //update subscription
 router.post("/usb", async (req, res) => {
