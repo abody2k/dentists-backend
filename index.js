@@ -209,7 +209,8 @@ app.post("/api/bau",async (req,res)=>{
     user:"root",
     database:"dentists",
     password:"grabyOli0001",
-    port:3306,
+    port:3306,connectTimeout:90000,
+
     timezone:"+03:00",
 
 });
@@ -228,6 +229,11 @@ app.post("/api/aus",async(req,res)=>{
   console.log("INVOKED");
 res.send({
   d:(await fbApp.firestore().collection("dentists").doc("about").get()).data().about,
+  pn:(await fbApp.firestore().collection("dentists").doc("about").get()).data().phoneNumber,
+  e:(await fbApp.firestore().collection("dentists").doc("about").get()).data().email,
+  n:(await fbApp.firestore().collection("dentists").doc("about").get()).data().name,
+  s:(await fbApp.firestore().collection("dentists").doc("about").get()).data().social,
+  l:(await fbApp.firestore().collection("dentists").doc("about").get()).data().location,
 
 })
   

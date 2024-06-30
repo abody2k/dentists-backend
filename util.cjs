@@ -13,7 +13,8 @@ async function read(table,fields) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
         
     })
@@ -23,7 +24,8 @@ async function read(table,fields) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     */
 
@@ -43,7 +45,8 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
@@ -70,7 +73,8 @@ async function readConditionally(table,fields,conditions,limit=null) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
@@ -86,7 +90,8 @@ async function deleteConditionally(table,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     })
     const con=conditions.map(e=>((typeof(e[2])=="string"&& !e.toString().includes("(")) ? [e[0],e[1],`"${e[2]}"`].join(' ') : e.join(' '))).join(" and ");
@@ -102,7 +107,8 @@ async function deleteConditionallyOR(table,conditions) {
       user:"root",
       database:"dentists",
       password:"grabyOli0001",
-      port:3306,
+      port:3306,connectTimeout:90000,
+
       timezone:"+03:00"
   })
   const con=conditions.map(e=>( [e[0],e[1],`"${e[2]}"`].join(' ') )).join(" or ");
@@ -125,7 +131,8 @@ async function updateConditionally(table,fields,values,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00",
 
     })
@@ -160,7 +167,8 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00",
 
     })
@@ -193,7 +201,8 @@ async function write(table,keys,values) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     })
     const value = values.map(v=>(typeof(v)=="string" ? (v.includes("now()")||v.includes("STR_TO_DATE")?v:`"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"`) : (v==undefined ? "null" : v)));
@@ -216,7 +225,8 @@ async function writeMany(table,keys,values) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,
+        port:3306,connectTimeout:90000,
+
         timezone:"+03:00"
     })
     // const value = values.map(v=>(typeof(v)=="string" ? `"${v.replace(/'/g, "''") .replace(/"/g, '\\"')}"` : (v==undefined ? "null" : v)));

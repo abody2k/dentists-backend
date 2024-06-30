@@ -2639,12 +2639,12 @@ router.post("/atf", (req, res) => {
                         ])).length > 0) {
 
                         try {
-                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.f, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]);
+                            await write("fellowshipssubscription", ['fellowshipID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.f, req.body.i, 0,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`,req.body.totalFee,req.body.remFee,req.body.groupID]);
 
                             if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
-                                await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne"],[req.body.f,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0]);
+                                await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne",'expDate'],[req.body.f,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`]);
                           }else{
-                            await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne"],[req.body.f,req.body.totalFee,req.body.i,1]);
+                            await write("fellowshipstuition",[("fellowshipID"),'tuition','userID',"lastOne",'expDate'],[req.body.f,req.body.totalFee,req.body.i,1,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`]);
                           }
 
 
@@ -2728,13 +2728,14 @@ router.post("/atc", (req, res) => {
                         ])).length > 0) {
                         try {
 
-                            (await write("coursessubscription", ['courseID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.c, req.body.i, 0,(new Date(req.body.d)).toISOString().replace("Z",''),req.body.totalFee,req.body.remFee,req.body.groupID]));
+                            
+                            (await write("coursessubscription", ['courseID', 'userID', 'status','expDate','totalFee','remainingFee','groupID'], [req.body.c, req.body.i, 0,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`,req.body.totalFee,req.body.remFee,req.body.groupID]));
                             
                             if(Math.floor(req.body.totalFee-req.body.remFee)!=0){
-                                  await write("coursestuition",[("courseID"),'tuition','userID',"lastOne"],[req.body.c,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0]);
+                                  await write("coursestuition",[("courseID"),'tuition','userID',"lastOne",'expDate'],[req.body.c,Math.floor(req.body.totalFee-req.body.remFee),req.body.i,0,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`]);
 
                             }else{
-                                await write("coursestuition",[("courseID"),'tuition','userID',"lastOne"],[req.body.c,req.body.totalFee,req.body.i,1]);
+                                await write("coursestuition",[("courseID"),'tuition','userID',"lastOne",'expDate'],[req.body.c,req.body.totalFee,req.body.i,1,`STR_TO_DATE("${(new Date(req.body.d)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`]);
                             }
 
 
@@ -4264,7 +4265,8 @@ router.post("/gcs", async (req, res) => {
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
-                        port:3306,
+                        port:3306,connectTimeout:90000,
+
                         timezone:"+03:00",
                     })         
                     console.log("SOMETHING WENT REALLY WRONG");
@@ -4369,7 +4371,8 @@ router.post("/gfs", async (req, res) => {
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
-                        port:3306,
+                        port:3306,connectTimeout:90000,
+
                         timezone:"+03:00",
                     })                    
                     const data= (await conn.query(`select login.username,login.email,login.userID,fellowshipssubscription.userID,fellowshipssubscription.subscriptionID,fellowshipssubscription.joinedDate,fellowshipssubscription.expDate,fellowshipssubscription.totalFee,fellowshipssubscription.remainingFee,fellowshipssubscription.groupID,fellowshipssubscription.status from login, fellowshipssubscription where fellowshipID=${req.body.fid} and login.userID = fellowshipssubscription.userID;`))[0];
@@ -6000,7 +6003,8 @@ router.post("/gascex", async (req, res) => {
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
-                    port:3306,
+                    port:3306,connectTimeout:90000,
+
                     timezone:"+03:00"
                     
                 })
@@ -6084,7 +6088,8 @@ router.post("/gasfex", async (req, res) => {
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
-                    port:3306,
+                    port:3306,connectTimeout:90000,
+
                     timezone:"+03:00"
                     
                 })

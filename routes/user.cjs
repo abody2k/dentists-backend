@@ -1115,7 +1115,8 @@ router.post("/gcv",async(req,res)=>{
                             user:"root",
                             database:"dentists",
                             password:"grabyOli0001",
-                            port:3306,
+                            port:3306,connectTimeout:90000,
+
                             timezone:"+03:00"
                         })
                          videos= (await conn.query(`select videoUrl,videoTitle from videos where courseID = ${req.body.courseID} and dateAdded < STR_TO_DATE("${(new Date(banned[0].dateBanned)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`))[0];
@@ -1229,7 +1230,8 @@ router.post("/gfv",async(req,res)=>{
                             user:"root",
                             database:"dentists",
                             password:"grabyOli0001",
-                            port:3306,
+                            port:3306,connectTimeout:90000,
+
                             timezone:"+03:00"
                         })
                          videos= (await conn.query(`select videoUrl,videoTitle from fellowshipvideos where fellowshipID = ${req.body.courseID} and dateAdded < STR_TO_DATE("${(new Date(banned[0].dateBanned)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`))[0];
