@@ -3796,17 +3796,39 @@ router.post("/uch", async (req, res) => {
 
 //update admin data
 router.post("/uadmn", async (req, res) => {
+    console.log("we arrived here");
 
 
 
             auth(req.cookies, res, async (data) => {
+                console.log("we arrived here");
 
                 try {
+                    console.log("we arrived here");
 
                     let fields = {};
                     let p;
                     if (req.body.e) {
                         fields["email"] = req.body.e;
+                        p = await readCon('login',['password'],[['level','=',req.body.l]]);
+                        if(p.length>0){
+
+                            if(await require("argon2").verify(p[0].password,req.body.p.toString())){
+
+                            }else{
+                                console.log("wrong password");
+                                res.sendStatus(403);
+                                return;
+                            }
+                            
+                            
+                       
+
+                        }else{
+                            console.log("wrong password");
+                            res.sendStatus(403);
+                            return;
+                        }
                     }
                     if ( req.body.op && req.body.np) {
 
@@ -3828,6 +3850,7 @@ router.post("/uadmn", async (req, res) => {
                         }
                     }
 
+                    console.log("we arrived here");
                     if (Object.keys(fields).length > 0) {
                         try {
                             await updateCon("login", Object.keys(fields), Object.values(fields), [
@@ -6160,17 +6183,17 @@ router.post("/gexolc", async (req, res) => {
                 try {
 
 
-                    const coursesfinalexams= await readCon("coursesfinalexams",null,[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
-                    const coursesstageexams= await readCon("coursesstageexams",null,[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
-                    const coursesperodicexams= await readCon("coursesperodicexams",null,[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesfinalexams= await readCon("coursesfinalexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesstageexams= await readCon("coursesstageexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesperodicexams= await readCon("coursesperodicexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
 
               
 
-                    res.send({d:{
-                        coursesfinalexams:coursesfinalexams,
-                        coursesstageexams:coursesstageexams,
-                        coursesperodicexams:coursesperodicexams,
-                    }});
+                    res.send({
+                        f:coursesfinalexams,
+                        s:coursesstageexams,
+                        p:coursesperodicexams,
+                    });
 
 
                 
@@ -6216,16 +6239,16 @@ router.post("/gexolf", async (req, res) => {
                 try {
 
 
-                    const fellowshipsstageexams= await readCon("fellowshipsstageexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
-                    const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
-                    const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",null,[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
-                    res.send({d:{
+                    const fellowshipsstageexams= await readCon("fellowshipsstageexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    res.send({
                         
                         
-                        fellowshipsfinalexams:fellowshipsfinalexams,
-                        fellowshipsstageexams:fellowshipsstageexams,
-                        fellowshipsperodicexams:fellowshipsperodicexams
-                    }})
+                        f:fellowshipsfinalexams,
+                        s:fellowshipsstageexams,
+                        p:fellowshipsperodicexams
+                    })
 
 
                 
