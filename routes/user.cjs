@@ -71,7 +71,7 @@ pass=true;
                 if((new Date())  > (new Date(result[0].ending))){ // exam ended send results to the user
 
                     // get all the results 
-                    let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['atype','=',0],['examType','=',req.body.examType]]);
+                    let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['ID','=',req.body.courseID],['atype','=',0],['examType','=',req.body.examType]]);
                     let names=[];
                     console.log(['userID','in',`(${results.map((e)=>e.userID).join(",")})`]);
                     if(results.length>0){
@@ -108,7 +108,7 @@ pass=true;
 
                 }
                 else if((new Date())  > (new Date(result[0].startingDate)) && (new Date())  < (new Date(result[0].ending))){ // exam is still ongoing send the questions
-                    let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',0],['examType','=',req.body.examType],['userID','=',data.id]]);
+                    let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',0],['ID','=',req.body.courseID],['examType','=',req.body.examType],['userID','=',data.id]]);
                     if(aresult.length>0){
                         res.send({
                             title:result[0].title,
@@ -223,7 +223,7 @@ console.log("debug 3");
             if((new Date())  > (new Date(result[0].ending))){ // exam ended send results to the user
 
                 // get all the results 
-                let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['atype','=',1],['examType','=',req.body.examType]]);
+                let results =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['ID','=',req.body.fellowshipID],['atype','=',1],['examType','=',req.body.examType]]);
                 let names=[];
 
                 //check if there are 14 days or less if so send the question as well
@@ -263,7 +263,7 @@ console.log("debug 3");
             }
             else if((new Date()) > (new Date(result[0].startingDate)) && (new Date()) < (new Date(result[0].ending)) ){ // ongoing exam
 
-                let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['examType','=',req.body.examType],['userID','=',data.id]]);
+                let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
                 if(aresult.length>0){
                     res.send({
                         title:result[0].title,
@@ -546,7 +546,7 @@ router.post("/spa",(req,res)=>{
                     
                     ]);
 
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                 ,req.body.i,1,0]);
                  } catch (error) {
                     
@@ -583,7 +583,7 @@ router.post("/spa",(req,res)=>{
                         ), req.body.ID
                     
                     ]);
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                     ,req.body.i,1,1]);
                     } catch (error) {
 
@@ -663,7 +663,7 @@ router.post("/ssa",(req,res)=>{
                     ]);
                     console.log('here as well II');
 
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                     ,req.body.i,2,0]);
 
 
@@ -731,7 +731,7 @@ router.post("/ssa",(req,res)=>{
                     
                     ]);
 
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                     ,req.body.i,2,1]);
 
 
@@ -937,7 +937,7 @@ router.post("/sfa",(req,res)=>{
                     ]);
 
 
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                     ,req.body.i,3,0]);
 
                     if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){
@@ -1011,7 +1011,7 @@ console.log(error);
                     ]);
 
 
-                    await write("allresults",['userID','grade','examID','examType','atype'],[data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
                     ,req.body.i,3,1]);
 
                     if (((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length)>=result[0].passing){

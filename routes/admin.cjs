@@ -6183,9 +6183,9 @@ router.post("/gexolc", async (req, res) => {
                 try {
 
 
-                    const coursesfinalexams= await readCon("coursesfinalexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
-                    const coursesstageexams= await readCon("coursesstageexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
-                    const coursesperodicexams= await readCon("coursesperodicexams",["title",'groupID','startingDate','ending'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesfinalexams= await readCon("coursesfinalexams",["title",'groupID','startingDate','ending','examID as i'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesstageexams= await readCon("coursesstageexams",["title",'groupID','startingDate','ending','examID as i'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
+                    const coursesperodicexams= await readCon("coursesperodicexams",["title",'groupID','startingDate','ending','examID as i'],[['courseID','=',req.body.courseID],['level','=',req.body.level]]);
 
               
 
@@ -6228,6 +6228,66 @@ router.post("/gexolc", async (req, res) => {
 })
 
 
+
+// get all results for spicific exam,course and exam type
+router.post("/gsrs", async (req, res) => {
+
+
+    if (req.body.examID>=1 && req.body.ID&& req.body.t&& req.body.ac!=null) {
+
+            auth(req.cookies, res, async (data) => {
+
+                try {
+
+
+                   let results=(await readCon("allresults",['userID as i','grade as g'],[['ID','=',req.body.ID],['examID','=',req.body.examID],['atype','=',req.body.ac ],['examType','=',req.body.t]]));
+                   console.log(results);
+                   let n ;
+                   if(results.length>0)
+                   n=(await readCon("login",['username as n','userID as i'],[['userID','in',`(${results.map(e=>e.i).join(",")})`]]));
+
+                   
+                    res.send({
+                        r:results
+                        ,n:n
+                    })
+
+                    return;
+
+
+                
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+  
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 0)
+
+   
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+
+
 // get all kinds of exams for one fellowship and one level
 router.post("/gexolf", async (req, res) => {
 
@@ -6239,9 +6299,9 @@ router.post("/gexolf", async (req, res) => {
                 try {
 
 
-                    const fellowshipsstageexams= await readCon("fellowshipsstageexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
-                    const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
-                    const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",["title",'groupID','startingDate','ending'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    const fellowshipsstageexams= await readCon("fellowshipsstageexams",["title",'groupID','startingDate','ending','examID as i'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",["title",'groupID','startingDate','ending','examID as i'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
+                    const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",["title",'groupID','startingDate','ending','examID as i'],[['fellowshipID','=',req.body.fellowshipID],['level','=',req.body.level]]);
                     res.send({
                         
                         
