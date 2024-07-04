@@ -847,13 +847,13 @@ router.post("/gup", async (req, res) => {
                     const fellowshipsPayments = await readCon("fellowshipstuition",null,[['userID','=',user.userID]]);
                    let coursesInfos=[];
                     if(courses.length>0)
-{                     coursesInfos = await readCon("courses",['courseName','courseID'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
+{                     coursesInfos = await readCon("courses",['courseName','courseID','courseDuration as d'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
 
 }                   
 
 let fellowshipsInfos=[];
 if(fellowships.length>0){
-    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
+    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID','fellowshipDuration as d'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
 }
                     
 

@@ -394,6 +394,7 @@ function uploadFile(files,folder,fileName) {
                     else{
 
                         console.log("going here");
+                        console.log(files);
                         let file ;
                         if(files.length){
                           file= files[Object.keys(files)[0]];
@@ -411,7 +412,7 @@ file = files;
                           Body: file.data,
                           ACL: 'public-read', // Set the ACL permissions as needed
                         };
-                      
+                      console.log(params);
                         // Upload the file to S3
                         
                         s3.upload(params, (err, data) => {

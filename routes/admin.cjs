@@ -431,7 +431,7 @@ router.post("/nb", async (req, res) => {
     req.body = JSON.parse(req.body.body);
     if (req.body && req.files) {
 
-        if (req.body.bd&&req.body.title && Object.keys(req.files).length >0) {
+        if (req.body.bd&& Object.keys(req.files).length >0) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -439,7 +439,7 @@ router.post("/nb", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await newBlog(req.body.bd,req.body.title,req.files);
+                    await newBlog(req.body.bd,req.files);
                 } catch (error) {
                     console.log(error);
                     res.send({
@@ -687,8 +687,7 @@ router.post("/ub", async (req, res) => {
 
     req.body = JSON.parse(req.body.body);
 
-
-
+console.log(Object(req.files));
 
     if (req.body.id && req.body.bd ) {
 
@@ -705,7 +704,7 @@ router.post("/ub", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await updateBlog(req.body.id,req.files.files, req.body.bd,req.body.title);
+                    await updateBlog(req.body.id,req.files ? req.files.files: null, req.body.bd);
                 } catch (error) {
                     console.log(error);
                     res.sendStatus(403);
@@ -6515,13 +6514,13 @@ router.post("/gup", async (req, res) => {
                     const fellowshipsPayments = await readCon("fellowshipstuition",null,[['userID','=',user.userID]]);
                     let coursesInfos=[];
                     if(courses.length>0)
-{                     coursesInfos = await readCon("courses",['courseName','courseID'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
+{                     coursesInfos = await readCon("courses",['courseName','courseID','courseDuration as d'],[['courseID','in',`(${([...(new Set((courses.map((s)=>s.courseID))))].join(","))})`]])
 
 }                   
 
 let fellowshipsInfos=[];
 if(fellowships.length>0){
-    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
+    fellowshipsInfos = await readCon("fellowships",['fellowshipName','fellowshipID','fellowshipDuration as d'],[['fellowshipID','in',`(${(fellowships.map((s)=>s.fellowshipID).join(","))})`]])
 }
                     res.send({
 
@@ -6572,7 +6571,7 @@ if(fellowships.length>0){
  * @param {String}id 
  * @param {String} blogDetails 
  */
-async function updateBlog(id,  files, blogDetails = null,title=null) {
+async function updateBlog(id,  files, blogDetails = null) {
 
 
     
@@ -6580,9 +6579,9 @@ async function updateBlog(id,  files, blogDetails = null,title=null) {
     if (blogDetails != -9) {
         fields["blogDetails"] = blogDetails;
     }
-    if (title != -9) {
-        fields["title"] = title;
-    }
+    // if (title != -9) {
+    //     fields["title"] = title;
+    // }
 
 
     if (Object.keys(fields).length > 0) {
@@ -6590,7 +6589,7 @@ async function updateBlog(id,  files, blogDetails = null,title=null) {
             ["blogID", '=', id]
         ]);
     }
-console.log(files);
+
     if (files) {
         console.log(id);
         upload(files, "blogs", id.toString());
@@ -6605,10 +6604,10 @@ console.log(files);
  * 
  * @param {String}blogDetails  
  */
-async function newBlog (blogDetails,title, files) {
+async function newBlog (blogDetails, files) {
 
-    const id = (await write("blogs", ["blogDetails",'title'], [ blogDetails,title]));
-    upload(files, "blogs", id.toString());
+    const id = (await write("blogs", ["blogDetails"], [ blogDetails]));
+    upload(files.files, "blogs", id.toString());
 
 
 }
