@@ -4496,7 +4496,7 @@ router.post("/gau", async (req, res) => {
         try {
             res.send({
 
-                d:(await read("login",['userID','username','email','code','phonenumber']))
+                d:(await readCon("login",['userID','username','email','code','phonenumber'],[['level','=',1]]))
             });
 
             return;
