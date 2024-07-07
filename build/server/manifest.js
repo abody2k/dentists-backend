@@ -7,20 +7,20 @@ function __memo(fn) {
 return {
 	appDir: "_app",
 	appPath: "_app",
-	assets: new Set(["1.jpg","404.png","ab.png","add.png","addImage.png","addP.png","AddUser.png","adt.png","Arimo-Bold.ttf","Arimo-BoldItalic.ttf","Arimo-Italic.ttf","Arimo-Regular.ttf","At sign.png","at.png","AT2.png","Atsign.png","back-icon.png","Barlow-Black.ttf","Barlow-BlackItalic.ttf","Barlow-Bold.ttf","Barlow-BoldItalic.ttf","Barlow-ExtraBold.ttf","Barlow-ExtraBoldItalic.ttf","Barlow-ExtraLight.ttf","Barlow-ExtraLightItalic.ttf","Barlow-Italic.ttf","Barlow-Light.ttf","Barlow-LightItalic.ttf","Barlow-Medium.ttf","Barlow-MediumItalic.ttf","Barlow-Regular.ttf","Barlow-SemiBold.ttf","Barlow-SemiBoldItalic.ttf","Barlow-Thin.ttf","Barlow-ThinItalic.ttf","bell.png","bell2.png","bg.jpg","cancel.png","cash.png","Classroom.png","close-icon.png","close.png","closesec.png","contact.png","Copy.png","cr.png","date.png","del.png","details.png","diver.png","doct.png","Documents.png","done.png","Dots.png","DoubleLeft.png","Download.png","ds.png","ds2.png","edit.png","editorjs.mjs","editorjs.umd.js","Edituser.png","EDTULOGO.png","email.png","Enter.png","error.gif","Exam.png","exams.png","ExternalLink.png","Facebook.png","favicon.png","FB.png","firebase-messaging-sw.js","Generate.png","hide.png","IG.png","Instagram.png","left.png","line.gif","loading.gif","Logo.png","Logo7.png","Logout.png","notification1.png","notitication.png","nots.png","open-icon.png","open.png","opensec.png","password.png","People.png","pf.png","PH.png","Phone.png","Place.png","play.png","ppl.png","ppl2.png","profileImage.jpg","profs.png","pt.png","qr-code-icon-png.webp","QrCode.png","ques.png","quizdate.png","quizic.png","qus.png","read.png","Rectangle 377.png","redclose.png","Resume.png","right.png","save.png","sch.png","Schedule.png","Settings.png","SettingsIcon.png","Share.png","show.png","sources.png","srch.png","srch2.png","submitted.gif","subscription-model.png","TA.png","Telegram.png","ticb.png","Time (2).png","time.png","transfer.png","up-arrow.png","upload.png","url.png","username.png","VerifiedAccount.png","videos.png","WA.png","warning.gif","WhatsApp.png"]),
+	assets: new Set(["1.jpg","404.png","ab.png","add.png","addImage.png","addP.png","AddUser.png","adt.png","Arimo-Bold.ttf","Arimo-BoldItalic.ttf","Arimo-Italic.ttf","Arimo-Regular.ttf","At sign.png","at.png","AT2.png","Atsign.png","back-icon.png","Barlow-Black.ttf","Barlow-BlackItalic.ttf","Barlow-Bold.ttf","Barlow-BoldItalic.ttf","Barlow-ExtraBold.ttf","Barlow-ExtraBoldItalic.ttf","Barlow-ExtraLight.ttf","Barlow-ExtraLightItalic.ttf","Barlow-Italic.ttf","Barlow-Light.ttf","Barlow-LightItalic.ttf","Barlow-Medium.ttf","Barlow-MediumItalic.ttf","Barlow-Regular.ttf","Barlow-SemiBold.ttf","Barlow-SemiBoldItalic.ttf","Barlow-Thin.ttf","Barlow-ThinItalic.ttf","bell.png","bell2.png","bg.jpg","cancel.png","cash.png","Classroom.png","close-icon.png","close.png","closesec.png","contact.png","Copy.png","cr.png","date.png","del.png","details.png","diver.png","doct.png","Documents.png","done.png","Dots.png","DoubleLeft.png","Download.png","ds.png","ds2.png","edit.png","editorjs.mjs","editorjs.umd.js","Edituser.png","EDTULOGO.png","email.png","Enter.png","error.gif","Exam.png","exams.png","ExternalLink.png","Facebook.png","favicon.png","FB.png","firebase-messaging-sw.js","Generate.png","hide.png","IG.png","Instagram.png","left.png","line.gif","loading.gif","Logo.png","Logo7.png","Logout.png","notification1.png","notitication.png","nots.png","open-icon.png","open.png","opensec.png","password.png","People.png","pf.png","PH.png","Phone.png","Place.png","play.png","ppl.png","ppl2.png","profileImage.jpg","profs.png","pt.png","qr-code-icon-png.webp","QrCode.png","ques.png","quizdate.png","quizic.png","qus.png","read.png","Rectangle 377.png","redclose.png","Resume.png","right.png","save.png","sch.png","Schedule.png","Settings.png","SettingsIcon.png","settt.png","Share.png","show.png","sources.png","srch.png","srch2.png","submitted.gif","subscription-model.png","TA.png","Telegram.png","ticb.png","Time (2).png","time.png","transfer.png","up-arrow.png","upload.png","url.png","username.png","VerifiedAccount.png","videos.png","WA.png","warning.gif","WhatsApp.png"]),
 	mimeTypes: {".jpg":"image/jpeg",".png":"image/png",".ttf":"font/ttf",".mjs":"text/javascript",".js":"text/javascript",".gif":"image/gif",".webp":"image/webp"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.B4jimvN5.js","app":"_app/immutable/entry/app.CWGh_c-Y.js","imports":["_app/immutable/entry/start.B4jimvN5.js","_app/immutable/chunks/entry.DWvNla3_.js","_app/immutable/chunks/scheduler.C7Xo_3aa.js","_app/immutable/chunks/index.DTVtpEo5.js","_app/immutable/entry/app.CWGh_c-Y.js","_app/immutable/chunks/preload-helper.D6kgxu3v.js","_app/immutable/chunks/scheduler.C7Xo_3aa.js","_app/immutable/chunks/index.NYh16Rov.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
+		client: {"start":"_app/immutable/entry/start.qw4jJ-Tx.js","app":"_app/immutable/entry/app.BZHaYvDW.js","imports":["_app/immutable/entry/start.qw4jJ-Tx.js","_app/immutable/chunks/entry.DxxijvSv.js","_app/immutable/chunks/scheduler.C7Xo_3aa.js","_app/immutable/chunks/index.DTVtpEo5.js","_app/immutable/entry/app.BZHaYvDW.js","_app/immutable/chunks/preload-helper.D6kgxu3v.js","_app/immutable/chunks/scheduler.C7Xo_3aa.js","_app/immutable/chunks/index.NYh16Rov.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
 		nodes: [
 			__memo(() => import('./chunks/0-CZXWwoBJ.js')),
-			__memo(() => import('./chunks/1-LuaaNA6H.js')),
+			__memo(() => import('./chunks/1-CO9PoX7C.js')),
 			__memo(() => import('./chunks/2-BQXS7Jcv.js')),
-			__memo(() => import('./chunks/3-g2I7c_F7.js')),
+			__memo(() => import('./chunks/3-CsYrOWsq.js')),
 			__memo(() => import('./chunks/4-D5TssE2P.js')),
 			__memo(() => import('./chunks/5-BScZ5dpu.js')),
 			__memo(() => import('./chunks/6-B5QgIzo5.js')),
 			__memo(() => import('./chunks/7-DE8tolod.js')),
-			__memo(() => import('./chunks/8-BCNZDWvi.js')),
+			__memo(() => import('./chunks/8-CNBo1q4s.js')),
 			__memo(() => import('./chunks/9-CMUq1HNE.js')),
 			__memo(() => import('./chunks/10-5bmqbWX0.js')),
 			__memo(() => import('./chunks/11-DCo_OH3T.js')),
@@ -30,7 +30,7 @@ return {
 			__memo(() => import('./chunks/15-BUU-3ZLA.js')),
 			__memo(() => import('./chunks/16-CKgk8VC9.js')),
 			__memo(() => import('./chunks/17-uHz0anLM.js')),
-			__memo(() => import('./chunks/18-OVsPYJIe.js')),
+			__memo(() => import('./chunks/18-DK44ZANu.js')),
 			__memo(() => import('./chunks/19-RNkahfqT.js')),
 			__memo(() => import('./chunks/20-DgbdgWj9.js')),
 			__memo(() => import('./chunks/21-D9keGvO2.js')),
@@ -43,21 +43,22 @@ return {
 			__memo(() => import('./chunks/28-DoDIGFTU.js')),
 			__memo(() => import('./chunks/29-CJ81OOLp.js')),
 			__memo(() => import('./chunks/30-DV0N-VT9.js')),
-			__memo(() => import('./chunks/31-DlLQg9in.js')),
+			__memo(() => import('./chunks/31-Cn6NsczK.js')),
 			__memo(() => import('./chunks/32-C6J7th22.js')),
 			__memo(() => import('./chunks/33-D1yhxqk9.js')),
-			__memo(() => import('./chunks/34-C7sn-lEc.js')),
-			__memo(() => import('./chunks/35-BNXhAfpL.js')),
-			__memo(() => import('./chunks/36-Cjmk6ThV.js')),
+			__memo(() => import('./chunks/34-UDO1PkpG.js')),
+			__memo(() => import('./chunks/35-CpeM7B4J.js')),
+			__memo(() => import('./chunks/36-ein3UV78.js')),
 			__memo(() => import('./chunks/37--0KyJUBI.js')),
-			__memo(() => import('./chunks/38-Bm8Bl0k0.js')),
-			__memo(() => import('./chunks/39-DPZTXGQL.js')),
+			__memo(() => import('./chunks/38-ChACWWf6.js')),
+			__memo(() => import('./chunks/39-Crowu2Ld.js')),
 			__memo(() => import('./chunks/40-aHbbmEWA.js')),
-			__memo(() => import('./chunks/41-BwiDCtjY.js')),
-			__memo(() => import('./chunks/42-CZlbwyBC.js')),
-			__memo(() => import('./chunks/43-CbvFxto1.js')),
+			__memo(() => import('./chunks/41-CZTuKTPm.js')),
+			__memo(() => import('./chunks/42-Dn7-cbSn.js')),
+			__memo(() => import('./chunks/43-BVv03Ohp.js')),
 			__memo(() => import('./chunks/44-D_fBFc9u.js')),
-			__memo(() => import('./chunks/45-DO9aNBK7.js'))
+			__memo(() => import('./chunks/45-CZdAR6NI.js')),
+			__memo(() => import('./chunks/46-B1aQAYv1.js'))
 		],
 		routes: [
 			{
@@ -355,10 +356,17 @@ return {
 				endpoint: null
 			},
 			{
+				id: "/settings",
+				pattern: /^\/settings\/?$/,
+				params: [],
+				page: { layouts: [0,], errors: [1,], leaf: 45 },
+				endpoint: null
+			},
+			{
 				id: "/test",
 				pattern: /^\/test\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 45 },
+				page: { layouts: [0,], errors: [1,], leaf: 46 },
 				endpoint: null
 			}
 		],

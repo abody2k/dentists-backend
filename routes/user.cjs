@@ -1354,6 +1354,72 @@ router.post("/fop",async(req,res)=>{
 
 });
 
+//forgot password but I'm signed in
+router.post("/fopi",async(req,res)=>{
+
+    auth(req.cookies,res,async function(data){
+
+            let ID="";
+            console.log(data);
+            let resd= (await readCon("login",["userID",'email'],[['userID','=',data.id]]));
+
+            if(resd.length<=0){
+                console.log("OUT");
+                res.sendStatus(403);
+                return;
+            }else{
+                ID=resd[0].userID;
+                try {
+                    const d = (new Date());
+                    d.setMinutes(d.getMinutes()+10);
+                    let r = new rand.Random("dento_echo_rando")
+                    const token =(r.float()).toString(36).slice(2);
+                    await write("reset_p",['userID',"expDate","token"],[ID,`( now() + interval 10 minute)`,token]);
+
+                    const nodemailer = require("nodemailer");
+
+                    const transporter = nodemailer.createTransport({
+                      host: "smtp.mail.ru",
+                      port: 465,
+                      secure: true,
+                      auth: {
+                        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                        user: "dentists-iq@mail.ru",
+                        pass: "S4x0cMyN7N8f0H21vKBf",
+                      },
+                    });
+                    
+                    
+                    await transporter.sendMail({
+                      from:"dentists-iq@mail.ru",
+                      to: resd[0].email.replace("echo","gmail"), // list of receivers
+                      subject: "contacting us", // Subject line
+                      html:`
+                      <p>Hello , you forgot your password, enter this link in order for you to reset your password</p>
+                      
+                      <a href="http://3.29.235.228:5173/reset/${token}">Here</a>`
+                    }).then((e)=>{
+                      console.log(e);
+                    });
+
+                    res.sendStatus(200);
+
+
+
+                } catch (error) {
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;   
+                }
+            }
+
+        
+            
+        },function(){},1)
+
+
+
+});
 //change password
 router.post("/chngp",async(req,res)=>{
 
@@ -1405,6 +1471,196 @@ router.post("/chngp",async(req,res)=>{
 
 });
 
+//update or delete pfp
+router.post("/udpfp", async (req, res) => {
+
+
+    req.body = JSON.parse(req.body.body);
+    console.log(req.body);
+    console.log(req.files);
+    if (req.body) {
+
+
+            auth(req.cookies, res, async (data) => {
+
+
+                console.log("Everything went well");
+                const aws = require('aws-sdk');
+                aws.config.update({region: 'me-central-1'});
+
+
+                try {
+
+
+                    const s3 = new aws.S3({
+                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        secretAccessKey: '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',
+                        region: 'me-central-1',
+                      });
+
+                      if(req.body.d){
+                        const params = {
+                            Bucket: 'echo-dentists',
+                            Key: "pfps/"+data.id.toString() ,
+                        };
+                          
+                          s3.deleteObject(params, (err, data) => {
+                            if (err) {
+                              console.error('Error deleting object:', err);
+                            } else {
+                              console.log('Object deleted successfully:', data);
+                              res.sendStatus(200);
+                              return;
+                            }
+                          });
+                      }else{
+                    const file = req.files[Object.keys(req.files)[0]];
+
+                    const params = {
+                        Bucket: 'echo-dentists',
+                        Key: "pfps/"+data.id.toString() ,
+                        Body: file.data,
+                        ACL: 'public-read', // Set the ACL permissions as needed,
+
+                      };
+                    
+                      // Upload the file to S3
+                      console.log(params);
+                      
+                      s3.upload(params, (err, data) => {
+                        if (err) {
+                          console.log(err);
+                          throw err;
+                        }else{
+                          console.log("done uploading");
+                          res.sendStatus(200);
+                          return;
+                        }
+                    
+                      }); 
+
+                      }
+                      
+                      
+
+
+          
+                } catch (error) {
+                    console.log(error);
+                    res.send({
+                        e: 1
+                    });
+                    return;
+                }
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 1)
+
+        
+
+    } else {
+        console.log("it stopped here");
+        res.sendStatus(403);
+        return;
+    }
+
+    // res.cookie()
+
+})
+
+//update user data
+router.post("/uud", async (req, res) => {
+    console.log("we arrived here");
+    req.body = JSON.parse(req.body.body);
+
+
+
+            auth(req.cookies, res, async (data) => {
+                console.log("we arrived here");
+
+                try {
+                    console.log("we arrived here");
+
+                    let fields = {};
+                    let p;
+                    if (req.body.pn) {
+                        fields["phonenumber"] = req.body.pn; 
+                    }
+                    if ( req.body.op && req.body.np) {
+
+                        p = await readCon('login',['password'],[['userID','=',data.id]]);
+                        if(p.length>0){
+
+                            if(await require("argon2").verify(p[0].password,req.body.op.toString())){
+                                fields["password"] =  await hash(req.body.np);
+
+                            }else{
+                                console.log("wrong password");
+                                res.sendStatus(403);
+                                return;
+                            }
+                            
+                            
+                       
+
+                        }
+                    }
+
+                    console.log("we arrived here");
+                    if (Object.keys(fields).length > 0) {
+                        try {
+                            await updateCon("login", Object.keys(fields), Object.values(fields), [
+                                ["userID", '=', data.id]
+                            ]);
+                        } catch (error) {
+                            console.log(error);
+                            res.sendStatus(403);
+                            return;
+                        }
+                        console.log('done done');
+                    }else{
+
+                        res.sendStatus(200);
+                        return;
+                    }
+
+          
+
+                } catch (error) {
+                    console.log('heeeeer');
+                    console.log(error);
+                    res.sendStatus(403);
+                    return;
+                }
+
+                console.log(data);
+                res.sendStatus(200);
+                return;
+
+
+            }, () => {
+
+
+                console.log("something went wrong");
+
+
+
+            }, 1)
+
+   
+
+    
+
+    // res.cookie()
+
+})
 //get notifications
 router.post("/gn",(req,res)=>{
 

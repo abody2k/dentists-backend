@@ -145,9 +145,9 @@ router.post("/gup", async (req, res) => {
 
 //sign in
 router.post("/si/",async (req,res)=>{
-
+    
     if((req.body.email)&&req.body.p){
-        let data = (await util.readCon("login",['password',"email","notToken",'userID','level','username'],[['email','=',req.body.email]]));
+        let data = (await util.readCon("login",['password',"email","notToken",'userID','phonenumber','level','username','code'],[['email','=',req.body.email]]));
         if(data.length<=0){
 
             res.sendStatus(403);
@@ -178,6 +178,8 @@ const options ={
                     i:data[0].userID,
                     n:data[0].username,
                   e:0,
+                  c:data[0].code,
+                  pn:data[0].phonenumber
                 //   m: options["mac"] ? 0 : 1
                 });
             }else{
