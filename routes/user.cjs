@@ -1501,7 +1501,7 @@ router.post("/udpfp", async (req, res) => {
                       if(req.body.d){
                         const params = {
                             Bucket: 'echo-dentists',
-                            Key: "pfps/"+data.id.toString() ,
+                            Key: "pfps/"+req.body.c ,
                         };
                           
                           s3.deleteObject(params, (err, data) => {
@@ -1518,7 +1518,7 @@ router.post("/udpfp", async (req, res) => {
 
                     const params = {
                         Bucket: 'echo-dentists',
-                        Key: "pfps/"+data.id.toString() ,
+                        Key: "pfps/"+req.body.c ,
                         Body: file.data,
                         ACL: 'public-read', // Set the ACL permissions as needed,
 
