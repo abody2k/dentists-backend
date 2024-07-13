@@ -238,7 +238,7 @@ router.post("/se",async(req,res)=>{
         
         await transporter.sendMail({
           from:"dentists-iq@mail.ru",
-          to: "alhmdanyb902@gmail.com", // list of receivers
+          to: "echodentistry@gmail.com", // list of receivers
           subject: "contacting us", // Subject line
           text: `this message has been sent to you by ${req.body.e} and their name is ${req.body.n} and their message is : ${req.body.msg}`, // plain text body
         }).then((e)=>{
