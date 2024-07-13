@@ -441,7 +441,7 @@ return;
         token: token.notToken,
  webpush:{
     "fcm_options": {
-        "link": `http://3.29.235.228:3000/${acourse? "courses":"fellowships"}/${courseID}`
+        "link": `https://echo-dent.net/${acourse? "courses":"fellowships"}/${courseID}`
       }     }
     })))
 )).responses[0].error);
