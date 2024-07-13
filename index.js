@@ -14,7 +14,15 @@ require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
 
-                    
+
+const https = require('https');
+const fs = require('fs');
+
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/echo-dent.net/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/echo-dent.net/fullchain.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+const server = https.createServer(credentials, app);
 const request = require("supertest")
 
 
@@ -325,7 +333,7 @@ app.use((req,res)=>{
 //   packageRoot:process.cwd(),
 //   maintainerEmail:"alhmdanyb902@gmail.com"
 // }).serve(app) 
-app.listen(3000,async()=>{
+server.listen(443,async()=>{
   
   
   console.log("the server is alive");
