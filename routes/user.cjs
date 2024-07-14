@@ -1137,7 +1137,7 @@ router.post("/gcv",async(req,res)=>{
                     }else{
                         console.log('77789');
 
-                        videos=(await readCon("videos",["videoUrl",'videoTitle','level'],[['courseID','=',req.body.courseID]]));
+                        videos=(await readCon("videos",["videoUrl",'videoTitle','level','order'],[['courseID','=',req.body.courseID]]));
                         infos = await getAllCourseInfo(0,req.body.courseID);
 
                     }
@@ -1822,7 +1822,7 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
     
 
     if (banningDate){
-        const chapters=await readCon("chapter",['title','link','details','questions','ID','level'],[['ID','=',ID],['dateAdded','<',banningDate],['type','=',type]]);
+        const chapters=await readCon("chapter",['title','link','details','questions','ID','level','chapterID as chID'],[['ID','=',ID],['dateAdded','<',banningDate],['type','=',type]]);
 
         if(type){
 
@@ -1851,7 +1851,7 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
 
     }else{
 
-        const chapters=await readCon("chapter",['title','link','details','questions','ID','level'],[['ID','=',ID],['type','=',type]]);
+        const chapters=await readCon("chapter",['title','link','details','questions','ID','level','chapterID as chID'],[['ID','=',ID],['type','=',type]]);
 
         if(type){
 
@@ -1864,7 +1864,7 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
             };
 
         }else{
-            const chapters=await readCon("chapter",['title','link','details','questions','type','ID','level'],[['ID','=',ID]]);
+            const chapters=await readCon("chapter",['title','link','details','questions','type','ID','level','chapterID as chID'],[['ID','=',ID]]);
 
            const cfs=await readCon("coursesfinalexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID]]);
            const css=await readCon("coursesstageexams",['title','startingDate','ending','examID','level'],[['courseID','=',ID]]);

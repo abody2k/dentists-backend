@@ -3714,7 +3714,7 @@ router.post("/uch", async (req, res) => {
                 try {
 
                     let fields = {};
-                    if (req.body.url != -9) {
+                    if (req.body.url) {
                         fields["link"] = req.body.url;
                     }
                     if ( req.body.ans != -9) {
@@ -3728,7 +3728,7 @@ router.post("/uch", async (req, res) => {
                         fields["level"] =  Number(req.body.level);
 
                     }
-                    if ( req.body.nchID != -9) {
+                    if ( req.body.nchID && req.body.chID!=req.body.chID) {
                         fields["chapterID"] = req.body.nchID;
                         // updateCon("results",['ID'],[req.body.nchID],[["type",'=',0]]);
 
