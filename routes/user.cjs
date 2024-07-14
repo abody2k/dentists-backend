@@ -1137,7 +1137,7 @@ router.post("/gcv",async(req,res)=>{
                     }else{
                         console.log('77789');
 
-                        videos=(await readCon("videos",["videoUrl",'videoTitle','level','order'],[['courseID','=',req.body.courseID]]));
+                        videos=(await readCon("videos",["videoUrl",'videoTitle','level','`order`'],[['courseID','=',req.body.courseID]]));
                         infos = await getAllCourseInfo(0,req.body.courseID);
 
                     }
