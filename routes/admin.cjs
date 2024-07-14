@@ -439,7 +439,9 @@ router.post("/nb", async (req, res) => {
                 console.log("Everything went well");
 
                 try {
-                    await newBlog(req.body.bd,req.files);
+                    
+                    res.sendStatus({i:(await newBlog(req.body.bd,req.files))});
+
                 } catch (error) {
                     console.log(error);
                     res.send({
@@ -447,8 +449,6 @@ router.post("/nb", async (req, res) => {
                     });
                     return;
                 }
-                console.log(data);
-                res.sendStatus(200);
 
 
 
