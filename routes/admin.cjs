@@ -2961,15 +2961,18 @@ async function newCourse(courseName, courseDuration, files,expDate,levels, cours
 
     let id ;
     
+    const mysql = require("mysql2")
+    
+     
     if(expDate){
-        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","expDate","levels"], [courseName, courseDuration, courseDetails,
+        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","expDate","levels"], [courseName, courseDuration,mysql.escape(courseDetails),
         
         `STR_TO_DATE("${(new Date(expDate)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`
         
 
         ,levels]));  
     }else{
-        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","levels"], [courseName, courseDuration, courseDetails,levels]));  
+        id= (await write("courses", ["courseName", "courseDuration", "courseDetails","levels"], [courseName, courseDuration, mysql.escape(courseDetails),levels]));  
     }
   
     upload(files, "courses", id.toString());
@@ -3039,14 +3042,17 @@ async function updateProduct(productID, productName, productPrice,genre,discount
 async function newfellowship(fellowshipName, fellowshipDuration, files,expDate,levels, fellowshipDetails = null) {
 
     let id;
+
+    const mysql = require("mysql2")
+    
     
     if(expDate){
 
-        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","expDate","levels"], [fellowshipName, fellowshipDuration, fellowshipDetails,
+        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","expDate","levels"], [fellowshipName, fellowshipDuration,mysql.escape(fellowshipDetails) ,
             `STR_TO_DATE("${(new Date(expDate)).toLocaleString('en-GB', { hour12: false }).replace(",",'')}","%d/%m/%Y %T")`
             ,levels]));
     }else{
-        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","levels"], [fellowshipName, fellowshipDuration, fellowshipDetails,levels]));
+        id= (await write("fellowships", ["fellowshipName", "fellowshipDuration", "fellowshipDetails","levels"], [fellowshipName, fellowshipDuration, mysql.escape(fellowshipDetails),levels]));
 
     }
 
