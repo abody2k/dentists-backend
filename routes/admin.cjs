@@ -3070,6 +3070,7 @@ async function updateFellowship(id, fellowshipName, fellowshipDuration, files,ex
         fields["fellowshipName"] = fellowshipName;
     }
     if (fellowshipDetails != -9) {
+        const mysql = require("mysql2")
         fields["fellowshipDetails"] =  mysql.escape(fellowshipDetails) ;
     }
 
