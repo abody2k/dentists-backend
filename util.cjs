@@ -401,12 +401,19 @@ function uploadFile(files,folder,fileName) {
                         console.log("going here");
                         console.log(files);
                         let file ;
-                        if(files.length){
-                          file= files[Object.keys(files)[0]];
 
-                        }else{
+try {
+  if(files[Object.keys(files)[0]]){
+    file= files[Object.keys(files)[0]];
+
+  }else{
 file = files;
-                        }
+  }
+} catch (error) {
+  file = files;
+
+  
+}
                         // console.log("reading filees");
                         // console.log(file);
                         
