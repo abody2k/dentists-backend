@@ -217,7 +217,7 @@ app.post("/api/bau",async (req,res)=>{
     user:"root",
     database:"dentists",
     password:"grabyOli0001",
-    port:3306,connectTimeout:90000,
+    port:3306,connectTimeout:900000,
 
     timezone:"+03:00",
 

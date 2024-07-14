@@ -4287,7 +4287,7 @@ router.post("/gcs", async (req, res) => {
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
-                        port:3306,connectTimeout:90000,
+                        port:3306,connectTimeout:900000,
 
                         timezone:"+03:00",
                     })         
@@ -4393,7 +4393,7 @@ router.post("/gfs", async (req, res) => {
                         user:"root",
                         database:"dentists",
                         password:"grabyOli0001",
-                        port:3306,connectTimeout:90000,
+                        port:3306,connectTimeout:900000,
 
                         timezone:"+03:00",
                     })                    
@@ -6025,7 +6025,7 @@ router.post("/gascex", async (req, res) => {
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
-                    port:3306,connectTimeout:90000,
+                    port:3306,connectTimeout:900000,
 
                     timezone:"+03:00"
                     
@@ -6110,7 +6110,7 @@ router.post("/gasfex", async (req, res) => {
                     user:"root",
                     database:"dentists",
                     password:"grabyOli0001",
-                    port:3306,connectTimeout:90000,
+                    port:3306,connectTimeout:900000,
 
                     timezone:"+03:00"
                     

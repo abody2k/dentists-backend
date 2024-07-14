@@ -13,7 +13,7 @@ async function read(table,fields) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
         
@@ -24,7 +24,7 @@ async function read(table,fields) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     */
@@ -45,7 +45,7 @@ async function readOrder(table,fields,conditions,orderer,limit=null) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     })
@@ -73,7 +73,7 @@ async function readConditionally(table,fields,conditions,limit=null) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     })
@@ -90,7 +90,7 @@ async function deleteConditionally(table,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     })
@@ -107,7 +107,7 @@ async function deleteConditionallyOR(table,conditions) {
       user:"root",
       database:"dentists",
       password:"grabyOli0001",
-      port:3306,connectTimeout:90000,
+      port:3306,connectTimeout:900000,
 
       timezone:"+03:00"
   })
@@ -131,7 +131,7 @@ async function updateConditionally(table,fields,values,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00",
 
@@ -167,7 +167,7 @@ async function updateConditionallyJSON(table,fields,values,conditions) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00",
 
@@ -201,7 +201,7 @@ async function write(table,keys,values) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     })
@@ -225,7 +225,7 @@ async function writeMany(table,keys,values) {
         user:"root",
         database:"dentists",
         password:"grabyOli0001",
-        port:3306,connectTimeout:90000,
+        port:3306,connectTimeout:900000,
 
         timezone:"+03:00"
     })
