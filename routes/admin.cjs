@@ -3070,7 +3070,7 @@ async function updateFellowship(id, fellowshipName, fellowshipDuration, files,ex
         fields["fellowshipName"] = fellowshipName;
     }
     if (fellowshipDetails != -9) {
-        fields["fellowshipDetails"] = fellowshipDetails;
+        fields["fellowshipDetails"] =  mysql.escape(fellowshipDetails) ;
     }
 
 
