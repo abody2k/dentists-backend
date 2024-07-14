@@ -319,6 +319,8 @@ function uploadFile(files,folder,fileName) {
                               Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
                               Body: file.data,
                               ACL: 'public-read', // Set the ACL permissions as needed
+                              CacheControl:"max-age=300"
+
                             };
                           console.log( folder+"/"+fileName.toString()+"/"+i.toString() );
                             // Upload the file to S3
@@ -349,6 +351,7 @@ function uploadFile(files,folder,fileName) {
                         Body: file.data,
                         ACL: 'public-read', // Set the ACL permissions as needed,
                         ContentDisposition: `inline; filename="${fileName.toString()+".pdf" }"`,
+                        CacheControl:"max-age=300"
 
                       };
                     
@@ -375,6 +378,8 @@ function uploadFile(files,folder,fileName) {
                         Key: "pfps/"+fileName.toString() ,
                         Body: file.data,
                         ACL: 'public-read', // Set the ACL permissions as needed,
+                        CacheControl:"max-age=300"
+
 
                       };
                     
@@ -411,6 +416,8 @@ file = files;
                           Key: folder+"/"+fileName.toString()+"/0" ,
                           Body: file.data,
                           ACL: 'public-read', // Set the ACL permissions as needed
+                          CacheControl:"max-age=300"
+
                         };
                       console.log(params);
                         // Upload the file to S3
@@ -442,6 +449,8 @@ file = files;
                               Key: folder+"/"+fileName.toString()+"/"+i.toString() ,
                               Body: file.data,
                               ACL: 'public-read', // Set the ACL permissions as needed
+                              CacheControl:"max-age=300"
+
                             };
                           console.log( folder+"/"+fileName.toString()+"/"+i.toString() );
                             // Upload the file to S3
@@ -498,6 +507,8 @@ file = files;
                         Key: "pfps/"+fileName.toString() ,
                         Body: file.data,
                         ACL: 'public-read', // Set the ACL permissions as needed,
+                        CacheControl:"max-age=300"
+
 
                       };
                     
@@ -526,6 +537,8 @@ file = files;
                           Key: folder+"/"+fileName.toString()+"/0" ,
                           Body: file.data,
                           ACL: 'public-read', // Set the ACL permissions as needed
+                          CacheControl:"max-age=300"
+
                         };
                       
                         // Upload the file to S3
