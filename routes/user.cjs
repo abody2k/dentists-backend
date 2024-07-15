@@ -41,7 +41,7 @@ switch (req.body.examType) {
 
 // ['ending','>','(now())'],['now()','>','startingDate']
 
-    const result =await readCon(table,null,[['examID','=',req.body.examID]]);
+    const result =await readCon(table,['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
     console.log("debug 3");
     console.log(result);
 
@@ -188,7 +188,7 @@ switch (req.body.examType) {
 
 }
 
-const result =await readCon(table,null,[['examID','=',req.body.examID]]);
+const result =await readCon(table,['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
 console.log("debug 3");
 
         
