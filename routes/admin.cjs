@@ -6364,15 +6364,15 @@ router.post("/gspx", async (req, res) => {
 
                         switch (req.body.examType) {
                             case 1:
-                            exam= await readCon("coursesperodicexams",null,[['examID','=',req.body.examID]]);
+                            exam= await readCon("coursesperodicexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
    
                             break;
                             case 2:
-                            exam= await readCon("coursesstageexams",null,[['examID','=',req.body.examID]]);
+                            exam= await readCon("coursesstageexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
                           
                             break;
                             case 3:
-                            exam= await readCon("coursesfinalexams",null,[['examID','=',req.body.examID]]);    
+                            exam= await readCon("coursesfinalexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);    
                             break;
                             default:
                                 break;
@@ -6380,15 +6380,15 @@ router.post("/gspx", async (req, res) => {
                     }else{
                         switch (req.body.examType) {
                             case 1:
-                            exam= await readCon("fellowshipsperodicexams",null,[['examID','=',req.body.examID]]);
+                            exam= await readCon("fellowshipsperodicexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
                 
                             break;
                             case 2:
-                            exam= await readCon("fellowshipsstageexams",null,[['examID','=',req.body.examID]]);
+                            exam= await readCon("fellowshipsstageexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
                                 
                             break;
                             case 3:
-                            exam= await readCon("fellowshipsfinalexams",null,[['examID','=',req.body.examID]]);   
+                            exam= await readCon("fellowshipsfinalexams",['examID','CAST(ending AS CHAR)','questions','answers','CAST(startingDate AS CHAR)','visible','title','groupID','fellowshipsID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);   
                             break;
                             default:
                                 break;
