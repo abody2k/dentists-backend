@@ -192,7 +192,7 @@ const result =await readCon(table,['examID','CAST(`ending` AS CHAR) as ending','
 console.log("debug 3");
 
         
-                    if((result).length>0){
+                    if((result).length>0){ 
 
 
                         console.log("debug 4");
