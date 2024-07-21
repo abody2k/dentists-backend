@@ -4280,7 +4280,7 @@ router.post("/gcs", async (req, res) => {
     console.log("SOMETHING WENT REALLY WRONG");
 
 
-    if (req.body.cid) {
+    if (req.body.cid&&req.body.l) {
         console.log("SOMETHING WENT REALLY WRONG");
 
             auth(req.cookies, res, async (ff) => {
@@ -4300,7 +4300,7 @@ router.post("/gcs", async (req, res) => {
                     })         
                     console.log("SOMETHING WENT REALLY WRONG");
            
-                    const data= (await conn.query(`select login.username,login.email,login.userID,coursessubscription.userID,coursessubscription.subscriptionID,coursessubscription.joinedDate,coursessubscription.expDate,coursessubscription.groupID,coursessubscription.totalFee,coursessubscription.remainingFee,coursessubscription.status from login, coursessubscription where courseID=${req.body.cid} and login.userID = coursessubscription.userID;`))[0];
+                    const data= (await conn.query(`select login.username,login.email,login.userID,coursessubscription.userID,coursessubscription.subscriptionID,coursessubscription.level,coursessubscription.joinedDate,coursessubscription.expDate,coursessubscription.groupID,coursessubscription.totalFee,coursessubscription.remainingFee,coursessubscription.status from login, coursessubscription where courseID=${req.body.cid} and coursessubscription.level =${req.body.l} and login.userID = coursessubscription.userID;`))[0];
                     await conn.end();
                     console.log(data);
 
@@ -4387,7 +4387,7 @@ router.post("/gfs", async (req, res) => {
 
 
 
-    if (req.body.fid) {
+    if (req.body.fid&&req.body.l) {
 
             auth(req.cookies, res, async (data) => {
 
@@ -4404,7 +4404,7 @@ router.post("/gfs", async (req, res) => {
 
                         timezone:"+03:00",
                     })                    
-                    const data= (await conn.query(`select login.username,login.email,login.userID,fellowshipssubscription.userID,fellowshipssubscription.subscriptionID,fellowshipssubscription.joinedDate,fellowshipssubscription.expDate,fellowshipssubscription.totalFee,fellowshipssubscription.remainingFee,fellowshipssubscription.groupID,fellowshipssubscription.status from login, fellowshipssubscription where fellowshipID=${req.body.fid} and login.userID = fellowshipssubscription.userID;`))[0];
+                    const data= (await conn.query(`select login.username,login.email,login.userID,fellowshipssubscription.userID,fellowshipssubscription.subscriptionID,fellowshipssubscription.level,fellowshipssubscription.joinedDate,fellowshipssubscription.expDate,fellowshipssubscription.totalFee,fellowshipssubscription.remainingFee,fellowshipssubscription.groupID,fellowshipssubscription.status from login, fellowshipssubscription where fellowshipID=${req.body.fid} and fellowshipssubscription.level=${req.body.l} and login.userID = fellowshipssubscription.userID;`))[0];
                     await conn.end();
 
 
