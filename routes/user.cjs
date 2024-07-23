@@ -616,7 +616,7 @@ router.post("/sfexa",(req,res)=>{
                     ]);
 
                     await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
-                    ,req.body.i,2,1]);
+                    ,req.body.i,0,1]);
 
 
         
