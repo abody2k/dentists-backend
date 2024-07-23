@@ -6421,6 +6421,10 @@ router.post("/gspx", async (req, res) => {
                         }
                     }else{
                         switch (req.body.examType) {
+                            case 0:
+                            exam= await readCon("fellowshipschapterexams",['examID','questions','answers','visible','title','groupID','fellowshipID','level','passing'],[['examID','=',req.body.examID]]);
+                
+                            break;
                             case 1:
                             exam= await readCon("fellowshipsperodicexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
                 
