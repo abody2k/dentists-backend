@@ -232,7 +232,7 @@ console.log("debug 3");
 
 
                 
-                let aresult =await readCon("allresults",['userID as i','mark'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
+                let aresult =await readCon("allresults",['userID as i','grade'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
                 if(aresult.length>0){
                     res.send({
                         title:result[0].title,
