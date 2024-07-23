@@ -590,7 +590,18 @@ router.post("/sfexa",(req,res)=>{
                 if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',req.body.ID],['status','=',0]])).length>0){
 
                     try {
+                        console.log([
+                    
+                            JSON.stringify(
+    
+                               req.body.ans
+                                
+                        ),"now()",result[0].examID,data.id,(
+                                ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+    
+                            ),req.body.ID
                         
+                        ]);
                     await write("fellowshipschapterresults",['answer','submissionDate','examID','userID','mark','fellowshipID'],[
                     
                         JSON.stringify(
