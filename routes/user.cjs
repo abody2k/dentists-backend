@@ -680,7 +680,7 @@ router.post("/sfexa",(req,res)=>{
     console.log(data);
         if(req.body.ID&&req.body.ans&&req.body.i){
 
-            const result =await readCon((req.body.t!=0?"fellowshipsstageexams":"coursesstageexams"),null,[['examID','=',req.body.i]]);
+            const result =await readCon("fellowshipschapterexam",null,[['examID','=',req.body.i]]);
             
             if(req.body.ans.length==result[0].answers.length){
 
