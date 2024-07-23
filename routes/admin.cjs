@@ -39,12 +39,15 @@ router.post("/gfxms", async (req, res) => {
                 const fellowshipsstageexams= await readCon("fellowshipsstageexams",null,[['fellowshipID','=',req.body.id]]);
                 const fellowshipsfinalexams= await readCon("fellowshipsfinalexams",null,[['fellowshipID','=',req.body.id]]);
                 const fellowshipsperodicexams= await readCon("fellowshipsperodicexams",null,[['fellowshipID','=',req.body.id]]);
+                const fellowshipschapterexams= await readCon("fellowshipschapterexams",null,[['fellowshipID','=',req.body.id]]);
+
                 res.send({d:{
                     
                     
                     fellowshipsfinalexams:fellowshipsfinalexams,
                     fellowshipsstageexams:fellowshipsstageexams,
                     fellowshipsperodicexams:fellowshipsperodicexams,
+                    fellowshipschapterexams:fellowshipschapterexams,
                     l:(await readCon("fellowships",['levels'],[['fellowshipID','=',req.body.id]]))[0].levels
 
                 }})
@@ -3988,8 +3991,19 @@ router.post("/nfxm", async (req, res) => {
 
 
 
-    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.ending&&req.body.title&&req.body.startingDate&&req.body.ID&&req.body.v!=null&&req.body.type!=null&&req.body.groupID) {
+    if (req.body.t>=0 &&req.body.ans&& req.body.q&&req.body.title&&req.body.ID&&req.body.v!=null&&req.body.type!=null&&req.body.groupID) {
 console.log(req.body);
+
+if(req.body.type!=0){
+
+    if(!req.body.ending|| !req.body.startingDate){
+
+res.sendStatus(403);
+        return;
+    }
+}
+
+
             auth(req.cookies, res, async (data) => {
 
                 let id;
@@ -4098,6 +4112,20 @@ console.log(req.body);
 
                         
                         switch (req.body.type) {
+
+
+                            case 0 :
+
+                            if(req.body.note){
+
+                                id= await write("fellowshipschapterexams",["answers","questions",'title','visible',"fellowshipID",'groupID','note','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.note,req.body.level]);
+                            }else{
+                                id=  await write("fellowshipschapterexams",["answers","questions",'title','visible',"fellowshipID",'groupID','level'],[JSON.stringify(req.body.ans),JSON.stringify(req.body.q),req.body.title,req.body.v,req.body.ID,req.body.groupID,req.body.level]);
+
+                            }
+
+
+                            break;
                             case 1:
 
                             if(req.body.note){
@@ -4712,7 +4740,17 @@ router.post("/ufxm", async (req, res) => {
 
 console.log(req.body);
 
-    if (req.body.t!=null &&req.body.ans&& req.body.q&&req.body.duration&&req.body.ID&&req.body.sd&&req.body.title&&req.body.visible>=-9&&typeof(req.body.passing)=='number'&&req.body.groupID&&req.body.type!=null) {
+    if (req.body.t!=null &&req.body.ans&& req.body.q&&req.body.ID&&req.body.title&&req.body.visible>=-9&&typeof(req.body.passing)=='number'&&req.body.groupID&&req.body.type!=null) {
+
+
+        if(req.body.type!=0){
+
+            if(!req.body.duration || !req.body.sd){
+        
+        res.sendStatus(403);
+                return;
+            }
+        }
 
             auth(req.cookies, res, async (data) => {
 
@@ -4758,6 +4796,10 @@ console.log(req.body);
 
 
                                 switch (req.body.type) {
+                                    case 0:
+                                        await updateJSON("fellowshipschapterexams", Object.keys(fields), Object.values(fields), [
+                                            ["examID", '=', req.body.ID]
+                                        ]);
                                     case 1:
                                         await updateJSON("fellowshipsperodicexams", Object.keys(fields), Object.values(fields), [
                                             ["examID", '=', req.body.ID]
@@ -5669,7 +5711,7 @@ router.post("/dsexms", async (req, res) => {
                 try {
 
 
-                    await deleteCon("finalexams",[["examID",'in',`(${req.body.xms.join(",")})`]]);
+                    // await deleteCon("finalexams",[["examID",'in',`(${req.body.xms.join(",")})`]]);
                     res.sendStatus(200);
 
 

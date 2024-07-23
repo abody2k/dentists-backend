@@ -1829,9 +1829,13 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
             const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
             const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
             const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+            const fcs=await readCon("fellowshipschapterexams",['title','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
  
             return {
-                ffs:ffs,fss:fss,fps:fps,
+                ffs:ffs,
+                fss:fss,
+                fps:fps,
+                fcs:fcs,
                 ch:chapters
             };
 
@@ -1858,9 +1862,11 @@ async function getAllCourseInfo(type,ID,banningDate=null) {
             const ffs=await readCon("fellowshipsfinalexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
             const fss=await readCon("fellowshipsstageexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
             const fps=await readCon("fellowshipsperodicexams",['title','startingDate','ending','examID','level'],[['fellowshipID','=',ID]]);
- 
+            const fcs=await readCon("fellowshipschapterexams",['title','examID','level'],[['fellowshipID','=',ID],['dateAdded','<',banningDate]]);
+
             return {
-                ffs:ffs,fss:fss,fps:fps,ch:chapters
+                ffs:ffs,fss:fss,fps:fps,ch:chapters,
+                fcs:fcs
             };
 
         }else{
