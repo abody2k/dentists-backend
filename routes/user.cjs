@@ -232,7 +232,7 @@ console.log("debug 3");
 
 
                 
-                let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
+                let aresult =await readCon("allresults",['userID as i',',mark'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
                 if(aresult.length>0){
                     res.send({
                         title:result[0].title,
@@ -242,6 +242,7 @@ console.log("debug 3");
                         n:result[0].note,
                         qu:result[0].questions,
                         ans:result[0].answers,
+                        m:aresult[0].mark,
                         uans:(await readCon(table.replace("exams",'results'),['answer'],[['userID','=',data.id],['examID','=',req.body.examID]]))
 
 
@@ -255,7 +256,8 @@ console.log("debug 3");
                         sd:result[0].startingDate,
                         en:result[0].ending,
                         l:result[0].level,
-                        n:result[0].note
+                        n:result[0].note,
+                        m:aresult[0].mark
                     })
                 }
 
