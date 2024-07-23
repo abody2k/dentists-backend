@@ -4757,7 +4757,7 @@ console.log(req.body);
                 try {
 
                     let fields = {};
-                    if (req.body.duration != -9) {
+                    if (req.body.duration != -9 && req.body.type!=0) {
                         fields["ending"] = `STR_TO_DATE("${(new Date(req.body.duration)).toLocaleString("en-US",{ timeZone: 'Asia/Baghdad',hour12: false }).replace(",","")}", "%m/%d/%Y %H:%i:%s")`;                    }
                     if ( req.body.ans != -9) {
                         fields["answers"] =  JSON.stringify(req.body.ans);
@@ -4766,7 +4766,7 @@ console.log(req.body);
                         fields["questions"] =  JSON.stringify(req.body.q);
 
                     }
-                    if ( req.body.sd != -9) {
+                    if ( req.body.sd != -9  && req.body.type!=0) {
                         fields["startingDate"] =`STR_TO_DATE("${(new Date(req.body.sd)).toLocaleString("en-US",{ timeZone: 'Asia/Baghdad',hour12: false }).replace(",","")}", "%m/%d/%Y %H:%i:%s")`;
 
                     }
