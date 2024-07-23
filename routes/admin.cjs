@@ -6406,15 +6406,15 @@ router.post("/gspx", async (req, res) => {
 
                         switch (req.body.examType) {
                             case 1:
-                            exam= await readCon("coursesperodicexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+                            exam= await readCon("coursesperodicexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);
    
                             break;
                             case 2:
-                            exam= await readCon("coursesstageexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+                            exam= await readCon("coursesstageexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);
                           
                             break;
                             case 3:
-                            exam= await readCon("coursesfinalexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);    
+                            exam= await readCon("coursesfinalexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','courseID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);    
                             break;
                             default:
                                 break;
@@ -6422,19 +6422,19 @@ router.post("/gspx", async (req, res) => {
                     }else{
                         switch (req.body.examType) {
                             case 0:
-                            exam= await readCon("fellowshipschapterexams",['examID','questions','answers','visible','title','groupID','fellowshipID','level','passing'],[['examID','=',req.body.examID]]);
+                            exam= await readCon("fellowshipschapterexams",['examID','questions','answers','visible','title','groupID','fellowshipID','level','passing','note'],[['examID','=',req.body.examID]]);
                 
                             break;
                             case 1:
-                            exam= await readCon("fellowshipsperodicexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+                            exam= await readCon("fellowshipsperodicexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);
                 
                             break;
                             case 2:
-                            exam= await readCon("fellowshipsstageexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+                            exam= await readCon("fellowshipsstageexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);
                                 
                             break;
                             case 3:
-                            exam= await readCon("fellowshipsfinalexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipsID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);   
+                            exam= await readCon("fellowshipsfinalexams",['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipsID','dateAdded','level','passing','note'],[['examID','=',req.body.examID]]);   
                             break;
                             default:
                                 break;
