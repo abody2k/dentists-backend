@@ -177,6 +177,9 @@ router.post("/gexqf",(req,res)=>{
 let table="";
 switch (req.body.examType) {
     case 1:
+    table="fellowshipschapterexams";    
+        break;
+    case 1:
     table="fellowshipsperodicexams";    
         break;
     case 2:
@@ -188,7 +191,15 @@ switch (req.body.examType) {
 
 }
 
-const result =await readCon(table,['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+let result;
+if(req.body.examType==0){
+
+    result=await readCon(table,['examID','questions','answers','visible','title','groupID','fellowshipID','level','passing'],[['examID','=',req.body.examID]]);
+
+}else{
+    result=await readCon(table,['examID','CAST(`ending` AS CHAR) as ending','questions','answers','CAST(`startingDate` AS CHAR) as startingDate','visible','title','groupID','fellowshipID','dateAdded','level','passing'],[['examID','=',req.body.examID]]);
+
+}
 console.log("debug 3");
 
         
