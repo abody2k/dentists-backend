@@ -442,116 +442,6 @@ router.post("/gcq",(req,res)=>{
     });
 
 
-//submit chapter answers
-router.post("/sca",(req,res)=>{
-
-    auth(req.cookies,res,async function(data){
-    console.log(data);
-        if(req.body.t >=0 && req.body.chID&&req.body.ans){
-
-            const result =await readCon("chapter",null,[['chapterID','=',req.body.chID]]);
-            
-            if(req.body.ans.length==result[0].answers.length){
-
-
-            }else{
-
-                res.sendStatus(403);
-                return;
-            }
-
-            if((result).length>0){
-
-
-            if(req.body.t==0){
-                console.log("here");
-                if((await readCon("coursessubscription",null,[['userID','=',data.id],['courseID','=',result[0].ID],['status','=',0]])).length>0){
-
-
-                 try {
-                    await write("courseschapterresults",['answer','submissionDate','chapterID','userID','mark'],[
-                    
-                        JSON.stringify(
-
-                          req.body.ans
-                                                ),"now()",result[0].chapterID,data.id,(
-                                                    ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
-                                                )
-                    
-                    ]);
-                 } catch (error) {
-                    
-
-                    res.sendStatus(403);
-                    return;
-                 }
-
-                    res.send({
-                        d:result[0].answers.map((e,i)=>(req.body.ans[i]==e ? true : e))
-                    })
-                    return;
-                }else{
-
-                    res.sendStatus(403);
-                    return;
-                }
-            }else{
-                console.log("here 2");
-
-                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',result[0].ID],['status','=',0]])).length>0){
-
-                    try {
-                        
-                    await write("fellowshipschapterresults",['answer','submissionDate','ID','userID','mark'],[
-                    
-                        JSON.stringify(
-
-                           req.body.ans
-                            
-                    ),"now()",result[0].ID,data.id,(
-                            ((result[0].answers.filter((e,i)=>(req.body.ans[i]==e))).length/result[0].answers.length) * 100
-
-                        )
-                    
-                    ]);
-                    } catch (error) {
-
-                        res.sendStatus(403);
-                     return;   
-                    }
-
-                    res.send({
-                        d:result[0].answers.map((e,i)=>(req.body.ans[i]==e))
-                    })
-                    return;
-                }else{
-
-                    
-                res.sendStatus(403);
-                return;
-                }
-
-            }
-
-
-            }else{
-
-                res.sendStatus(403);
-                return;
-            }
-            
-        }else{
-            res.sendStatus(403);
-            return;
-
-        }
-
-        
-    },function(){},1)
-    
-    
-    
-    });
 
 
 
@@ -625,7 +515,7 @@ router.post("/spa",(req,res)=>{
 
                            req.body.ans
                             
-                    ),"now()",result[0].ID,data.id,(
+                    ),"now()",result[0].examID,data.id,(
                             ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
                         ), req.body.ID
@@ -707,7 +597,7 @@ router.post("/sfexa",(req,res)=>{
 
                            req.body.ans
                             
-                    ),"now()",result[0].ID,data.id,(
+                    ),"now()",result[0].examID,data.id,(
                             ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
                         ),req.body.ID
@@ -859,7 +749,7 @@ router.post("/ssa",(req,res)=>{
 
                            req.body.ans
                             
-                    ),"now()",result[0].ID,data.id,(
+                    ),"now()",result[0].examID,data.id,(
                             ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
 
                         ),req.body.ID
