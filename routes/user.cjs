@@ -227,6 +227,43 @@ console.log("debug 3");
 
             console.log('arried');
 
+
+            if(req.body.examType==0){
+
+
+                
+                let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
+                if(aresult.length>0){
+                    res.send({
+                        na:names,
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note,
+                        qu:result[0].questions,
+                        ans:result[0].answers,
+                        uans:(await readCon(table.replace("exams",'results'),['answer'],[['userID','=',data.id],['examID','=',req.body.examID]]))
+
+
+                    })
+                }else{
+                    res.send({
+                        q:result[0].questions.map((s)=>{
+                            delete s['n'];
+                            return s;}),
+                        title:result[0].title,
+                        sd:result[0].startingDate,
+                        en:result[0].ending,
+                        l:result[0].level,
+                        n:result[0].note
+                    })
+                }
+
+
+
+                return;
+            }
             const dif= Math.ceil(((new Date()) - (new Date(result[0].ending)))/(1000*60*60*24));
             
 
@@ -634,6 +671,93 @@ router.post("/spa",(req,res)=>{
     
     
     });
+
+
+    //submit fellowship chapter exam answers
+router.post("/sfexa",(req,res)=>{
+
+    auth(req.cookies,res,async function(data){
+    console.log(data);
+        if(req.body.ID&&req.body.ans&&req.body.i){
+
+            const result =await readCon((req.body.t!=0?"fellowshipsstageexams":"coursesstageexams"),null,[['examID','=',req.body.i]]);
+            
+            if(req.body.ans.length==result[0].answers.length){
+
+
+            }else{
+
+                res.sendStatus(403);
+                return;
+            }
+
+            if((result).length>0){
+
+
+            
+                console.log("here 2");
+
+                if((await readCon("fellowshipssubscription",null,[['userID','=',data.id],['fellowshipID','=',req.body.ID],['status','=',0]])).length>0){
+
+                    try {
+                        
+                    await write("fellowshipschapterresults",['answer','submissionDate','examID','userID','mark','fellowshipID'],[
+                    
+                        JSON.stringify(
+
+                           req.body.ans
+                            
+                    ),"now()",result[0].ID,data.id,(
+                            ((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+
+                        ),req.body.ID
+                    
+                    ]);
+
+                    await write("allresults",["ID",'userID','grade','examID','examType','atype'],[req.body.ID,data.id,((result[0].answers.map((e)=>e.map((d)=>d[0])).filter((e,i)=>(req.body.ans[i].toString()==e.toString()))).length/result[0].answers.length) * 100
+                    ,req.body.i,2,1]);
+
+
+        
+                    } catch (error) {
+
+                        res.sendStatus(403);
+                     return;   
+                    }
+
+                    res.send({
+                        d:result[0].answers.map((e,i)=>(req.body.ans[i]==e))
+                    })
+                    return;
+                }else{
+
+                    
+                res.sendStatus(403);
+                return;
+                }
+
+            
+
+
+            }else{
+
+                res.sendStatus(403);
+                return;
+            }
+            
+        }else{
+            res.sendStatus(403);
+            return;
+
+        }
+
+        
+    },function(){},1)
+    
+    
+    
+    });
+
 
 //submit stage exam answers
 router.post("/ssa",(req,res)=>{
