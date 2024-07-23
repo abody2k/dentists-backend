@@ -176,7 +176,7 @@ router.post("/gexqf",(req,res)=>{
             console.log("debug 2");
 let table="";
 switch (req.body.examType) {
-    case 1:
+    case 0:
     table="fellowshipschapterexams";    
         break;
     case 1:
