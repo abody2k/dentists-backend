@@ -235,7 +235,6 @@ console.log("debug 3");
                 let aresult =await readCon("allresults",['userID as i'],[['examID','=',req.body.examID],['atype','=',1],['ID','=',req.body.fellowshipID],['examType','=',req.body.examType],['userID','=',data.id]]);
                 if(aresult.length>0){
                     res.send({
-                        na:names,
                         title:result[0].title,
                         sd:result[0].startingDate,
                         en:result[0].ending,
