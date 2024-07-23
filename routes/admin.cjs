@@ -6395,7 +6395,7 @@ router.post("/gexolf", async (req, res) => {
 router.post("/gspx", async (req, res) => {
 
 
-    if ( (req.body.fellowshipID || req.body.courseID) && typeof(req.body.examID)=='number'&&req.body.examType) {
+    if ( (req.body.fellowshipID || req.body.courseID) && typeof(req.body.examID)=='number'&&req.body.examType>=0) {
 
             auth(req.cookies, res, async (data) => {
 
