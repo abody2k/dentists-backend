@@ -242,7 +242,7 @@ console.log("debug 3");
                         n:result[0].note,
                         qu:result[0].questions,
                         ans:result[0].answers,
-                        m:aresult[0].mark,
+                        m:aresult[0].grade,
                         uans:(await readCon(table.replace("exams",'results'),['answer'],[['userID','=',data.id],['examID','=',req.body.examID]]))
 
 
