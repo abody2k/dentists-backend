@@ -20,7 +20,7 @@ const router = require("express").Router();
 router.post("/gexqc",(req,res)=>{
 
     console.log(req.body);
-        if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.courseID)=="number"){
+        if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.courseID)=="number"&&typeof(req.body.level)=="number"){
             console.log("debug 1");
             auth(req.cookies,res,async function(data){
                 console.log("debug 2");
@@ -51,7 +51,7 @@ switch (req.body.examType) {
 
                             let pass=false;
 
-                                if((await(readCon("coursessubscription",null,[['courseID','=',req.body.courseID],['groupID','=',result[0].groupID]]))).length>0){
+                                if((await(readCon("coursessubscription",null,[['courseID','=',req.body.courseID],['groupID','=',result[0].groupID],['level','=',req.body.level]]))).length>0){
 pass=true;
                                 }
 
@@ -170,7 +170,7 @@ pass=true;
 //get exam questions for fellowships
 router.post("/gexqf",(req,res)=>{
 
-    if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.fellowshipID)=="number"){
+    if(typeof(req.body.examID)=="number"&&typeof(req.body.examType)=="number"&&typeof(req.body.fellowshipID)=="number"&&typeof(req.body.level)=="number"){
         console.log("debug 1");
         auth(req.cookies,res,async function(data){
             console.log("debug 2");
@@ -211,7 +211,7 @@ console.log("debug 3");
                         let pass=false;
  
  
-                if((await(readCon("fellowshipssubscription",null,[['fellowshipID','=',req.body.fellowshipID],['groupID','=',result[0].groupID]]))).length>0){
+                if((await(readCon("fellowshipssubscription",null,[['fellowshipID','=',req.body.fellowshipID],['groupID','=',result[0].groupID],['level','=',req.body.level]]))).length>0){
                   pass=true;
 
               }
