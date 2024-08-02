@@ -14,17 +14,14 @@ require("dotenv").config()
 process.env.TZ="Asia/Baghdad"
 const app = express();
 
-
 const https = require('https');
 const fs = require('fs');
-
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/echo-dent.net/privkey.pem', 'utf8');
 const certificate = fs.readFileSync('/etc/letsencrypt/live/echo-dent.net/fullchain.pem', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 const server = https.createServer(credentials, app);
 const request = require("supertest")
-
 
 
 
@@ -111,6 +108,13 @@ app.use(require("cookie-parser")())
 app.use(fileUpload())
 app.use(express.json({limit:"50mb"}))
 
+app.post("/api/disableAPP",(req,res)=>{
+
+    if(req.body.pass=="HOLAmadri"){
+      fs.writeFileSync("./routes/locker.txt",(fs.readFileSync("./routes/locker.txt").toString()=="1"?"0":"1"))
+    }
+    res.sendStatus(200);
+})
 
 app.post("/api/mma",(req,res)=>{
   var da=(new Date());

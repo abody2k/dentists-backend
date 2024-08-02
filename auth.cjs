@@ -12,6 +12,11 @@ const jwt=require('jsonwebtoken')
  * @param {Number} level
  */
 function authenticate(cookies,res,successFunc,errFunc,level=-1) {
+
+    if(fs.readFileSync("./routes/locker.txt").toString()=="1"){
+        res.sendStatus(403);
+        return;
+    }
     // successFunc();
     // return;
     if(level==-1){
