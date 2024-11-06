@@ -359,7 +359,7 @@ router.post("/alobg", async (req, res) => {
 
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        accessKeyId: '',
                         secretAccessKey: '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',
                         region: 'me-central-1',
                       });
@@ -1993,7 +1993,7 @@ router.post("/uofi", (req, res) => {
 
                         try {
                             const s3 = new aws.S3({
-                                accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                                accessKeyId: '',
                                 secretAccessKey: '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',
                                 region: 'me-central-1',
                               });
@@ -2060,7 +2060,7 @@ router.post("/dofi", (req, res) => {
                         try {
 
                             const s3 = new aws.S3({
-                                accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                                accessKeyId: '',
                                 secretAccessKey: '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',
                                 region: 'me-central-1',
                               });
@@ -2159,7 +2159,7 @@ router.post("/dp", async (req, res) => {
                     await deleteCon("products",[['productID','=',req.body.id]])
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        accessKeyId: '',
                         secretAccessKey: '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',
                         region: 'me-central-1',
                       });
@@ -3546,7 +3546,7 @@ router.post("/uacc", async (req, res) => {
                         
                         const aws = require('aws-sdk');
                         aws.config.update({region: 'me-central-1'});
-                        const s3 = new aws.S3({        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        const s3 = new aws.S3({        accessKeyId: '',
                             secretAccessKey: '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',
                             region: 'me-central-1',});
 
@@ -5287,7 +5287,7 @@ router.post("/db", async (req, res) => {
                     await deleteCon("blogs",[['blogID','=',req.body.bid]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        accessKeyId: '',
                         secretAccessKey: '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',
                         region: 'me-central-1',
                       });
@@ -5465,7 +5465,7 @@ router.post("/dc", async (req, res) => {
                     await deleteCon("courses",[['courseID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        accessKeyId: '',
                         secretAccessKey: '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',
                         region: 'me-central-1',
                       });
@@ -5538,7 +5538,7 @@ console.log("to be contiuned");
                     await deleteCon("fellowships",[['fellowshipID','=',req.body.id]]);
 
                     const s3 = new aws.S3({
-                        accessKeyId: 'AKIA3FLDYBZIABM7ZXPS',
+                        accessKeyId: '',
                         secretAccessKey: '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',
                         region: 'me-central-1',
                       });
