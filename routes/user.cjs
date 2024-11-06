@@ -1151,7 +1151,7 @@ router.post("/gcv",async(req,res)=>{
                             host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"",
                             port:3306,connectTimeout:900000,
 
                             timezone:"+03:00"
@@ -1266,7 +1266,7 @@ router.post("/gfv",async(req,res)=>{
                             host:"dentists.ct0im0y0ome2.me-central-1.rds.amazonaws.com",
                             user:"root",
                             database:"dentists",
-                            password:"grabyOli0001",
+                            password:"",
                             port:3306,connectTimeout:900000,
 
                             timezone:"+03:00"
