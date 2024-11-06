@@ -3422,14 +3422,14 @@ if(req.files){
                         secure: true,
                         auth: {
                           // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                          user: "dentists-iq@mail.ru",
+                          user: "",
                           pass: "S4x0cMyN7N8f0H21vKBf",
                         },
                       });
                     
                     
                     await transporter.sendMail({
-                      from:"dentists-iq@mail.ru",
+                      from:"",
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
@@ -3496,14 +3496,14 @@ router.post("/uacc", async (req, res) => {
                         secure: true,
                         auth: {
                           // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                          user: "dentists-iq@mail.ru",
+                          user: ,
                           pass: "S4x0cMyN7N8f0H21vKBf",
                         },
                       });
                     
                     
                     await transporter.sendMail({
-                      from:"dentists-iq@mail.ru",
+                      from:,
                       to: req.body.email, // list of receivers
                       subject: "contacting us", // Subject line
                       text: `Hello ${req.body.username}, welcome to echo-dent! this is your password, please don't share it with anyone!`, // plain text body
@@ -6715,7 +6715,7 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
                       secure: true,
                       auth: {
                         // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                        user: "dentists-iq@mail.ru",
+                        user: ,
                         pass: "S4x0cMyN7N8f0H21vKBf",
                       },
                     });
@@ -6724,7 +6724,7 @@ async function payTuition(subscriptionID,  payment, acourse,ID,userID, newDate,g
         
         try {
             await transporter.sendMail({
-                from:"dentists-iq@mail.ru",
+                from:,
                 to: user[0].email+"@gmail.com", // list of receivers
                 subject: "contacting us", // Subject line
                 text: `This email is for confirmation that you paid ${payment} for ${acourse ?"course":"fellowship"}`, // plain text body
